@@ -1,0 +1,271 @@
+﻿question_id,database_id,difficulty,variant,execution_correct,multiset_match,prediction_status,seconds,total_tokens,sql
+14,california_schools,simple,generation_only,True,True,success,46.66841209985432,50449,"SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.""Enrollment (Ages 5-17)"" DESC LIMIT 5"
+38,california_schools,simple,generation_only,True,True,success,49.73350004199892,51042,SELECT DISTINCT T1.Website FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Los Angeles' AND T2.NumTstTakr BETWEEN 2000 AND 3000 AND T1.Website IS NOT NULL
+53,california_schools,simple,generation_only,False,False,success,58.61804950781516,50055,SELECT SUM(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'
+70,california_schools,simple,generation_only,True,True,success,71.9604545631737,51801,"SELECT COUNT(*) FROM schools WHERE County = 'Alpine' AND SOCType = 'District Community Day Schools' AND StatusType IN ('Active', 'Closed')"
+12,california_schools,moderate,generation_only,True,True,success,90.80014413542813,58807,"SELECT MAX(CAST(T3.""Free Meal Count (Ages 5-17)"" AS REAL) / T3.""Enrollment (Ages 5-17)"") FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode INNER JOIN frpm AS T3 ON T2.CDSCode = T3.CDSCode WHERE CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr > 0.3"
+34,california_schools,moderate,generation_only,True,True,success,67.57082725968212,51760,"SELECT CAST(T2.""Free Meal Count (Ages 5-17)"" AS REAL) / T2.""Enrollment (Ages 5-17)"" FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'"
+77,california_schools,moderate,generation_only,False,False,success,82.68616695771925,58582,"SELECT
+  T1.School,
+  T2.""Percent (%) Eligible FRPM (Ages 5-17)""
+FROM schools AS T1
+JOIN frpm AS T2
+  ON T1.CDSCode = T2.CDSCode
+WHERE
+  T1.County = 'Los Angeles'
+  AND T1.GSserved = 'K-9'"
+36,california_schools,challenging,generation_only,False,False,success,112.59790838652407,60202,"SELECT T1.AdmFName1, T1.AdmLName1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.NumGE1500 DESC LIMIT 1"
+83,california_schools,challenging,generation_only,True,True,success,202.39817454086733,89571,"SELECT
+  T1.City,
+  COUNT(T1.CDSCode)
+FROM schools AS T1
+INNER JOIN frpm AS T2
+  ON T1.CDSCode = T2.CDSCode
+WHERE
+  T1.Magnet = 1
+  AND T1.GSserved = 'K-8'
+  AND T2.""NSLP Provision Status"" = 'Multiple Provision Types'
+GROUP BY
+  T1.City"
+87,california_schools,challenging,generation_only,False,False,success,109.77963922722847,58181,SELECT DISTINCT AdmEmail1 FROM schools WHERE County = 'San Bernardino' AND District = 'San Bernardino City Unified' AND OpenDate BETWEEN '2009-01-01' AND '2010-12-31' AND SOC = '62' AND DOC = '54' AND AdmEmail1 IS NOT NULL
+807,superhero,simple,generation_only,True,True,success,82.17844894857262,25424,SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Helen Parr'
+815,superhero,simple,generation_only,True,True,success,78.70222363321227,26375,SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.id = 1 AND T3.id = 2
+826,superhero,simple,generation_only,True,True,success,37.212110137799755,24249,SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'DC Comics' ORDER BY T1.weight_kg DESC LIMIT 1
+832,superhero,simple,generation_only,True,True,success,46.30192559506395,23650,SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1
+739,superhero,moderate,generation_only,True,True,success,45.29713131376775,25168,SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Death Touch'
+820,superhero,moderate,generation_only,True,True,success,42.941580240702024,25224,SELECT T1.attribute_value FROM hero_attribute AS T1 INNER JOIN superhero AS T2 ON T1.hero_id = T2.id INNER JOIN attribute AS T3 ON T1.attribute_id = T3.id WHERE T2.superhero_name = 'Hulk' AND T3.attribute_name = 'Strength'
+824,superhero,moderate,generation_only,True,True,success,49.84181959889247,25140,SELECT DISTINCT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Wind Control' ORDER BY T1.superhero_name
+743,superhero,challenging,generation_only,False,False,success,95.49900155840442,39099,"SELECT CAST(SUM(CASE WHEN T2.alignment = 'Bad' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.id), SUM(CASE WHEN T2.alignment = 'Bad' AND T3.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 JOIN alignment AS T2 ON T1.alignment_id = T2.id LEFT JOIN publisher AS T3 ON T1.publisher_id = T3.id"
+744,superhero,challenging,generation_only,True,True,success,62.19123901397688,27077,"SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name IN ('DC Comics', 'Marvel Comics')"
+773,superhero,challenging,generation_only,True,True,success,60.321556830749614,26884,"SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.hair_colour_id = T1.skin_colour_id"
+1358,student_club,simple,generation_only,True,True,success,64.42176228013705,33887,"SELECT T2.first_name, T2.last_name FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T1.source = 'Dues' ORDER BY T1.date_received ASC LIMIT 1"
+1372,student_club,simple,generation_only,True,True,success,41.233690811146516,33043,SELECT T1.date_received FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T2.first_name = 'Casey' AND T2.last_name = 'Mason'
+1418,student_club,simple,generation_only,False,False,success,43.754676573793404,29659,SELECT DISTINCT type FROM event WHERE location = 'MU 215'
+1424,student_club,simple,generation_only,True,True,success,38.45673650538083,30144,SELECT COUNT(*) FROM member WHERE position = 'Member' AND t_shirt_size = 'X-Large'
+1321,student_club,moderate,generation_only,True,True,success,52.23362171417102,36850,"SELECT COUNT(*) FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Sacha' AND T1.last_name = 'Harrison' AND STRFTIME('%Y', T3.event_date) = '2019'"
+1327,student_club,moderate,generation_only,True,True,success,44.31906539940974,33904,"SELECT DISTINCT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Laugh Out Loud'"
+1449,student_club,moderate,generation_only,True,True,success,49.36944614071399,35438,"SELECT DISTINCT T1.first_name, T1.last_name, T3.major_name FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member INNER JOIN major AS T3 ON T1.link_to_major = T3.major_id WHERE T2.cost > 100"
+1359,student_club,challenging,generation_only,True,True,success,63.6145864436985,36949,SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement'
+1451,student_club,challenging,generation_only,False,False,success,141.1945045243774,56479,"SELECT
+  T1.first_name,
+  T1.last_name
+FROM member AS T1
+JOIN expense AS T2
+  ON T1.member_id = T2.link_to_member
+JOIN budget AS T3
+  ON T2.link_to_budget = T3.budget_id
+JOIN event AS T4
+  ON T3.link_to_event = T4.event_id
+GROUP BY
+  T1.member_id
+HAVING
+  COUNT(DISTINCT T4.event_id) > 1
+ORDER BY
+  MAX(T2.cost) DESC
+LIMIT 1;"
+1457,student_club,challenging,generation_only,True,True,success,78.6007825426932,36777,"SELECT DISTINCT T1.first_name, T1.last_name, T1.phone FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T2.cost > (SELECT AVG(cost) FROM expense)"
+202,toxicology,simple,generation_only,True,True,success,49.0886852433905,15184,SELECT COUNT(bond_id) FROM bond WHERE bond_type = '#'
+223,toxicology,simple,generation_only,False,False,success,70.82062715812935,20795,"SELECT atom_id, atom_id2 FROM connected WHERE bond_id = 'TR000_2_5'"
+235,toxicology,simple,generation_only,True,True,success,40.51887745701242,19153,SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+' AND T2.element = 'br'
+339,toxicology,simple,generation_only,True,True,success,45.178040079190396,19584,SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'o' AND T2.label = '+'
+236,toxicology,moderate,generation_only,True,True,success,38.99227838689694,19676,"SELECT T1.bond_type, T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_id = 'TR001_6_9'"
+283,toxicology,moderate,generation_only,True,True,success,49.36387721862411,19696,SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'
+284,toxicology,moderate,generation_only,True,True,success,77.55639282456832,28974,SELECT DISTINCT T1.bond_type FROM bond AS T1 JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'c'
+240,toxicology,challenging,generation_only,True,True,success,57.917651858122554,21422,SELECT DISTINCT element FROM atom WHERE molecule_id = 'TR004'
+282,toxicology,challenging,generation_only,True,True,success,66.86634136008797,25351,"SELECT CAST(SUM(CASE WHEN T1.element = 'h' THEN 1 ELSE 0 END) AS REAL) / COUNT(T1.element), T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR006' GROUP BY T2.label"
+328,toxicology,challenging,generation_only,False,False,success,99.84665819242946,34445,SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id OR T1.atom_id = T2.atom_id2 JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024'
+1166,thrombosis_prediction,simple,generation_only,True,True,success,90.41176360379905,42638,"SELECT T2.Symptoms, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1"
+1249,thrombosis_prediction,simple,generation_only,False,False,success,96.31565742642852,44671,SELECT DISTINCT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE CAST(T2.`U-PRO` AS REAL) >= 30
+1251,thrombosis_prediction,simple,generation_only,False,False,success,60.07642587140435,32670,SELECT COUNT(DISTINCT ID) FROM Laboratory WHERE IGG >= 2000
+1301,thrombosis_prediction,simple,generation_only,True,True,success,77.18841437311494,44550,SELECT DISTINCT T1.ID FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Thrombosis = 0 AND T2.CPK < 250
+1264,thrombosis_prediction,moderate,generation_only,True,True,success,74.2238733987906,41258,SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Diagnosis = 'APS' AND T2.C4 > 10
+1272,thrombosis_prediction,moderate,generation_only,True,True,success,60.12568595298217,39382,"SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSA NOT IN ('negative', '0') AND T1.""First Date"" IS NOT NULL ORDER BY T1.""First Date"" ASC LIMIT 1"
+1291,thrombosis_prediction,moderate,generation_only,False,False,success,90.48220660557854,44256,SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.ALB > 3.5 AND T2.ALB < 5.5 AND T2.TP > 6.0 AND T2.TP < 8.5
+1185,thrombosis_prediction,challenging,generation_only,False,False,success,89.17815135943238,45618,"SELECT
+  SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)
+FROM Patient AS T1
+INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID
+WHERE
+  T1.Birthday = '1959-02-18'"
+1202,thrombosis_prediction,challenging,generation_only,True,True,success,113.53219133047969,52112,"SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T1.Admission = '-' AND T1.Diagnosis LIKE '%Behcet%' AND STRFTIME('%Y', T2.""Examination Date"") BETWEEN '1995' AND '1997'"
+1241,thrombosis_prediction,challenging,generation_only,False,False,success,104.18209674669197,42739,SELECT SUM(PLT < 100) - SUM(PLT > 400) FROM Laboratory
+14,california_schools,simple,generation_revision,True,True,success,46.71301115609822,50449,"SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.""Enrollment (Ages 5-17)"" DESC LIMIT 5"
+38,california_schools,simple,generation_revision,True,True,success,49.81323341373354,51042,SELECT DISTINCT T1.Website FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Los Angeles' AND T2.NumTstTakr BETWEEN 2000 AND 3000 AND T1.Website IS NOT NULL
+53,california_schools,simple,generation_revision,False,False,success,58.68373406477622,50055,SELECT SUM(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'
+70,california_schools,simple,generation_revision,True,True,success,72.05185876277392,51801,"SELECT COUNT(*) FROM schools WHERE County = 'Alpine' AND SOCType = 'District Community Day Schools' AND StatusType IN ('Active', 'Closed')"
+12,california_schools,moderate,generation_revision,True,True,success,99.77572625823086,61495,"SELECT MAX(CAST(T3.""Free Meal Count (Ages 5-17)"" AS REAL) / T3.""Enrollment (Ages 5-17)"") FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode INNER JOIN frpm AS T3 ON T2.CDSCode = T3.CDSCode WHERE CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr > 0.3"
+34,california_schools,moderate,generation_revision,True,True,success,67.7729919096455,51760,"SELECT CAST(T2.""Free Meal Count (Ages 5-17)"" AS REAL) / T2.""Enrollment (Ages 5-17)"" FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'"
+77,california_schools,moderate,generation_revision,False,False,success,82.9161092794966,58582,"SELECT
+  T1.School,
+  T2.""Percent (%) Eligible FRPM (Ages 5-17)""
+FROM schools AS T1
+JOIN frpm AS T2
+  ON T1.CDSCode = T2.CDSCode
+WHERE
+  T1.County = 'Los Angeles'
+  AND T1.GSserved = 'K-9'"
+36,california_schools,challenging,generation_revision,False,False,success,112.84945214682375,60202,"SELECT T1.AdmFName1, T1.AdmLName1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.NumGE1500 DESC LIMIT 1"
+83,california_schools,challenging,generation_revision,True,True,success,202.49626971947146,89571,"SELECT
+  T1.City,
+  COUNT(T1.CDSCode)
+FROM schools AS T1
+INNER JOIN frpm AS T2
+  ON T1.CDSCode = T2.CDSCode
+WHERE
+  T1.Magnet = 1
+  AND T1.GSserved = 'K-8'
+  AND T2.""NSLP Provision Status"" = 'Multiple Provision Types'
+GROUP BY
+  T1.City"
+87,california_schools,challenging,generation_revision,False,False,success,109.90803716881783,58181,SELECT DISTINCT AdmEmail1 FROM schools WHERE County = 'San Bernardino' AND District = 'San Bernardino City Unified' AND OpenDate BETWEEN '2009-01-01' AND '2010-12-31' AND SOC = '62' AND DOC = '54' AND AdmEmail1 IS NOT NULL
+807,superhero,simple,generation_revision,True,True,success,82.25572255582665,25424,SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Helen Parr'
+815,superhero,simple,generation_revision,True,True,success,78.76650104371947,26375,SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.id = 1 AND T3.id = 2
+826,superhero,simple,generation_revision,True,True,success,37.23196849809028,24249,SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'DC Comics' ORDER BY T1.weight_kg DESC LIMIT 1
+832,superhero,simple,generation_revision,True,True,success,46.315160925645614,23650,SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1
+739,superhero,moderate,generation_revision,True,True,success,45.30682040640386,25168,SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Death Touch'
+820,superhero,moderate,generation_revision,True,True,success,47.213590090250364,28470,SELECT T1.attribute_value FROM hero_attribute AS T1 INNER JOIN superhero AS T2 ON T1.hero_id = T2.id INNER JOIN attribute AS T3 ON T1.attribute_id = T3.id WHERE T2.superhero_name = 'Hulk' AND T3.attribute_name = 'Strength'
+824,superhero,moderate,generation_revision,True,True,success,49.890073135116836,25140,SELECT DISTINCT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Wind Control' ORDER BY T1.superhero_name
+743,superhero,challenging,generation_revision,False,False,success,95.55434709368274,39099,"SELECT CAST(SUM(CASE WHEN T2.alignment = 'Bad' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.id), SUM(CASE WHEN T2.alignment = 'Bad' AND T3.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 JOIN alignment AS T2 ON T1.alignment_id = T2.id LEFT JOIN publisher AS T3 ON T1.publisher_id = T3.id"
+744,superhero,challenging,generation_revision,True,True,success,62.209023371047806,27077,"SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name IN ('DC Comics', 'Marvel Comics')"
+773,superhero,challenging,generation_revision,True,True,success,60.3461821321107,26884,"SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.hair_colour_id = T1.skin_colour_id"
+1358,student_club,simple,generation_revision,True,True,success,70.98805671182345,38904,"SELECT T2.first_name, T2.last_name FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T1.source = 'Dues' AND T1.date_received IS NOT NULL ORDER BY T1.date_received ASC LIMIT 1"
+1372,student_club,simple,generation_revision,True,True,success,45.42147929762723,33043,SELECT T1.date_received FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T2.first_name = 'Casey' AND T2.last_name = 'Mason'
+1418,student_club,simple,generation_revision,False,False,success,43.76011418632697,29659,SELECT DISTINCT type FROM event WHERE location = 'MU 215'
+1424,student_club,simple,generation_revision,True,True,success,38.459737003198825,30144,SELECT COUNT(*) FROM member WHERE position = 'Member' AND t_shirt_size = 'X-Large'
+1321,student_club,moderate,generation_revision,True,True,success,52.23812734847888,36850,"SELECT COUNT(*) FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Sacha' AND T1.last_name = 'Harrison' AND STRFTIME('%Y', T3.event_date) = '2019'"
+1327,student_club,moderate,generation_revision,True,True,success,44.32573420548579,33904,"SELECT DISTINCT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Laugh Out Loud'"
+1449,student_club,moderate,generation_revision,True,True,success,49.380035740323365,35438,"SELECT DISTINCT T1.first_name, T1.last_name, T3.major_name FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member INNER JOIN major AS T3 ON T1.link_to_major = T3.major_id WHERE T2.cost > 100"
+1359,student_club,challenging,generation_revision,True,True,success,63.624170393741224,36949,SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement'
+1451,student_club,challenging,generation_revision,False,False,success,141.2047517549072,56479,"SELECT
+  T1.first_name,
+  T1.last_name
+FROM member AS T1
+JOIN expense AS T2
+  ON T1.member_id = T2.link_to_member
+JOIN budget AS T3
+  ON T2.link_to_budget = T3.budget_id
+JOIN event AS T4
+  ON T3.link_to_event = T4.event_id
+GROUP BY
+  T1.member_id
+HAVING
+  COUNT(DISTINCT T4.event_id) > 1
+ORDER BY
+  MAX(T2.cost) DESC
+LIMIT 1;"
+1457,student_club,challenging,generation_revision,True,True,success,78.61187091397005,36777,"SELECT DISTINCT T1.first_name, T1.last_name, T1.phone FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T2.cost > (SELECT AVG(cost) FROM expense)"
+202,toxicology,simple,generation_revision,True,True,success,49.09898492600769,15184,SELECT COUNT(bond_id) FROM bond WHERE bond_type = '#'
+223,toxicology,simple,generation_revision,False,False,success,70.83185619636788,20795,"SELECT atom_id, atom_id2 FROM connected WHERE bond_id = 'TR000_2_5'"
+235,toxicology,simple,generation_revision,True,True,success,40.5289034351008,19153,SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+' AND T2.element = 'br'
+339,toxicology,simple,generation_revision,True,True,success,45.19051390083041,19584,SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'o' AND T2.label = '+'
+236,toxicology,moderate,generation_revision,True,True,success,39.00714211637387,19676,"SELECT T1.bond_type, T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_id = 'TR001_6_9'"
+283,toxicology,moderate,generation_revision,True,True,success,49.37404887046432,19696,SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'
+284,toxicology,moderate,generation_revision,True,True,success,77.68193904153304,28974,SELECT DISTINCT T1.bond_type FROM bond AS T1 JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'c'
+240,toxicology,challenging,generation_revision,True,True,success,58.04516407469055,21422,SELECT DISTINCT element FROM atom WHERE molecule_id = 'TR004'
+282,toxicology,challenging,generation_revision,True,True,success,66.87759233283577,25351,"SELECT CAST(SUM(CASE WHEN T1.element = 'h' THEN 1 ELSE 0 END) AS REAL) / COUNT(T1.element), T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR006' GROUP BY T2.label"
+328,toxicology,challenging,generation_revision,False,False,success,119.52826734617702,42190,SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024' UNION SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id2 JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024'
+1166,thrombosis_prediction,simple,generation_revision,True,True,success,92.60783260595053,42638,"SELECT T2.Symptoms, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1"
+1249,thrombosis_prediction,simple,generation_revision,False,False,success,96.36533074529143,44671,SELECT DISTINCT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE CAST(T2.`U-PRO` AS REAL) >= 30
+1251,thrombosis_prediction,simple,generation_revision,False,False,success,60.09827240422601,32670,SELECT COUNT(DISTINCT ID) FROM Laboratory WHERE IGG >= 2000
+1301,thrombosis_prediction,simple,generation_revision,True,True,success,77.19912771196687,44550,SELECT DISTINCT T1.ID FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Thrombosis = 0 AND T2.CPK < 250
+1264,thrombosis_prediction,moderate,generation_revision,True,True,success,74.2309043626883,41258,SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Diagnosis = 'APS' AND T2.C4 > 10
+1272,thrombosis_prediction,moderate,generation_revision,True,True,success,70.43605162986205,48137,"SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSA NOT IN ('negative', '0') AND T1.""First Date"" IS NOT NULL ORDER BY T1.""First Date"" ASC LIMIT 1"
+1291,thrombosis_prediction,moderate,generation_revision,False,False,success,100.04269530644524,44256,SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.ALB > 3.5 AND T2.ALB < 5.5 AND T2.TP > 6.0 AND T2.TP < 8.5
+1185,thrombosis_prediction,challenging,generation_revision,False,False,success,96.8639831446344,45618,"SELECT
+  SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)
+FROM Patient AS T1
+INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID
+WHERE
+  T1.Birthday = '1959-02-18'"
+1202,thrombosis_prediction,challenging,generation_revision,True,True,success,113.54509025244624,52112,"SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T1.Admission = '-' AND T1.Diagnosis LIKE '%Behcet%' AND STRFTIME('%Y', T2.""Examination Date"") BETWEEN '1995' AND '1997'"
+1241,thrombosis_prediction,challenging,generation_revision,False,False,success,104.2025163443177,42739,SELECT SUM(PLT < 100) - SUM(PLT > 400) FROM Laboratory
+14,california_schools,simple,full_pipeline,True,True,success,46.85082615472493,50449,"SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.""Enrollment (Ages 5-17)"" DESC LIMIT 5"
+38,california_schools,simple,full_pipeline,True,True,success,49.960319080390036,51042,SELECT DISTINCT T1.Website FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Los Angeles' AND T2.NumTstTakr BETWEEN 2000 AND 3000 AND T1.Website IS NOT NULL
+53,california_schools,simple,full_pipeline,False,False,success,58.753041868883884,50055,SELECT SUM(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'
+70,california_schools,simple,full_pipeline,True,True,success,72.1236237087578,51801,"SELECT COUNT(*) FROM schools WHERE County = 'Alpine' AND SOCType = 'District Community Day Schools' AND StatusType IN ('Active', 'Closed')"
+12,california_schools,moderate,full_pipeline,True,True,success,99.85977286048,61495,"SELECT MAX(CAST(T3.""Free Meal Count (Ages 5-17)"" AS REAL) / T3.""Enrollment (Ages 5-17)"") FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode INNER JOIN frpm AS T3 ON T2.CDSCode = T3.CDSCode WHERE CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr > 0.3"
+34,california_schools,moderate,full_pipeline,True,True,success,67.97351314034313,51760,"SELECT CAST(T2.""Free Meal Count (Ages 5-17)"" AS REAL) / T2.""Enrollment (Ages 5-17)"" FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'"
+77,california_schools,moderate,full_pipeline,True,True,success,83.10565300355665,58582,"SELECT
+    T1.School,
+    (T2.""FRPM Count (Ages 5-17)"" / T2.""Enrollment (Ages 5-17)"") * 100 AS Percent_Eligible_FRPM
+FROM schools AS T1
+JOIN frpm AS T2
+    ON T1.CDSCode = T2.CDSCode
+WHERE
+    T1.County = 'Los Angeles'
+    AND T1.GSserved = 'K-9'"
+36,california_schools,challenging,full_pipeline,False,False,success,112.9358443110541,60202,"SELECT T1.AdmFName1, T1.AdmLName1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.NumGE1500 DESC LIMIT 1"
+83,california_schools,challenging,full_pipeline,True,True,success,202.56241609322024,89571,"SELECT
+  T1.City,
+  COUNT(T1.CDSCode)
+FROM schools AS T1
+INNER JOIN frpm AS T2
+  ON T1.CDSCode = T2.CDSCode
+WHERE
+  T1.Magnet = 1
+  AND T1.GSserved = 'K-8'
+  AND T2.""NSLP Provision Status"" = 'Multiple Provision Types'
+GROUP BY
+  T1.City"
+87,california_schools,challenging,full_pipeline,False,False,success,110.03920934899361,58181,SELECT DISTINCT AdmEmail1 FROM schools WHERE County = 'San Bernardino' AND District = 'San Bernardino City Unified' AND OpenDate BETWEEN '2009-01-01' AND '2010-12-31' AND SOC = '62' AND DOC = '54' AND AdmEmail1 IS NOT NULL
+807,superhero,simple,full_pipeline,True,True,success,82.26260784597252,25424,SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Helen Parr'
+815,superhero,simple,full_pipeline,True,True,success,78.7727924331848,26375,SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.id = 1 AND T3.id = 2
+826,superhero,simple,full_pipeline,True,True,success,37.23732242570259,24249,SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'DC Comics' ORDER BY T1.weight_kg DESC LIMIT 1
+832,superhero,simple,full_pipeline,True,True,success,46.318305428285385,23650,SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1
+739,superhero,moderate,full_pipeline,True,True,success,45.314140095200855,25168,SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Death Touch'
+820,superhero,moderate,full_pipeline,True,True,success,47.22180194137036,28470,SELECT T1.attribute_value FROM hero_attribute AS T1 INNER JOIN superhero AS T2 ON T1.hero_id = T2.id INNER JOIN attribute AS T3 ON T1.attribute_id = T3.id WHERE T2.superhero_name = 'Hulk' AND T3.attribute_name = 'Strength'
+824,superhero,moderate,full_pipeline,True,True,success,49.901213481643936,25140,SELECT DISTINCT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Wind Control' ORDER BY T1.superhero_name
+743,superhero,challenging,full_pipeline,False,False,success,95.57037597475573,39099,"SELECT CAST(SUM(CASE WHEN T2.alignment = 'Bad' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.id), SUM(CASE WHEN T2.alignment = 'Bad' AND T3.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 JOIN alignment AS T2 ON T1.alignment_id = T2.id JOIN publisher AS T3 ON T1.publisher_id = T3.id"
+744,superhero,challenging,full_pipeline,True,True,success,62.22052301437361,27077,"SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name IN ('DC Comics', 'Marvel Comics')"
+773,superhero,challenging,full_pipeline,True,True,success,60.36102893386851,26884,"SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.hair_colour_id = T1.skin_colour_id"
+1358,student_club,simple,full_pipeline,True,True,success,70.99552207437227,38904,"SELECT T2.first_name, T2.last_name FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T1.source = 'Dues' AND T1.date_received IS NOT NULL ORDER BY T1.date_received ASC LIMIT 1"
+1372,student_club,simple,full_pipeline,True,True,success,45.425588680256624,33043,SELECT T1.date_received FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T2.first_name = 'Casey' AND T2.last_name = 'Mason'
+1418,student_club,simple,full_pipeline,False,False,success,43.766148083726875,29659,SELECT DISTINCT type FROM event WHERE location = 'MU 215'
+1424,student_club,simple,full_pipeline,True,True,success,38.46273750101682,30144,SELECT COUNT(*) FROM member WHERE position = 'Member' AND t_shirt_size = 'X-Large'
+1321,student_club,moderate,full_pipeline,True,True,success,52.2440937734209,36850,"SELECT COUNT(*) FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Sacha' AND T1.last_name = 'Harrison' AND STRFTIME('%Y', T3.event_date) = '2019'"
+1327,student_club,moderate,full_pipeline,True,True,success,44.333695717097726,33904,"SELECT DISTINCT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Laugh Out Loud'"
+1449,student_club,moderate,full_pipeline,True,True,success,49.39274011272937,35438,"SELECT DISTINCT T1.first_name, T1.last_name, T3.major_name FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member INNER JOIN major AS T3 ON T1.link_to_major = T3.major_id WHERE T2.cost > 100"
+1359,student_club,challenging,full_pipeline,True,True,success,63.62969669798622,36949,SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement'
+1451,student_club,challenging,full_pipeline,False,False,success,141.2185147058044,56479,"SELECT
+  T1.first_name,
+  T1.last_name
+FROM member AS T1
+JOIN expense AS T2
+  ON T1.member_id = T2.link_to_member
+JOIN budget AS T3
+  ON T2.link_to_budget = T3.budget_id
+JOIN event AS T4
+  ON T3.link_to_event = T4.event_id
+GROUP BY
+  T1.member_id
+HAVING
+  COUNT(DISTINCT T4.event_id) > 1
+ORDER BY
+  MAX(T2.cost) DESC
+LIMIT 1;"
+1457,student_club,challenging,full_pipeline,True,True,success,78.62197652386385,36777,"SELECT DISTINCT T1.first_name, T1.last_name, T1.phone FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T2.cost > (SELECT AVG(cost) FROM expense)"
+202,toxicology,simple,full_pipeline,True,True,success,49.105396955274045,15184,SELECT COUNT(bond_id) FROM bond WHERE bond_type = '#'
+223,toxicology,simple,full_pipeline,False,False,success,70.84601325317635,20795,"SELECT atom_id, atom_id2 FROM connected WHERE bond_id = 'TR000_2_5'"
+235,toxicology,simple,full_pipeline,True,True,success,40.536837051738985,19153,SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+' AND T2.element = 'br'
+339,toxicology,simple,full_pipeline,True,True,success,45.209163240506314,19584,SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'o' AND T2.label = '+'
+236,toxicology,moderate,full_pipeline,True,True,success,39.02790241414914,19676,"SELECT T1.bond_type, T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_id = 'TR001_6_9'"
+283,toxicology,moderate,full_pipeline,True,True,success,49.381706159969326,19696,SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'
+284,toxicology,moderate,full_pipeline,True,True,success,77.94805232278304,28974,SELECT DISTINCT T1.bond_type FROM bond AS T1 JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'c'
+240,toxicology,challenging,full_pipeline,True,True,success,58.05257579305908,21422,SELECT DISTINCT element FROM atom WHERE molecule_id = 'TR004'
+282,toxicology,challenging,full_pipeline,True,True,success,66.8876519279438,25351,"SELECT CAST(SUM(CASE WHEN T1.element = 'h' THEN 1 ELSE 0 END) AS REAL) / COUNT(T1.element), T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR006' GROUP BY T2.label"
+328,toxicology,challenging,full_pipeline,False,False,success,119.67528148725978,42190,SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024' UNION SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id2 JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024'
+1166,thrombosis_prediction,simple,full_pipeline,True,True,success,100.03422373067588,45592,"SELECT T2.Symptoms, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1"
+1249,thrombosis_prediction,simple,full_pipeline,True,False,success,96.39245276601287,44671,"SELECT DISTINCT T2.Diagnosis FROM Laboratory AS T1 INNER JOIN Patient AS T2 ON T1.ID = T2.ID WHERE T1.""U-PRO"" >= 30"
+1251,thrombosis_prediction,simple,full_pipeline,False,False,success,60.11584528401727,32670,SELECT COUNT(DISTINCT ID) FROM Laboratory WHERE IGG >= 2000
+1301,thrombosis_prediction,simple,full_pipeline,True,True,success,77.2093196293863,44550,SELECT DISTINCT T1.ID FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Thrombosis = 0 AND T2.CPK < 250
+1264,thrombosis_prediction,moderate,full_pipeline,True,True,success,74.23595645237947,41258,SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Diagnosis = 'APS' AND T2.C4 > 10
+1272,thrombosis_prediction,moderate,full_pipeline,True,True,success,70.45092131980346,48137,"SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSA NOT IN ('negative', '0') AND T1.""First Date"" IS NOT NULL ORDER BY T1.""First Date"" ASC LIMIT 1"
+1291,thrombosis_prediction,moderate,full_pipeline,False,False,success,100.04874541630852,44256,SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.ALB > 3.5 AND T2.ALB < 5.5 AND T2.TP > 6.0 AND T2.TP < 8.5
+1185,thrombosis_prediction,challenging,full_pipeline,False,False,success,96.8690462015802,45618,"SELECT
+  SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)
+FROM Patient AS T1
+INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID
+WHERE
+  T1.Birthday = '1959-02-18'"
+1202,thrombosis_prediction,challenging,full_pipeline,True,True,success,113.55314379362972,52112,"SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T1.Admission = '-' AND T1.Diagnosis LIKE '%Behcet%' AND STRFTIME('%Y', T2.""Examination Date"") BETWEEN '1995' AND '1997'"
+1241,thrombosis_prediction,challenging,full_pipeline,False,False,success,104.21538307977607,42739,SELECT SUM(PLT < 100) - SUM(PLT > 400) FROM Laboratory

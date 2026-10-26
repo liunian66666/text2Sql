@@ -24,6 +24,55 @@
 
 ---
 
+## Application Engineering Edition / 实习作品集版本
+
+This working tree is an **application-engineering extension of the open-source DeepEye-SQL research project**. The staged Text-to-SQL method, original benchmark results, paper and authorship belong to the upstream project cited below. The additions in this edition focus on turning that research pipeline into a safe, measurable and demonstrable local application.
+
+本版本的定位是“基于开源研究代码完成可落地的 Text-to-SQL 应用化改造”，不把上游算法或论文结果作为个人原创。主要新增内容如下：
+
+| 新增能力 | 应用价值 |
+| --- | --- |
+| OpenAI-compatible qwen 与云向量接入 | 可替换模型服务，并保留统一配置接口。 |
+| 单问题 `SQLSkill` | 将批量研究流水线封装成应用可调用的 Python 接口。 |
+| FastAPI + SSE 演示站 | 实时展示值检索、Few-shot、Schema Linking、生成、修订、选择和执行。 |
+| 只读执行与资源熔断 | 拦截写操作，限制 SQL 时间、返回行数、总 Token 和请求时间。 |
+| 可观测评测 | 记录逐阶段耗时、Token、失败位置、恢复成本和结构化快照。 |
+| 多数据库对照实验 | 固定 50 题、5 个数据库，对比仅生成、生成＋修订和完整流程。 |
+
+当前已完成的 10 题 qwen HTTP 基线为：集合式 EX **10/10**、严格多重集 EX **9/10**、可执行 **10/10**。这是固定小样本应用验证，不代表 BIRD 官方成绩。详见 [10题报告](evals/bird-dev-10-qwen-http/report.md)。
+
+固定 50 题、5 数据库的工程版对照实验也已完成：仅生成 **72%**、生成＋修订 **72%**、完整流程 **76%**，三组可执行率均为 **100%**。最终选择修复 2 题且没有造成退化；在线 Token 分别为 1,866,044、1,893,495 和 1,896,449。详见 [50题对照报告](evals/bird-dev-50/ablation/report.md)。
+
+```mermaid
+flowchart LR
+    U[自然语言问题] --> API[FastAPI / SQLSkill]
+    API --> V[值检索]
+    V --> F[Few-shot 准备]
+    F --> S[Schema Linking]
+    S --> G[多候选 SQL 生成]
+    G --> R[执行检查与修订]
+    R --> C[候选选择]
+    C --> Q[SQLite 只读执行]
+    Q --> UI[SSE 进度 / SQL / 表格 / Token]
+    M[qwen HTTP] -.生成与判断.-> F
+    M -.生成与判断.-> S
+    M -.生成与判断.-> G
+    E[云向量服务] -.检索.-> V
+    E -.检索.-> F
+```
+
+本地演示使用独立的快速配置，关闭不必要的思考输出并降低采样预算：
+
+```powershell
+# 先检查数据库、索引和离线报告是否就绪
+.venv/Scripts/python.exe -B runner/run_demo.py --check-only
+
+# 启动单题在线演示 + 离线评测页面
+.venv/Scripts/python.exe -B runner/run_demo.py
+```
+
+浏览器打开 <http://127.0.0.1:8000>。演示说明见 [docs/demo-guide.md](docs/demo-guide.md)，实习版完成标准见 [docs/internship-release-checklist.md](docs/internship-release-checklist.md)。
+
 ## Overview
 
 DeepEye-SQL treats Text-to-SQL as a software engineering process rather than a single-shot generation task.
@@ -64,6 +113,10 @@ The repository contains the research pipeline used for our SIGMOD 2026 paper, wi
 </p>
 
 ## Runbooks
+
+Local application integration: [measured 10-question baseline](docs/baseline-10.md) · [50-question ablation](docs/ablation-50.md) · [failure analysis](docs/failure-analysis.md) · [single-question SQL Skill](docs/sql-skill.md) · [demo entry plan](docs/demo-entry-plan.md) · [demo guide (答辩演示说明)](docs/demo-guide.md) · [internship release checklist (实习版收口清单)](docs/internship-release-checklist.md).
+
+Start the local demonstration UI with `.venv/Scripts/python.exe -B runner/run_demo.py` (or `uv run --no-sync python -B runner/run_demo.py`), then open `http://127.0.0.1:8000`. See [docs/demo-guide.md](docs/demo-guide.md) for the one-page walkthrough and the three pre-verified demo questions.
 
 The root README is intentionally kept as a project overview. Use the runbooks for setup, config edits, dataset preparation, execution commands, inspection, export, and evaluation.
 

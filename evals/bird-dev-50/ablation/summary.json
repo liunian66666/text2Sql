@@ -1,0 +1,638 @@
+{
+  "variants": {
+    "generation_only": {
+      "sample_count": 50,
+      "valid_gold_count": 50,
+      "correct_count": 36,
+      "execution_accuracy": 0.72,
+      "strict_correct_count": 36,
+      "strict_multiset_accuracy": 0.72,
+      "executable_count": 50,
+      "mean_item_seconds": 71.24730165948218,
+      "p95_item_seconds": 113.53219133047969,
+      "batch_wall_seconds": 726.9903063999955,
+      "chat_usage": {
+        "responses": 451,
+        "missing_usage_responses": 0,
+        "prompt_tokens": 1379815,
+        "completion_tokens": 478452,
+        "total_tokens": 1858267
+      },
+      "embedding_usage": {
+        "responses": 123,
+        "missing_usage_responses": 0,
+        "prompt_tokens": 7777,
+        "completion_tokens": 0,
+        "total_tokens": 7777
+      },
+      "by_database": {
+        "california_schools": {
+          "count": 10,
+          "execution_accuracy": 0.6,
+          "strict_multiset_accuracy": 0.6
+        },
+        "student_club": {
+          "count": 10,
+          "execution_accuracy": 0.8,
+          "strict_multiset_accuracy": 0.8
+        },
+        "superhero": {
+          "count": 10,
+          "execution_accuracy": 0.9,
+          "strict_multiset_accuracy": 0.9
+        },
+        "thrombosis_prediction": {
+          "count": 10,
+          "execution_accuracy": 0.5,
+          "strict_multiset_accuracy": 0.5
+        },
+        "toxicology": {
+          "count": 10,
+          "execution_accuracy": 0.8,
+          "strict_multiset_accuracy": 0.8
+        }
+      }
+    },
+    "generation_revision": {
+      "sample_count": 50,
+      "valid_gold_count": 50,
+      "correct_count": 36,
+      "execution_accuracy": 0.72,
+      "strict_correct_count": 36,
+      "strict_multiset_accuracy": 0.72,
+      "executable_count": 50,
+      "mean_item_seconds": 72.7568021487171,
+      "p95_item_seconds": 119.52826734617702,
+      "batch_wall_seconds": 753.0836166999943,
+      "chat_usage": {
+        "responses": 463,
+        "missing_usage_responses": 0,
+        "prompt_tokens": 1398756,
+        "completion_tokens": 486962,
+        "total_tokens": 1885718
+      },
+      "embedding_usage": {
+        "responses": 123,
+        "missing_usage_responses": 0,
+        "prompt_tokens": 7777,
+        "completion_tokens": 0,
+        "total_tokens": 7777
+      },
+      "by_database": {
+        "california_schools": {
+          "count": 10,
+          "execution_accuracy": 0.6,
+          "strict_multiset_accuracy": 0.6
+        },
+        "student_club": {
+          "count": 10,
+          "execution_accuracy": 0.8,
+          "strict_multiset_accuracy": 0.8
+        },
+        "superhero": {
+          "count": 10,
+          "execution_accuracy": 0.9,
+          "strict_multiset_accuracy": 0.9
+        },
+        "thrombosis_prediction": {
+          "count": 10,
+          "execution_accuracy": 0.5,
+          "strict_multiset_accuracy": 0.5
+        },
+        "toxicology": {
+          "count": 10,
+          "execution_accuracy": 0.8,
+          "strict_multiset_accuracy": 0.8
+        }
+      }
+    },
+    "full_pipeline": {
+      "sample_count": 50,
+      "valid_gold_count": 50,
+      "correct_count": 38,
+      "execution_accuracy": 0.76,
+      "strict_correct_count": 37,
+      "strict_multiset_accuracy": 0.74,
+      "executable_count": 50,
+      "mean_item_seconds": 72.94461326588934,
+      "p95_item_seconds": 119.67528148725978,
+      "batch_wall_seconds": 762.3421441999963,
+      "chat_usage": {
+        "responses": 464,
+        "missing_usage_responses": 0,
+        "prompt_tokens": 1399841,
+        "completion_tokens": 488831,
+        "total_tokens": 1888672
+      },
+      "embedding_usage": {
+        "responses": 123,
+        "missing_usage_responses": 0,
+        "prompt_tokens": 7777,
+        "completion_tokens": 0,
+        "total_tokens": 7777
+      },
+      "by_database": {
+        "california_schools": {
+          "count": 10,
+          "execution_accuracy": 0.7,
+          "strict_multiset_accuracy": 0.7
+        },
+        "student_club": {
+          "count": 10,
+          "execution_accuracy": 0.8,
+          "strict_multiset_accuracy": 0.8
+        },
+        "superhero": {
+          "count": 10,
+          "execution_accuracy": 0.9,
+          "strict_multiset_accuracy": 0.9
+        },
+        "thrombosis_prediction": {
+          "count": 10,
+          "execution_accuracy": 0.6,
+          "strict_multiset_accuracy": 0.5
+        },
+        "toxicology": {
+          "count": 10,
+          "execution_accuracy": 0.8,
+          "strict_multiset_accuracy": 0.8
+        }
+      }
+    }
+  },
+  "transitions": {
+    "revision_fixes": [],
+    "revision_regressions": [],
+    "selection_fixes": [
+      77,
+      1249
+    ],
+    "selection_regressions": []
+  },
+  "sample": {
+    "source": "data\\bird\\dev\\dev.json",
+    "source_sha256": "630272f2b1c44d8cef2c3b246f623355cf0bbc1e832c81061df895530dfc2f06",
+    "seed": 20261025,
+    "databases": [
+      "california_schools",
+      "superhero",
+      "student_club",
+      "toxicology",
+      "thrombosis_prediction"
+    ],
+    "difficulty_quota_per_database": {
+      "simple": 4,
+      "moderate": 3,
+      "challenging": 3
+    },
+    "question_ids": [
+      14,
+      38,
+      53,
+      70,
+      12,
+      34,
+      77,
+      36,
+      83,
+      87,
+      807,
+      815,
+      826,
+      832,
+      739,
+      820,
+      824,
+      743,
+      744,
+      773,
+      1358,
+      1372,
+      1418,
+      1424,
+      1321,
+      1327,
+      1449,
+      1359,
+      1451,
+      1457,
+      202,
+      223,
+      235,
+      339,
+      236,
+      283,
+      284,
+      240,
+      282,
+      328,
+      1166,
+      1249,
+      1251,
+      1301,
+      1264,
+      1272,
+      1291,
+      1185,
+      1202,
+      1241
+    ],
+    "database_counts": {
+      "california_schools": 10,
+      "superhero": 10,
+      "student_club": 10,
+      "toxicology": 10,
+      "thrombosis_prediction": 10
+    },
+    "difficulty_counts": {
+      "simple": 20,
+      "moderate": 15,
+      "challenging": 15
+    },
+    "items": [
+      {
+        "question_id": 14,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "question": "List the top five schools, by descending order, from the highest to the lowest, the most number of Enrollment (Ages 5-17). Please give their NCES school identification number."
+      },
+      {
+        "question_id": 38,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "question": "What are the webpages for the Los Angeles County school that has between 2,000 and 3,000 test takers?"
+      },
+      {
+        "question_id": 53,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "question": "How many test takers are there at the school/s whose mailing city address is in Fresno?"
+      },
+      {
+        "question_id": 70,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "question": "How many active and closed District Community Day Schools are there in the county of Alpine?"
+      },
+      {
+        "question_id": 12,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "question": "Among the schools with an SAT excellence rate of over 0.3, what is the highest eligible free rate for students aged 5-17?"
+      },
+      {
+        "question_id": 34,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "question": "What is the free rate for students between the ages of 5 and 17 at the school run by Kacey Gibson?"
+      },
+      {
+        "question_id": 77,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "question": "Which schools served a grade span of Kindergarten to 9th grade in the county of Los Angeles and what is its Percent (%) Eligible FRPM (Ages 5-17)?"
+      },
+      {
+        "question_id": 36,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "question": "Under whose administration is the school with the highest number of students scoring 1500 or more on the SAT? Indicate their full names."
+      },
+      {
+        "question_id": 83,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "question": "Of the schools that offers a magnet program serving a grade span of Kindergarten to 8th grade, how many offers Multiple Provision Types? List the number of cities that offers a Kindergarten to 8th grade span and indicate how many schools are there serving such grade span for each city."
+      },
+      {
+        "question_id": 87,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "question": "What are the valid e-mail addresses of the administrator of the school located in the San Bernardino county, City of San Bernardino City Unified that opened between 1/1/2009 to 12/31/2010 whose school types are public Intermediate/Middle Schools and Unified Schools?"
+      },
+      {
+        "question_id": 807,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "question": "What is the superpowers of the superhero has Helen Parr as their full name?"
+      },
+      {
+        "question_id": 815,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "question": "Count the good female superheroes."
+      },
+      {
+        "question_id": 826,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "question": "Identify the heaviest superhero in DC Comics."
+      },
+      {
+        "question_id": 832,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "question": "Name the tallest superhero."
+      },
+      {
+        "question_id": 739,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "question": "What are the names of the superheroes with the power of death touch?"
+      },
+      {
+        "question_id": 820,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "question": "How strong is the Hulk?"
+      },
+      {
+        "question_id": 824,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "question": "Identify superheroes who can control wind and list their names in alphabetical order."
+      },
+      {
+        "question_id": 743,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "question": "What is the percentage of superheroes who act in their own self-interest or make decisions based on their own moral code? Indicate how many of the said superheroes were published by Marvel Comics."
+      },
+      {
+        "question_id": 744,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "question": "Between DC and Marvel Comics, which publisher has published more superheroes? Find the difference in the number of superheroes they have published."
+      },
+      {
+        "question_id": 773,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "question": "Which superhero has the same eyes, hair and skin colour? Indicate the publisher of the superhero."
+      },
+      {
+        "question_id": 1358,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "question": "Who was the first one paid his/her dues? Tell the full name."
+      },
+      {
+        "question_id": 1372,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "question": "When did the member, Casey Mason, received the income?"
+      },
+      {
+        "question_id": 1418,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "question": "Mention the category of events which were held at MU 215."
+      },
+      {
+        "question_id": 1424,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "question": "Among the members, how many of them have an extra large t-shirt size?"
+      },
+      {
+        "question_id": 1321,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "question": "How many events of the Student_Club did Sacha Harrison attend in 2019?"
+      },
+      {
+        "question_id": 1327,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "question": "List the full name of all the members of the Student_Club who attended the \"Laugh Out Loud\" event."
+      },
+      {
+        "question_id": 1449,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "question": "What is the name and major of members who had to spend more than a hundred dollars on an expense?"
+      },
+      {
+        "question_id": 1359,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "question": "How many times was the budget in Advertisement for \"Yearly Kickoff\" meeting more than \"October Meeting\"?"
+      },
+      {
+        "question_id": 1451,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "question": "Among the members who incurred expenses in more than one event, who paid the most amount?"
+      },
+      {
+        "question_id": 1457,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "question": "Give the full name and contact number of members who had to spend more than average on each expense."
+      },
+      {
+        "question_id": 202,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "question": "How many triple type bonds are there?"
+      },
+      {
+        "question_id": 223,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "question": "What are the atom IDs of the bond TR000_2_5?"
+      },
+      {
+        "question_id": 235,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "question": "How many molecules are carcinogenic and have the bromine element?"
+      },
+      {
+        "question_id": 339,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "question": "List the atom ID of the carcinogenic molecule that contains oxygen?"
+      },
+      {
+        "question_id": 236,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "question": "What are the bond type and the atoms of the bond ID of TR001_6_9?"
+      },
+      {
+        "question_id": 283,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "question": "Identify whether the chemical compound that contains Calcium is carcinogenic."
+      },
+      {
+        "question_id": 284,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "question": "Determine the bond type that is formed in the chemical compound containing element Carbon."
+      },
+      {
+        "question_id": 240,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "question": "List all the elements of the toxicology of the molecule \"TR004\"."
+      },
+      {
+        "question_id": 282,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "question": "What is the ratio of Hydrogen elements in molecule ID TR006? List the ratio with its label."
+      },
+      {
+        "question_id": 328,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "question": "List all the elements with double bond, consisted in molecule TR024."
+      },
+      {
+        "question_id": 1166,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "question": "What are the symptoms observed by the youngest patient to ever did a medical examination? Identify their diagnosis."
+      },
+      {
+        "question_id": 1249,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "question": "Please list the disease names of the patients that have a proteinuria level higher than normal."
+      },
+      {
+        "question_id": 1251,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "question": "How many patients with an Ig G higher than normal?"
+      },
+      {
+        "question_id": 1301,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "question": "Please list the IDs of the patients with no thrombosis and an abnormal level of creatinine phosphokinase."
+      },
+      {
+        "question_id": 1264,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "question": "Among the patients have blood clots in veins, how many of them have a normal level of complement 4?"
+      },
+      {
+        "question_id": 1272,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "question": "Which patient is the first patient with an abnormal anti-SSA to come to the hospital? Please give his or her ID."
+      },
+      {
+        "question_id": 1291,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "question": "How many male patients have a normal level of both albumin and total protein?"
+      },
+      {
+        "question_id": 1185,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "question": "For the patient who was born on 1959/2/18, what is the decrease rate for his/her total cholesterol from November to December in 1981?"
+      },
+      {
+        "question_id": 1202,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "question": "How many male patients who underwent testing between 1995 and 1997 and were subsequently diagnosed with Behcet disease did not stay in the hospital for treatment?"
+      },
+      {
+        "question_id": 1241,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "question": "For patients with abnormal platelet level, state the number of patients with lower than normal range. How is it compare to the number of patients with higher than normal range?"
+      }
+    ]
+  },
+  "stage_runs": [
+    {
+      "stage": "value_index",
+      "started_at": "2026-10-26T00:56:13.759432+00:00",
+      "status": "completed",
+      "wall_seconds": 13.85689409999759,
+      "finished_at": "2026-10-26T00:56:27.615916+00:00"
+    },
+    {
+      "stage": "few_shot_index",
+      "started_at": "2026-10-26T00:56:28.186681+00:00",
+      "status": "completed",
+      "wall_seconds": 3.433475500001805,
+      "finished_at": "2026-10-26T00:56:31.619775+00:00"
+    },
+    {
+      "stage": "value_retrieval",
+      "started_at": "2026-10-26T00:56:32.173584+00:00",
+      "status": "completed",
+      "wall_seconds": 26.04165020000073,
+      "finished_at": "2026-10-26T00:56:58.214848+00:00"
+    },
+    {
+      "stage": "few_shot_preparation",
+      "started_at": "2026-10-26T00:56:58.868972+00:00",
+      "status": "failed",
+      "error_type": "RuntimeError",
+      "wall_seconds": 298.96567049997975,
+      "finished_at": "2026-10-26T01:01:57.834782+00:00"
+    },
+    {
+      "stage": "few_shot_preparation",
+      "started_at": "2026-10-26T01:02:17.876058+00:00",
+      "status": "completed",
+      "wall_seconds": 91.33192409999901,
+      "finished_at": "2026-10-26T01:03:49.207305+00:00"
+    },
+    {
+      "stage": "schema_linking",
+      "started_at": "2026-10-26T01:03:59.903185+00:00",
+      "status": "completed",
+      "wall_seconds": 179.59287379999296,
+      "finished_at": "2026-10-26T01:06:59.494693+00:00"
+    },
+    {
+      "stage": "sql_generation",
+      "started_at": "2026-10-26T01:06:59.807112+00:00",
+      "status": "completed",
+      "wall_seconds": 430.02385830000276,
+      "finished_at": "2026-10-26T01:14:09.831411+00:00"
+    },
+    {
+      "stage": "sql_revision",
+      "started_at": "2026-10-26T01:14:10.190237+00:00",
+      "status": "completed",
+      "wall_seconds": 26.093310299998848,
+      "finished_at": "2026-10-26T01:14:36.283496+00:00"
+    },
+    {
+      "stage": "sql_selection",
+      "started_at": "2026-10-26T01:14:36.611201+00:00",
+      "status": "completed",
+      "wall_seconds": 9.258527500001946,
+      "finished_at": "2026-10-26T01:14:45.869188+00:00"
+    }
+  ],
+  "recovery": {
+    "interrupted_attempts": 1,
+    "wasted_response_tokens": 43142,
+    "wasted_api_response_seconds": 92.14829180005472,
+    "runs": [
+      {
+        "stage": "few_shot_preparation",
+        "retried_item_ids": [
+          "1249",
+          "1251",
+          "236",
+          "328"
+        ],
+        "failed_wall_seconds": 298.96567049997975
+      }
+    ]
+  }
+}

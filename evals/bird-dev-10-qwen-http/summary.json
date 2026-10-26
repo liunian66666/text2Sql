@@ -1,0 +1,342 @@
+{
+  "created_at": "2026-10-25T01:16:06.013481+00:00",
+  "sample_count": 10,
+  "valid_gold_count": 10,
+  "correct_count": 10,
+  "question_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "execution_accuracy": 1.0,
+  "strict_multiset_accuracy": 0.9,
+  "fixed_denominator_accuracy": 1.0,
+  "successful_executions": 10,
+  "mean_query_stage_seconds": 150.77280687326856,
+  "p95_query_stage_seconds_nearest_rank": 278.32185196498176,
+  "online_chat_usage": {
+    "responses": 190,
+    "missing_usage_responses": 0,
+    "prompt_tokens": 944750,
+    "completion_tokens": 347220,
+    "total_tokens": 1291970
+  },
+  "online_embedding_usage": {
+    "responses": 30,
+    "missing_usage_responses": 0,
+    "prompt_tokens": 1591,
+    "completion_tokens": 0,
+    "total_tokens": 1591
+  },
+  "offline_chat_usage": {
+    "responses": 100,
+    "missing_usage_responses": 0,
+    "prompt_tokens": 63090,
+    "completion_tokens": 12897,
+    "total_tokens": 75987
+  },
+  "offline_embedding_usage": {
+    "responses": 9923,
+    "missing_usage_responses": 0,
+    "prompt_tokens": 809818,
+    "completion_tokens": 0,
+    "total_tokens": 809818
+  },
+  "unattributed_online_responses": 0,
+  "measured_query_wall_seconds": 399.0400937999948,
+  "measured_setup_wall_seconds": 1020.4480684000009,
+  "stage_runs": [
+    {
+      "stage": "value_index",
+      "started_at": "2026-10-24T11:58:46.532253+00:00",
+      "status": "completed",
+      "wall_seconds": 1010.4419699999999,
+      "finished_at": "2026-10-24T12:15:36.973982+00:00"
+    },
+    {
+      "stage": "few_shot_index",
+      "started_at": "2026-10-24T12:15:37.702173+00:00",
+      "status": "completed",
+      "wall_seconds": 10.006098400001065,
+      "finished_at": "2026-10-24T12:15:47.707056+00:00"
+    },
+    {
+      "stage": "value_retrieval",
+      "started_at": "2026-10-24T12:15:48.444029+00:00",
+      "status": "completed",
+      "wall_seconds": 12.10563589999947,
+      "finished_at": "2026-10-24T12:16:00.549741+00:00"
+    },
+    {
+      "stage": "few_shot_preparation",
+      "started_at": "2026-10-24T12:16:01.330264+00:00",
+      "status": "completed",
+      "wall_seconds": 78.70383890000085,
+      "finished_at": "2026-10-24T12:17:20.034704+00:00"
+    },
+    {
+      "stage": "schema_linking",
+      "started_at": "2026-10-24T12:17:20.848481+00:00",
+      "status": "completed",
+      "wall_seconds": 45.301182600000175,
+      "finished_at": "2026-10-24T12:18:06.148765+00:00"
+    },
+    {
+      "stage": "sql_generation",
+      "started_at": "2026-10-24T12:18:06.541815+00:00",
+      "status": "completed",
+      "wall_seconds": 87.80357659999572,
+      "finished_at": "2026-10-24T12:19:34.344526+00:00"
+    },
+    {
+      "stage": "sql_revision",
+      "started_at": "2026-10-25T01:06:13.835501+00:00",
+      "status": "completed",
+      "wall_seconds": 63.559062600004836,
+      "finished_at": "2026-10-25T01:07:17.395115+00:00"
+    },
+    {
+      "stage": "sql_selection",
+      "started_at": "2026-10-25T01:12:32.106698+00:00",
+      "status": "completed",
+      "wall_seconds": 111.56679719999374,
+      "finished_at": "2026-10-25T01:14:23.673159+00:00"
+    }
+  ],
+  "degraded_by_provider_quota": false,
+  "failed_stage_attempts": [],
+  "recovery": {
+    "stage": "sql_selection",
+    "interrupted_attempts": 2,
+    "reason": "The endpoint returned reasoning-only choices with empty final content; the run was resumed after changing partial multi-sample handling.",
+    "wasted_response_tokens": 53410,
+    "wasted_api_elapsed_seconds": 187.5115812,
+    "successful_final_attempt_tokens": 33348,
+    "successful_final_attempt_api_elapsed_seconds": 108.6779272,
+    "accounting_note": "All provider responses, including interrupted attempts, remain in llm_usage.jsonl. Interrupted process wall time was not durably recorded, so only exact API response elapsed time is reported."
+  },
+  "quota_failure_attempts": {
+    "sql_revision": 0,
+    "sql_selection": 0
+  },
+  "zero_result_llm_groups": {
+    "sql_revision": 0,
+    "sql_selection": 0
+  },
+  "stage_usage": [
+    {
+      "stage": "few_shot_index",
+      "kind": "chat",
+      "responses": 100,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 63090,
+      "completion_tokens": 12897,
+      "total_tokens": 75987
+    },
+    {
+      "stage": "few_shot_index",
+      "kind": "embedding",
+      "responses": 22,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 11779,
+      "completion_tokens": 0,
+      "total_tokens": 11779
+    },
+    {
+      "stage": "few_shot_preparation",
+      "kind": "chat",
+      "responses": 50,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 371045,
+      "completion_tokens": 81281,
+      "total_tokens": 452326
+    },
+    {
+      "stage": "few_shot_preparation",
+      "kind": "embedding",
+      "responses": 10,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 1087,
+      "completion_tokens": 0,
+      "total_tokens": 1087
+    },
+    {
+      "stage": "schema_linking",
+      "kind": "chat",
+      "responses": 40,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 385566,
+      "completion_tokens": 47761,
+      "total_tokens": 433327
+    },
+    {
+      "stage": "sql_generation",
+      "kind": "chat",
+      "responses": 60,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 126938,
+      "completion_tokens": 104349,
+      "total_tokens": 231287
+    },
+    {
+      "stage": "sql_revision",
+      "kind": "chat",
+      "responses": 23,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 43577,
+      "completion_tokens": 38619,
+      "total_tokens": 82196
+    },
+    {
+      "stage": "sql_selection",
+      "kind": "chat",
+      "responses": 7,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 11921,
+      "completion_tokens": 74837,
+      "total_tokens": 86758
+    },
+    {
+      "stage": "value_index",
+      "kind": "embedding",
+      "responses": 9901,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 798039,
+      "completion_tokens": 0,
+      "total_tokens": 798039
+    },
+    {
+      "stage": "value_retrieval",
+      "kind": "chat",
+      "responses": 10,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 5703,
+      "completion_tokens": 373,
+      "total_tokens": 6076
+    },
+    {
+      "stage": "value_retrieval",
+      "kind": "embedding",
+      "responses": 20,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 504,
+      "completion_tokens": 0,
+      "total_tokens": 504
+    }
+  ],
+  "database_sha256": {
+    "california_schools": "986817d793479801ed55133e55aa27e335422c0cd3866b54a3d6317b7c5f09c1"
+  },
+  "config": {
+    "logger": {
+      "print_level": "INFO"
+    },
+    "run": {
+      "save_root": "workspace/runs",
+      "exp_name": "bird-dev-baseline-qwen-http",
+      "parallelism": 8,
+      "embedding_batch_size": 64,
+      "llm_timeout": 300,
+      "progress_log_interval": 20,
+      "checkpoint_interval": 1,
+      "default_llm_profile": "qwen_http"
+    },
+    "llm_profiles": {
+      "qwen_http": {
+        "model": "qwen",
+        "base_url": "<redacted>",
+        "api_key": "<redacted>",
+        "max_tokens": 8192,
+        "temperature": 0.7,
+        "n_call_strategy": "single",
+        "max_request_n": 8,
+        "api_type": "openai",
+        "max_model_len": 65536
+      }
+    },
+    "embedding": {
+      "api_type": "openai",
+      "embedding_model_name_or_path": "text-embedding-v4",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "api_key": "<redacted>"
+    },
+    "dataset": {
+      "type": "bird",
+      "split": "dev",
+      "root_path": "data/bird",
+      "sql_execution_timeout": 600,
+      "max_samples": 10
+    },
+    "vector_database": {
+      "api_type": "openai",
+      "embedding_model_name_or_path": "text-embedding-v4",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "api_key": "<redacted>",
+      "max_value_length": 100,
+      "lower_meta_data": true,
+      "build_backend": "local_index"
+    },
+    "few_shot_index": {
+      "save_path": "workspace/runs/_shared/bird/train100-text-embedding-v4",
+      "num_examples": 7,
+      "question_weight": 0.6,
+      "sql_weight": 0.4,
+      "similarity_device": "cpu",
+      "force_rebuild": false,
+      "llm_profile": "qwen_http",
+      "max_samples": 100,
+      "preliminary_sql": {
+        "enabled": true,
+        "dc_sampling_budget": 8,
+        "skeleton_sampling_budget": 8,
+        "llm_profile": "qwen_http"
+      }
+    },
+    "value_retrieval": {
+      "max_values_per_column": 5,
+      "backend": "local_index",
+      "local_index_device": "cpu",
+      "llm_profile": "qwen_http"
+    },
+    "schema_linking": {
+      "direct_linking_sampling_budget": 8,
+      "reversed_linking_sampling_budget": 8,
+      "value_distance_threshold": 0.05,
+      "llm_profile": "qwen_http"
+    },
+    "sql_generation": {
+      "save_path": "workspace/runs/bird-dev-baseline-cloud/sql_generation.snapshot",
+      "dc_sampling_budget": 8,
+      "skeleton_sampling_budget": 8,
+      "icl_sampling_budget": 8,
+      "llm_profile": "qwen_http"
+    },
+    "sql_revision": {
+      "save_path": "workspace/runs/bird-dev-baseline-qwen-http/sql_revision.snapshot",
+      "checker_sampling_budget": 8,
+      "llm_profile": "qwen_http"
+    },
+    "sql_selection": {
+      "save_path": "workspace/runs/bird-dev-baseline-qwen-http/sql_selection.snapshot",
+      "filter_top_k_sql": 2,
+      "evaluator_sampling_budget": 8,
+      "shortcut_consistency_score_threshold": 0.6,
+      "llm_profile": "qwen_http"
+    },
+    "llm_extractor": {
+      "max_retry": 5
+    }
+  },
+  "training_labels_source": {
+    "url": "https://huggingface.co/datasets/birdsql/bird23-train-filtered/resolve/main/data/train-00000-of-00001.jsonl",
+    "sha256": "2ee64aa593e1adc59be7d5b9ce2395372a8ee27fdd94a3fb4d2fe09f3cd34bc8",
+    "records": 6601
+  }
+}

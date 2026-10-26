@@ -1,0 +1,574 @@
+[
+  {
+    "question_id": 0,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "What is the highest eligible free rate for K-12 students in the schools in Alameda County?",
+    "evidence": "Eligible free rate for K-12 = `Free Meal Count (K-12)` / `Enrollment (K-12)`",
+    "predicted_sql": "SELECT MAX(T1.`Free Meal Count (K-12)` / T1.`Enrollment (K-12)`) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Alameda' AND T1.`Free Meal Count (K-12)` IS NOT NULL",
+    "gold_sql": "SELECT `Free Meal Count (K-12)` / `Enrollment (K-12)` FROM frpm WHERE `County Name` = 'Alameda' ORDER BY (CAST(`Free Meal Count (K-12)` AS REAL) / `Enrollment (K-12)`) DESC LIMIT 1",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 1,
+    "prediction_preview": [
+      [
+        1.0
+      ]
+    ],
+    "gold_preview": [
+      [
+        1.0
+      ]
+    ],
+    "pipeline_seconds": 80.03714847564697,
+    "few_shot_seconds": 29.97302530000161,
+    "query_stage_seconds": 110.01017377564858,
+    "stage_seconds": {
+      "value_retrieval": 3.451931953430176,
+      "schema_linking": 17.128156185150146,
+      "sql_generation": 57.13464331626892,
+      "sql_revision": 1.9499902725219727,
+      "sql_selection": 0.37242674827575684
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 92699,
+      "completion_tokens": 22862,
+      "total_tokens": 115561
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 183,
+      "completion_tokens": 0,
+      "total_tokens": 183
+    }
+  },
+  {
+    "question_id": 1,
+    "database_id": "california_schools",
+    "difficulty": "moderate",
+    "question": "Please list the lowest three eligible free rates for students aged 5-17 in continuation schools.",
+    "evidence": "Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+    "predicted_sql": "SELECT \"Free Meal Count (Ages 5-17)\" / \"Enrollment (Ages 5-17)\" FROM frpm WHERE \"Educational Option Type\" = 'Continuation School' ORDER BY \"Free Meal Count (Ages 5-17)\" / \"Enrollment (Ages 5-17)\" ASC LIMIT 3",
+    "gold_sql": "SELECT `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` FROM frpm WHERE `Educational Option Type` = 'Continuation School' AND `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` IS NOT NULL ORDER BY `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` ASC LIMIT 3",
+    "execution_correct": false,
+    "multiset_match": false,
+    "prediction_status": "all_null_result",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 3,
+    "prediction_preview": [
+      [
+        null
+      ],
+      [
+        null
+      ],
+      [
+        null
+      ]
+    ],
+    "gold_preview": [
+      [
+        0.043478260869565216
+      ],
+      [
+        0.07042253521126761
+      ],
+      [
+        0.11363636363636363
+      ]
+    ],
+    "pipeline_seconds": 84.36800837516785,
+    "few_shot_seconds": 41.1558428999997,
+    "query_stage_seconds": 125.52385127516754,
+    "stage_seconds": {
+      "value_retrieval": 2.8279731273651123,
+      "schema_linking": 17.50163722038269,
+      "sql_generation": 61.20177245140076,
+      "sql_revision": 2.469205617904663,
+      "sql_selection": 0.367419958114624
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 91030,
+      "completion_tokens": 28365,
+      "total_tokens": 119395
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 225,
+      "completion_tokens": 0,
+      "total_tokens": 225
+    }
+  },
+  {
+    "question_id": 2,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "Please list the zip code of all the charter schools in Fresno County Office of Education.",
+    "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the table fprm",
+    "predicted_sql": "SELECT DISTINCT T1.Zip FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.\"Charter School (Y/N)\" = 1 AND T1.District = 'Fresno County Office of Education' AND T1.Zip IS NOT NULL",
+    "gold_sql": "SELECT T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`District Name` = 'Fresno County Office of Education' AND T1.`Charter School (Y/N)` = 1",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 5,
+    "prediction_preview": [
+      [
+        "93726-5309"
+      ],
+      [
+        "93628-9602"
+      ],
+      [
+        "93706-2611"
+      ],
+      [
+        "93726-5208"
+      ],
+      [
+        "93706-2819"
+      ]
+    ],
+    "gold_preview": [
+      [
+        "93726-5309"
+      ],
+      [
+        "93628-9602"
+      ],
+      [
+        "93706-2611"
+      ],
+      [
+        "93726-5208"
+      ],
+      [
+        "93706-2819"
+      ]
+    ],
+    "pipeline_seconds": 64.67299818992615,
+    "few_shot_seconds": 60.18320710000262,
+    "query_stage_seconds": 124.85620528992877,
+    "stage_seconds": {
+      "value_retrieval": 3.0918591022491455,
+      "schema_linking": 16.457926511764526,
+      "sql_generation": 43.10454726219177,
+      "sql_revision": 1.7582263946533203,
+      "sql_selection": 0.2604389190673828
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 90259,
+      "completion_tokens": 23334,
+      "total_tokens": 113593
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 155,
+      "completion_tokens": 0,
+      "total_tokens": 155
+    }
+  },
+  {
+    "question_id": 3,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "What is the unabbreviated mailing street address of the school with the highest FRPM count for K-12 students?",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.MailStreet FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.`FRPM Count (K-12)` IS NOT NULL AND T1.MailStreet IS NOT NULL ORDER BY T2.`FRPM Count (K-12)` DESC LIMIT 1",
+    "gold_sql": "SELECT T2.MailStreet FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T1.`FRPM Count (K-12)` DESC LIMIT 1",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 1,
+    "prediction_preview": [
+      [
+        "14429 South Downey Avenue"
+      ]
+    ],
+    "gold_preview": [
+      [
+        "14429 South Downey Avenue"
+      ]
+    ],
+    "pipeline_seconds": 52.03566813468933,
+    "few_shot_seconds": 27.503625800003647,
+    "query_stage_seconds": 79.53929393469298,
+    "stage_seconds": {
+      "value_retrieval": 3.4131174087524414,
+      "schema_linking": 26.069050550460815,
+      "sql_generation": 21.779911279678345,
+      "sql_revision": 0.4784412384033203,
+      "sql_selection": 0.2951476573944092
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 88248,
+      "completion_tokens": 19669,
+      "total_tokens": 107917
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 130,
+      "completion_tokens": 0,
+      "total_tokens": 130
+    }
+  },
+  {
+    "question_id": 4,
+    "database_id": "california_schools",
+    "difficulty": "moderate",
+    "question": "Please list the phone numbers of the direct charter-funded schools that are opened after 2000/1/1.",
+    "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the frpm",
+    "predicted_sql": "SELECT DISTINCT T1.Phone FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.\"Charter School (Y/N)\" = 1 AND T2.\"Charter Funding Type\" = 'Directly funded' AND T1.OpenDate > '2000-01-01'",
+    "gold_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`Charter School (Y/N)` = 1 AND T2.OpenDate > '2000-01-01'",
+    "execution_correct": true,
+    "multiset_match": false,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 624,
+    "prediction_preview": [
+      [
+        null
+      ],
+      [
+        "(510) 596-8901"
+      ],
+      [
+        "(510) 686-4131"
+      ],
+      [
+        "(510) 452-2063"
+      ],
+      [
+        "(510) 842-1181"
+      ]
+    ],
+    "gold_preview": [
+      [
+        null
+      ],
+      [
+        "(510) 596-8901"
+      ],
+      [
+        null
+      ],
+      [
+        "(510) 686-4131"
+      ],
+      [
+        "(510) 452-2063"
+      ]
+    ],
+    "pipeline_seconds": 101.3012683391571,
+    "few_shot_seconds": 52.65482019999763,
+    "query_stage_seconds": 153.95608853915473,
+    "stage_seconds": {
+      "value_retrieval": 3.1356606483459473,
+      "schema_linking": 28.021143674850464,
+      "sql_generation": 68.22017884254456,
+      "sql_revision": 0.39261746406555176,
+      "sql_selection": 1.531667709350586
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 88355,
+      "completion_tokens": 26732,
+      "total_tokens": 115087
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 179,
+      "completion_tokens": 0,
+      "total_tokens": 179
+    }
+  },
+  {
+    "question_id": 5,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "How many schools with an average score in Math greater than 400 in the SAT test are exclusively virtual?",
+    "evidence": "Exclusively virtual refers to Virtual = 'F'",
+    "predicted_sql": "SELECT COUNT(T1.cds) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath > 400 AND T2.Virtual = 'F'",
+    "gold_sql": "SELECT COUNT(DISTINCT T2.School) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Virtual = 'F' AND T1.AvgScrMath > 400",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 1,
+    "prediction_preview": [
+      [
+        4
+      ]
+    ],
+    "gold_preview": [
+      [
+        4
+      ]
+    ],
+    "pipeline_seconds": 74.82352352142334,
+    "few_shot_seconds": 30.34865510000236,
+    "query_stage_seconds": 105.1721786214257,
+    "stage_seconds": {
+      "value_retrieval": 3.2449769973754883,
+      "schema_linking": 27.750067949295044,
+      "sql_generation": 41.6283700466156,
+      "sql_revision": 1.946972131729126,
+      "sql_selection": 0.25313639640808105
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 86168,
+      "completion_tokens": 20374,
+      "total_tokens": 106542
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 159,
+      "completion_tokens": 0,
+      "total_tokens": 159
+    }
+  },
+  {
+    "question_id": 6,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "Among the schools with the SAT test takers of over 500, please list the schools that are magnet schools or offer a magnet program.",
+    "evidence": "Magnet schools or offer a magnet program means that Magnet = 1",
+    "predicted_sql": "SELECT DISTINCT T1.School FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.NumTstTakr > 500 AND T1.Magnet = 1 AND T1.School IS NOT NULL",
+    "gold_sql": "SELECT T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Magnet = 1 AND T1.NumTstTakr > 500",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 3,
+    "prediction_preview": [
+      [
+        "Millikan High"
+      ],
+      [
+        "Polytechnic High"
+      ],
+      [
+        "Troy High"
+      ]
+    ],
+    "gold_preview": [
+      [
+        "Millikan High"
+      ],
+      [
+        "Polytechnic High"
+      ],
+      [
+        "Troy High"
+      ]
+    ],
+    "pipeline_seconds": 56.343034744262695,
+    "few_shot_seconds": 53.371852299998864,
+    "query_stage_seconds": 109.71488704426156,
+    "stage_seconds": {
+      "value_retrieval": 3.4578070640563965,
+      "schema_linking": 27.786994695663452,
+      "sql_generation": 22.937130451202393,
+      "sql_revision": 1.8361001014709473,
+      "sql_selection": 0.32500243186950684
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 89542,
+      "completion_tokens": 21634,
+      "total_tokens": 111176
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 159,
+      "completion_tokens": 0,
+      "total_tokens": 159
+    }
+  },
+  {
+    "question_id": 7,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "What is the phone number of the school that has the highest number of test takers with an SAT score of over 1500?",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.NumGE1500 IS NOT NULL ORDER BY T2.NumGE1500 DESC LIMIT 1",
+    "gold_sql": "SELECT T2.Phone FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.NumGE1500 DESC LIMIT 1",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 1,
+    "prediction_preview": [
+      [
+        "(213) 241-1000"
+      ]
+    ],
+    "gold_preview": [
+      [
+        "(213) 241-1000"
+      ]
+    ],
+    "pipeline_seconds": 93.8310239315033,
+    "few_shot_seconds": 44.93655209999997,
+    "query_stage_seconds": 138.76757603150327,
+    "stage_seconds": {
+      "value_retrieval": 2.908186674118042,
+      "schema_linking": 27.636266469955444,
+      "sql_generation": 61.123053312301636,
+      "sql_revision": 1.8642466068267822,
+      "sql_selection": 0.2992708683013916
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 87769,
+      "completion_tokens": 20225,
+      "total_tokens": 107994
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 124,
+      "completion_tokens": 0,
+      "total_tokens": 124
+    }
+  },
+  {
+    "question_id": 8,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "What is the number of SAT test takers of the schools with the highest FRPM count for K-12 students?",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.NumTstTakr FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode INNER JOIN frpm AS T3 ON T2.CDSCode = T3.CDSCode WHERE T3.\"FRPM Count (K-12)\" = (SELECT MAX(\"FRPM Count (K-12)\") FROM frpm)",
+    "gold_sql": "SELECT NumTstTakr FROM satscores WHERE cds = ( SELECT CDSCode FROM frpm ORDER BY `FRPM Count (K-12)` DESC LIMIT 1 )",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 1,
+    "prediction_preview": [
+      [
+        459
+      ]
+    ],
+    "gold_preview": [
+      [
+        459
+      ]
+    ],
+    "pipeline_seconds": 87.20508742332458,
+    "few_shot_seconds": 37.75663329999952,
+    "query_stage_seconds": 124.9617207233241,
+    "stage_seconds": {
+      "value_retrieval": 1.4927000999450684,
+      "schema_linking": 24.24061417579651,
+      "sql_generation": 58.794482946395874,
+      "sql_revision": 2.501384735107422,
+      "sql_selection": 0.17590546607971191
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 87987,
+      "completion_tokens": 26227,
+      "total_tokens": 114214
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 122,
+      "completion_tokens": 0,
+      "total_tokens": 122
+    }
+  },
+  {
+    "question_id": 9,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "Among the schools with the average score in Math over 560 in the SAT test, how many schools are directly charter-funded?",
+    "evidence": "",
+    "predicted_sql": "SELECT COUNT(T1.CDSCode) FROM frpm AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrMath > 560 AND T1.`Charter Funding Type` = 'Directly funded'",
+    "gold_sql": "SELECT COUNT(T2.`School Code`) FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath > 560 AND T2.`Charter Funding Type` = 'Directly funded'",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "gold_status": "success",
+    "prediction_error": null,
+    "gold_error": null,
+    "returned_rows": 1,
+    "prediction_preview": [
+      [
+        2
+      ]
+    ],
+    "gold_preview": [
+      [
+        2
+      ]
+    ],
+    "pipeline_seconds": 90.24294233322144,
+    "few_shot_seconds": 41.242601599995396,
+    "query_stage_seconds": 131.48554393321683,
+    "stage_seconds": {
+      "value_retrieval": 1.7569520473480225,
+      "schema_linking": 24.732830047607422,
+      "sql_generation": 61.39191675186157,
+      "sql_revision": 2.0604770183563232,
+      "sql_selection": 0.3007664680480957
+    },
+    "chat_usage": {
+      "responses": 16,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 87195,
+      "completion_tokens": 24342,
+      "total_tokens": 111537
+    },
+    "embedding_usage": {
+      "responses": 3,
+      "missing_usage_responses": 0,
+      "prompt_tokens": 155,
+      "completion_tokens": 0,
+      "total_tokens": 155
+    }
+  }
+]

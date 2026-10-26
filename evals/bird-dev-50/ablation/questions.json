@@ -1,0 +1,4202 @@
+[
+  {
+    "question_id": 14,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "List the top five schools, by descending order, from the highest to the lowest, the most number of Enrollment (Ages 5-17). Please give their NCES school identification number.",
+    "gold_sql": "SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.`Enrollment (Ages 5-17)` DESC LIMIT 5",
+    "variants": {
+      "generation_only": {
+        "question_id": 14,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.\"Enrollment (Ages 5-17)\" DESC LIMIT 5",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 46.66841209985432,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 42962,
+          "completion_tokens": 7345,
+          "total_tokens": 50307
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 142,
+          "completion_tokens": 0,
+          "total_tokens": 142
+        }
+      },
+      "generation_revision": {
+        "question_id": 14,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.\"Enrollment (Ages 5-17)\" DESC LIMIT 5",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 46.71301115609822,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 42962,
+          "completion_tokens": 7345,
+          "total_tokens": 50307
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 142,
+          "completion_tokens": 0,
+          "total_tokens": 142
+        }
+      },
+      "full_pipeline": {
+        "question_id": 14,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.\"Enrollment (Ages 5-17)\" DESC LIMIT 5",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 46.85082615472493,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 42962,
+          "completion_tokens": 7345,
+          "total_tokens": 50307
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 142,
+          "completion_tokens": 0,
+          "total_tokens": 142
+        }
+      }
+    }
+  },
+  {
+    "question_id": 38,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "What are the webpages for the Los Angeles County school that has between 2,000 and 3,000 test takers?",
+    "gold_sql": "SELECT T2.Website FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.NumTstTakr BETWEEN 2000 AND 3000 AND T2.County = 'Los Angeles'",
+    "variants": {
+      "generation_only": {
+        "question_id": 38,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.Website FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Los Angeles' AND T2.NumTstTakr BETWEEN 2000 AND 3000 AND T1.Website IS NOT NULL",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.73350004199892,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43395,
+          "completion_tokens": 7536,
+          "total_tokens": 50931
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 111,
+          "completion_tokens": 0,
+          "total_tokens": 111
+        }
+      },
+      "generation_revision": {
+        "question_id": 38,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.Website FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Los Angeles' AND T2.NumTstTakr BETWEEN 2000 AND 3000 AND T1.Website IS NOT NULL",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.81323341373354,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43395,
+          "completion_tokens": 7536,
+          "total_tokens": 50931
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 111,
+          "completion_tokens": 0,
+          "total_tokens": 111
+        }
+      },
+      "full_pipeline": {
+        "question_id": 38,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.Website FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Los Angeles' AND T2.NumTstTakr BETWEEN 2000 AND 3000 AND T1.Website IS NOT NULL",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.960319080390036,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43395,
+          "completion_tokens": 7536,
+          "total_tokens": 50931
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 111,
+          "completion_tokens": 0,
+          "total_tokens": 111
+        }
+      }
+    }
+  },
+  {
+    "question_id": 53,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "How many test takers are there at the school/s whose mailing city address is in Fresno?",
+    "gold_sql": "SELECT T1.NumTstTakr FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'",
+    "variants": {
+      "generation_only": {
+        "question_id": 53,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT SUM(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 58.61804950781516,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43791,
+          "completion_tokens": 6177,
+          "total_tokens": 49968
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 87,
+          "completion_tokens": 0,
+          "total_tokens": 87
+        }
+      },
+      "generation_revision": {
+        "question_id": 53,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT SUM(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 58.68373406477622,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43791,
+          "completion_tokens": 6177,
+          "total_tokens": 49968
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 87,
+          "completion_tokens": 0,
+          "total_tokens": 87
+        }
+      },
+      "full_pipeline": {
+        "question_id": 53,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT SUM(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 58.753041868883884,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43791,
+          "completion_tokens": 6177,
+          "total_tokens": 49968
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 87,
+          "completion_tokens": 0,
+          "total_tokens": 87
+        }
+      }
+    }
+  },
+  {
+    "question_id": 70,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "How many active and closed District Community Day Schools are there in the county of Alpine?",
+    "gold_sql": "SELECT COUNT(School) FROM schools WHERE (StatusType = 'Closed' OR StatusType = 'Active') AND SOC = 69 AND County = 'Alpine'",
+    "variants": {
+      "generation_only": {
+        "question_id": 70,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(*) FROM schools WHERE County = 'Alpine' AND SOCType = 'District Community Day Schools' AND StatusType IN ('Active', 'Closed')",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 71.9604545631737,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 44962,
+          "completion_tokens": 6759,
+          "total_tokens": 51721
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 80,
+          "completion_tokens": 0,
+          "total_tokens": 80
+        }
+      },
+      "generation_revision": {
+        "question_id": 70,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(*) FROM schools WHERE County = 'Alpine' AND SOCType = 'District Community Day Schools' AND StatusType IN ('Active', 'Closed')",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 72.05185876277392,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 44962,
+          "completion_tokens": 6759,
+          "total_tokens": 51721
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 80,
+          "completion_tokens": 0,
+          "total_tokens": 80
+        }
+      },
+      "full_pipeline": {
+        "question_id": 70,
+        "database_id": "california_schools",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(*) FROM schools WHERE County = 'Alpine' AND SOCType = 'District Community Day Schools' AND StatusType IN ('Active', 'Closed')",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 72.1236237087578,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 44962,
+          "completion_tokens": 6759,
+          "total_tokens": 51721
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 80,
+          "completion_tokens": 0,
+          "total_tokens": 80
+        }
+      }
+    }
+  },
+  {
+    "question_id": 12,
+    "database_id": "california_schools",
+    "difficulty": "moderate",
+    "question": "Among the schools with an SAT excellence rate of over 0.3, what is the highest eligible free rate for students aged 5-17?",
+    "gold_sql": "SELECT MAX(CAST(T1.`Free Meal Count (Ages 5-17)` AS REAL) / T1.`Enrollment (Ages 5-17)`) FROM frpm AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE CAST(T2.NumGE1500 AS REAL) / T2.NumTstTakr > 0.3",
+    "variants": {
+      "generation_only": {
+        "question_id": 12,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT MAX(CAST(T3.\"Free Meal Count (Ages 5-17)\" AS REAL) / T3.\"Enrollment (Ages 5-17)\") FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode INNER JOIN frpm AS T3 ON T2.CDSCode = T3.CDSCode WHERE CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr > 0.3",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 90.80014413542813,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 44306,
+          "completion_tokens": 14288,
+          "total_tokens": 58594
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 213,
+          "completion_tokens": 0,
+          "total_tokens": 213
+        }
+      },
+      "generation_revision": {
+        "question_id": 12,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT MAX(CAST(T3.\"Free Meal Count (Ages 5-17)\" AS REAL) / T3.\"Enrollment (Ages 5-17)\") FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode INNER JOIN frpm AS T3 ON T2.CDSCode = T3.CDSCode WHERE CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr > 0.3",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 99.77572625823086,
+        "chat_usage": {
+          "responses": 10,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 46044,
+          "completion_tokens": 15238,
+          "total_tokens": 61282
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 213,
+          "completion_tokens": 0,
+          "total_tokens": 213
+        }
+      },
+      "full_pipeline": {
+        "question_id": 12,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT MAX(CAST(T3.\"Free Meal Count (Ages 5-17)\" AS REAL) / T3.\"Enrollment (Ages 5-17)\") FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode INNER JOIN frpm AS T3 ON T2.CDSCode = T3.CDSCode WHERE CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr > 0.3",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 99.85977286048,
+        "chat_usage": {
+          "responses": 10,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 46044,
+          "completion_tokens": 15238,
+          "total_tokens": 61282
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 213,
+          "completion_tokens": 0,
+          "total_tokens": 213
+        }
+      }
+    }
+  },
+  {
+    "question_id": 34,
+    "database_id": "california_schools",
+    "difficulty": "moderate",
+    "question": "What is the free rate for students between the ages of 5 and 17 at the school run by Kacey Gibson?",
+    "gold_sql": "SELECT CAST(T2.`Free Meal Count (Ages 5-17)` AS REAL) / T2.`Enrollment (Ages 5-17)` FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'",
+    "variants": {
+      "generation_only": {
+        "question_id": 34,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT CAST(T2.\"Free Meal Count (Ages 5-17)\" AS REAL) / T2.\"Enrollment (Ages 5-17)\" FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 67.57082725968212,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43597,
+          "completion_tokens": 7978,
+          "total_tokens": 51575
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 185,
+          "completion_tokens": 0,
+          "total_tokens": 185
+        }
+      },
+      "generation_revision": {
+        "question_id": 34,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT CAST(T2.\"Free Meal Count (Ages 5-17)\" AS REAL) / T2.\"Enrollment (Ages 5-17)\" FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 67.7729919096455,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43597,
+          "completion_tokens": 7978,
+          "total_tokens": 51575
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 185,
+          "completion_tokens": 0,
+          "total_tokens": 185
+        }
+      },
+      "full_pipeline": {
+        "question_id": 34,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT CAST(T2.\"Free Meal Count (Ages 5-17)\" AS REAL) / T2.\"Enrollment (Ages 5-17)\" FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 67.97351314034313,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 43597,
+          "completion_tokens": 7978,
+          "total_tokens": 51575
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 185,
+          "completion_tokens": 0,
+          "total_tokens": 185
+        }
+      }
+    }
+  },
+  {
+    "question_id": 77,
+    "database_id": "california_schools",
+    "difficulty": "moderate",
+    "question": "Which schools served a grade span of Kindergarten to 9th grade in the county of Los Angeles and what is its Percent (%) Eligible FRPM (Ages 5-17)?",
+    "gold_sql": "SELECT T2.School, T1.`FRPM Count (Ages 5-17)` * 100 / T1.`Enrollment (Ages 5-17)` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Los Angeles' AND T2.GSserved = 'K-9'",
+    "variants": {
+      "generation_only": {
+        "question_id": 77,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT\n  T1.School,\n  T2.\"Percent (%) Eligible FRPM (Ages 5-17)\"\nFROM schools AS T1\nJOIN frpm AS T2\n  ON T1.CDSCode = T2.CDSCode\nWHERE\n  T1.County = 'Los Angeles'\n  AND T1.GSserved = 'K-9'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 82.68616695771925,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45334,
+          "completion_tokens": 13026,
+          "total_tokens": 58360
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      },
+      "generation_revision": {
+        "question_id": 77,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT\n  T1.School,\n  T2.\"Percent (%) Eligible FRPM (Ages 5-17)\"\nFROM schools AS T1\nJOIN frpm AS T2\n  ON T1.CDSCode = T2.CDSCode\nWHERE\n  T1.County = 'Los Angeles'\n  AND T1.GSserved = 'K-9'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 82.9161092794966,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45334,
+          "completion_tokens": 13026,
+          "total_tokens": 58360
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      },
+      "full_pipeline": {
+        "question_id": 77,
+        "database_id": "california_schools",
+        "difficulty": "moderate",
+        "sql": "SELECT\n    T1.School,\n    (T2.\"FRPM Count (Ages 5-17)\" / T2.\"Enrollment (Ages 5-17)\") * 100 AS Percent_Eligible_FRPM\nFROM schools AS T1\nJOIN frpm AS T2\n    ON T1.CDSCode = T2.CDSCode\nWHERE\n    T1.County = 'Los Angeles'\n    AND T1.GSserved = 'K-9'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 83.10565300355665,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45334,
+          "completion_tokens": 13026,
+          "total_tokens": 58360
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      }
+    }
+  },
+  {
+    "question_id": 36,
+    "database_id": "california_schools",
+    "difficulty": "challenging",
+    "question": "Under whose administration is the school with the highest number of students scoring 1500 or more on the SAT? Indicate their full names.",
+    "gold_sql": "SELECT T2.AdmFName1, T2.AdmLName1, T2.AdmFName2, T2.AdmLName2, T2.AdmFName3, T2.AdmLName3 FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.NumGE1500 DESC LIMIT 1",
+    "variants": {
+      "generation_only": {
+        "question_id": 36,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT T1.AdmFName1, T1.AdmLName1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.NumGE1500 DESC LIMIT 1",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 112.59790838652407,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45131,
+          "completion_tokens": 14886,
+          "total_tokens": 60017
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 185,
+          "completion_tokens": 0,
+          "total_tokens": 185
+        }
+      },
+      "generation_revision": {
+        "question_id": 36,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT T1.AdmFName1, T1.AdmLName1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.NumGE1500 DESC LIMIT 1",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 112.84945214682375,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45131,
+          "completion_tokens": 14886,
+          "total_tokens": 60017
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 185,
+          "completion_tokens": 0,
+          "total_tokens": 185
+        }
+      },
+      "full_pipeline": {
+        "question_id": 36,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT T1.AdmFName1, T1.AdmLName1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.NumGE1500 DESC LIMIT 1",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 112.9358443110541,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45131,
+          "completion_tokens": 14886,
+          "total_tokens": 60017
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 185,
+          "completion_tokens": 0,
+          "total_tokens": 185
+        }
+      }
+    }
+  },
+  {
+    "question_id": 83,
+    "database_id": "california_schools",
+    "difficulty": "challenging",
+    "question": "Of the schools that offers a magnet program serving a grade span of Kindergarten to 8th grade, how many offers Multiple Provision Types? List the number of cities that offers a Kindergarten to 8th grade span and indicate how many schools are there serving such grade span for each city.",
+    "gold_sql": "SELECT T2.City, COUNT(T2.CDSCode) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.Magnet = 1 AND T2.GSoffered = 'K-8' AND T1.`NSLP Provision Status` = 'Multiple Provision Types' GROUP BY T2.City",
+    "variants": {
+      "generation_only": {
+        "question_id": 83,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  T1.City,\n  COUNT(T1.CDSCode)\nFROM schools AS T1\nINNER JOIN frpm AS T2\n  ON T1.CDSCode = T2.CDSCode\nWHERE\n  T1.Magnet = 1\n  AND T1.GSserved = 'K-8'\n  AND T2.\"NSLP Provision Status\" = 'Multiple Provision Types'\nGROUP BY\n  T1.City",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 202.39817454086733,
+        "chat_usage": {
+          "responses": 11,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 56145,
+          "completion_tokens": 33197,
+          "total_tokens": 89342
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 229,
+          "completion_tokens": 0,
+          "total_tokens": 229
+        }
+      },
+      "generation_revision": {
+        "question_id": 83,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  T1.City,\n  COUNT(T1.CDSCode)\nFROM schools AS T1\nINNER JOIN frpm AS T2\n  ON T1.CDSCode = T2.CDSCode\nWHERE\n  T1.Magnet = 1\n  AND T1.GSserved = 'K-8'\n  AND T2.\"NSLP Provision Status\" = 'Multiple Provision Types'\nGROUP BY\n  T1.City",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 202.49626971947146,
+        "chat_usage": {
+          "responses": 11,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 56145,
+          "completion_tokens": 33197,
+          "total_tokens": 89342
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 229,
+          "completion_tokens": 0,
+          "total_tokens": 229
+        }
+      },
+      "full_pipeline": {
+        "question_id": 83,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  T1.City,\n  COUNT(T1.CDSCode)\nFROM schools AS T1\nINNER JOIN frpm AS T2\n  ON T1.CDSCode = T2.CDSCode\nWHERE\n  T1.Magnet = 1\n  AND T1.GSserved = 'K-8'\n  AND T2.\"NSLP Provision Status\" = 'Multiple Provision Types'\nGROUP BY\n  T1.City",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 202.56241609322024,
+        "chat_usage": {
+          "responses": 11,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 56145,
+          "completion_tokens": 33197,
+          "total_tokens": 89342
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 229,
+          "completion_tokens": 0,
+          "total_tokens": 229
+        }
+      }
+    }
+  },
+  {
+    "question_id": 87,
+    "database_id": "california_schools",
+    "difficulty": "challenging",
+    "question": "What are the valid e-mail addresses of the administrator of the school located in the San Bernardino county, City of San Bernardino City Unified that opened between 1/1/2009 to 12/31/2010 whose school types are public Intermediate/Middle Schools and Unified Schools?",
+    "gold_sql": "SELECT T2.AdmEmail1, T2.AdmEmail2 FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'San Bernardino' AND T2.City = 'San Bernardino' AND T2.DOC = 54 AND strftime('%Y', T2.OpenDate) BETWEEN '2009' AND '2010' AND T2.SOC = 62",
+    "variants": {
+      "generation_only": {
+        "question_id": 87,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT AdmEmail1 FROM schools WHERE County = 'San Bernardino' AND District = 'San Bernardino City Unified' AND OpenDate BETWEEN '2009-01-01' AND '2010-12-31' AND SOC = '62' AND DOC = '54' AND AdmEmail1 IS NOT NULL",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 109.77963922722847,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45654,
+          "completion_tokens": 12275,
+          "total_tokens": 57929
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 252,
+          "completion_tokens": 0,
+          "total_tokens": 252
+        }
+      },
+      "generation_revision": {
+        "question_id": 87,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT AdmEmail1 FROM schools WHERE County = 'San Bernardino' AND District = 'San Bernardino City Unified' AND OpenDate BETWEEN '2009-01-01' AND '2010-12-31' AND SOC = '62' AND DOC = '54' AND AdmEmail1 IS NOT NULL",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 109.90803716881783,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45654,
+          "completion_tokens": 12275,
+          "total_tokens": 57929
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 252,
+          "completion_tokens": 0,
+          "total_tokens": 252
+        }
+      },
+      "full_pipeline": {
+        "question_id": 87,
+        "database_id": "california_schools",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT AdmEmail1 FROM schools WHERE County = 'San Bernardino' AND District = 'San Bernardino City Unified' AND OpenDate BETWEEN '2009-01-01' AND '2010-12-31' AND SOC = '62' AND DOC = '54' AND AdmEmail1 IS NOT NULL",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 110.03920934899361,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 45654,
+          "completion_tokens": 12275,
+          "total_tokens": 57929
+        },
+        "embedding_usage": {
+          "responses": 4,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 252,
+          "completion_tokens": 0,
+          "total_tokens": 252
+        }
+      }
+    }
+  },
+  {
+    "question_id": 807,
+    "database_id": "superhero",
+    "difficulty": "simple",
+    "question": "What is the superpowers of the superhero has Helen Parr as their full name?",
+    "gold_sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Helen Parr'",
+    "variants": {
+      "generation_only": {
+        "question_id": 807,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Helen Parr'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 82.17844894857262,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19479,
+          "completion_tokens": 5806,
+          "total_tokens": 25285
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 139,
+          "completion_tokens": 0,
+          "total_tokens": 139
+        }
+      },
+      "generation_revision": {
+        "question_id": 807,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Helen Parr'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 82.25572255582665,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19479,
+          "completion_tokens": 5806,
+          "total_tokens": 25285
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 139,
+          "completion_tokens": 0,
+          "total_tokens": 139
+        }
+      },
+      "full_pipeline": {
+        "question_id": 807,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Helen Parr'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 82.26260784597252,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19479,
+          "completion_tokens": 5806,
+          "total_tokens": 25285
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 139,
+          "completion_tokens": 0,
+          "total_tokens": 139
+        }
+      }
+    }
+  },
+  {
+    "question_id": 815,
+    "database_id": "superhero",
+    "difficulty": "simple",
+    "question": "Count the good female superheroes.",
+    "gold_sql": "SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.alignment = 'Good' AND T3.gender = 'Female'",
+    "variants": {
+      "generation_only": {
+        "question_id": 815,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.id = 1 AND T3.id = 2",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 78.70222363321227,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19486,
+          "completion_tokens": 6753,
+          "total_tokens": 26239
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 136,
+          "completion_tokens": 0,
+          "total_tokens": 136
+        }
+      },
+      "generation_revision": {
+        "question_id": 815,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.id = 1 AND T3.id = 2",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 78.76650104371947,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19486,
+          "completion_tokens": 6753,
+          "total_tokens": 26239
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 136,
+          "completion_tokens": 0,
+          "total_tokens": 136
+        }
+      },
+      "full_pipeline": {
+        "question_id": 815,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.id = 1 AND T3.id = 2",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 78.7727924331848,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19486,
+          "completion_tokens": 6753,
+          "total_tokens": 26239
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 136,
+          "completion_tokens": 0,
+          "total_tokens": 136
+        }
+      }
+    }
+  },
+  {
+    "question_id": 826,
+    "database_id": "superhero",
+    "difficulty": "simple",
+    "question": "Identify the heaviest superhero in DC Comics.",
+    "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'DC Comics' ORDER BY T1.weight_kg DESC LIMIT 1",
+    "variants": {
+      "generation_only": {
+        "question_id": 826,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'DC Comics' ORDER BY T1.weight_kg DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 37.212110137799755,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19246,
+          "completion_tokens": 4851,
+          "total_tokens": 24097
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 152,
+          "completion_tokens": 0,
+          "total_tokens": 152
+        }
+      },
+      "generation_revision": {
+        "question_id": 826,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'DC Comics' ORDER BY T1.weight_kg DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 37.23196849809028,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19246,
+          "completion_tokens": 4851,
+          "total_tokens": 24097
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 152,
+          "completion_tokens": 0,
+          "total_tokens": 152
+        }
+      },
+      "full_pipeline": {
+        "question_id": 826,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'DC Comics' ORDER BY T1.weight_kg DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 37.23732242570259,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19246,
+          "completion_tokens": 4851,
+          "total_tokens": 24097
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 152,
+          "completion_tokens": 0,
+          "total_tokens": 152
+        }
+      }
+    }
+  },
+  {
+    "question_id": 832,
+    "database_id": "superhero",
+    "difficulty": "simple",
+    "question": "Name the tallest superhero.",
+    "gold_sql": "SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1",
+    "variants": {
+      "generation_only": {
+        "question_id": 832,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 46.30192559506395,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 18009,
+          "completion_tokens": 5581,
+          "total_tokens": 23590
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 60,
+          "completion_tokens": 0,
+          "total_tokens": 60
+        }
+      },
+      "generation_revision": {
+        "question_id": 832,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 46.315160925645614,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 18009,
+          "completion_tokens": 5581,
+          "total_tokens": 23590
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 60,
+          "completion_tokens": 0,
+          "total_tokens": 60
+        }
+      },
+      "full_pipeline": {
+        "question_id": 832,
+        "database_id": "superhero",
+        "difficulty": "simple",
+        "sql": "SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 46.318305428285385,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 18009,
+          "completion_tokens": 5581,
+          "total_tokens": 23590
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 60,
+          "completion_tokens": 0,
+          "total_tokens": 60
+        }
+      }
+    }
+  },
+  {
+    "question_id": 739,
+    "database_id": "superhero",
+    "difficulty": "moderate",
+    "question": "What are the names of the superheroes with the power of death touch?",
+    "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Death Touch'",
+    "variants": {
+      "generation_only": {
+        "question_id": 739,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Death Touch'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.29713131376775,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19248,
+          "completion_tokens": 5785,
+          "total_tokens": 25033
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 135,
+          "completion_tokens": 0,
+          "total_tokens": 135
+        }
+      },
+      "generation_revision": {
+        "question_id": 739,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Death Touch'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.30682040640386,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19248,
+          "completion_tokens": 5785,
+          "total_tokens": 25033
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 135,
+          "completion_tokens": 0,
+          "total_tokens": 135
+        }
+      },
+      "full_pipeline": {
+        "question_id": 739,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Death Touch'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.314140095200855,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19248,
+          "completion_tokens": 5785,
+          "total_tokens": 25033
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 135,
+          "completion_tokens": 0,
+          "total_tokens": 135
+        }
+      }
+    }
+  },
+  {
+    "question_id": 820,
+    "database_id": "superhero",
+    "difficulty": "moderate",
+    "question": "How strong is the Hulk?",
+    "gold_sql": "SELECT T2.attribute_value FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T1.superhero_name = 'Hulk' AND T3.attribute_name = 'Strength'",
+    "variants": {
+      "generation_only": {
+        "question_id": 820,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.attribute_value FROM hero_attribute AS T1 INNER JOIN superhero AS T2 ON T1.hero_id = T2.id INNER JOIN attribute AS T3 ON T1.attribute_id = T3.id WHERE T2.superhero_name = 'Hulk' AND T3.attribute_name = 'Strength'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 42.941580240702024,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19619,
+          "completion_tokens": 5469,
+          "total_tokens": 25088
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 136,
+          "completion_tokens": 0,
+          "total_tokens": 136
+        }
+      },
+      "generation_revision": {
+        "question_id": 820,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.attribute_value FROM hero_attribute AS T1 INNER JOIN superhero AS T2 ON T1.hero_id = T2.id INNER JOIN attribute AS T3 ON T1.attribute_id = T3.id WHERE T2.superhero_name = 'Hulk' AND T3.attribute_name = 'Strength'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 47.213590090250364,
+        "chat_usage": {
+          "responses": 11,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 22173,
+          "completion_tokens": 6161,
+          "total_tokens": 28334
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 136,
+          "completion_tokens": 0,
+          "total_tokens": 136
+        }
+      },
+      "full_pipeline": {
+        "question_id": 820,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.attribute_value FROM hero_attribute AS T1 INNER JOIN superhero AS T2 ON T1.hero_id = T2.id INNER JOIN attribute AS T3 ON T1.attribute_id = T3.id WHERE T2.superhero_name = 'Hulk' AND T3.attribute_name = 'Strength'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 47.22180194137036,
+        "chat_usage": {
+          "responses": 11,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 22173,
+          "completion_tokens": 6161,
+          "total_tokens": 28334
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 136,
+          "completion_tokens": 0,
+          "total_tokens": 136
+        }
+      }
+    }
+  },
+  {
+    "question_id": 824,
+    "database_id": "superhero",
+    "difficulty": "moderate",
+    "question": "Identify superheroes who can control wind and list their names in alphabetical order.",
+    "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Wind Control' ORDER BY T1.superhero_name",
+    "variants": {
+      "generation_only": {
+        "question_id": 824,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Wind Control' ORDER BY T1.superhero_name",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.84181959889247,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19253,
+          "completion_tokens": 5742,
+          "total_tokens": 24995
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 145,
+          "completion_tokens": 0,
+          "total_tokens": 145
+        }
+      },
+      "generation_revision": {
+        "question_id": 824,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Wind Control' ORDER BY T1.superhero_name",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.890073135116836,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19253,
+          "completion_tokens": 5742,
+          "total_tokens": 24995
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 145,
+          "completion_tokens": 0,
+          "total_tokens": 145
+        }
+      },
+      "full_pipeline": {
+        "question_id": 824,
+        "database_id": "superhero",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Wind Control' ORDER BY T1.superhero_name",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.901213481643936,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19253,
+          "completion_tokens": 5742,
+          "total_tokens": 24995
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 145,
+          "completion_tokens": 0,
+          "total_tokens": 145
+        }
+      }
+    }
+  },
+  {
+    "question_id": 743,
+    "database_id": "superhero",
+    "difficulty": "challenging",
+    "question": "What is the percentage of superheroes who act in their own self-interest or make decisions based on their own moral code? Indicate how many of the said superheroes were published by Marvel Comics.",
+    "gold_sql": "SELECT (CAST(COUNT(*) AS REAL) * 100 / (SELECT COUNT(*) FROM superhero)), CAST(SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) AS REAL) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN alignment AS T3 ON T3.id = T1.alignment_id WHERE T3.alignment = 'Bad'",
+    "variants": {
+      "generation_only": {
+        "question_id": 743,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T2.alignment = 'Bad' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.id), SUM(CASE WHEN T2.alignment = 'Bad' AND T3.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 JOIN alignment AS T2 ON T1.alignment_id = T2.id LEFT JOIN publisher AS T3 ON T1.publisher_id = T3.id",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 95.49900155840442,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 22088,
+          "completion_tokens": 16768,
+          "total_tokens": 38856
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 243,
+          "completion_tokens": 0,
+          "total_tokens": 243
+        }
+      },
+      "generation_revision": {
+        "question_id": 743,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T2.alignment = 'Bad' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.id), SUM(CASE WHEN T2.alignment = 'Bad' AND T3.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 JOIN alignment AS T2 ON T1.alignment_id = T2.id LEFT JOIN publisher AS T3 ON T1.publisher_id = T3.id",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 95.55434709368274,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 22088,
+          "completion_tokens": 16768,
+          "total_tokens": 38856
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 243,
+          "completion_tokens": 0,
+          "total_tokens": 243
+        }
+      },
+      "full_pipeline": {
+        "question_id": 743,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T2.alignment = 'Bad' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.id), SUM(CASE WHEN T2.alignment = 'Bad' AND T3.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 JOIN alignment AS T2 ON T1.alignment_id = T2.id JOIN publisher AS T3 ON T1.publisher_id = T3.id",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 95.57037597475573,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 22088,
+          "completion_tokens": 16768,
+          "total_tokens": 38856
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 243,
+          "completion_tokens": 0,
+          "total_tokens": 243
+        }
+      }
+    }
+  },
+  {
+    "question_id": 744,
+    "database_id": "superhero",
+    "difficulty": "challenging",
+    "question": "Between DC and Marvel Comics, which publisher has published more superheroes? Find the difference in the number of superheroes they have published.",
+    "gold_sql": "SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id",
+    "variants": {
+      "generation_only": {
+        "question_id": 744,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name IN ('DC Comics', 'Marvel Comics')",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 62.19123901397688,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19081,
+          "completion_tokens": 7799,
+          "total_tokens": 26880
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 197,
+          "completion_tokens": 0,
+          "total_tokens": 197
+        }
+      },
+      "generation_revision": {
+        "question_id": 744,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name IN ('DC Comics', 'Marvel Comics')",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 62.209023371047806,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19081,
+          "completion_tokens": 7799,
+          "total_tokens": 26880
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 197,
+          "completion_tokens": 0,
+          "total_tokens": 197
+        }
+      },
+      "full_pipeline": {
+        "question_id": 744,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name IN ('DC Comics', 'Marvel Comics')",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 62.22052301437361,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 19081,
+          "completion_tokens": 7799,
+          "total_tokens": 26880
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 197,
+          "completion_tokens": 0,
+          "total_tokens": 197
+        }
+      }
+    }
+  },
+  {
+    "question_id": 773,
+    "database_id": "superhero",
+    "difficulty": "challenging",
+    "question": "Which superhero has the same eyes, hair and skin colour? Indicate the publisher of the superhero.",
+    "gold_sql": "SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.eye_colour_id = T1.skin_colour_id",
+    "variants": {
+      "generation_only": {
+        "question_id": 773,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.hair_colour_id = T1.skin_colour_id",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 60.321556830749614,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 20052,
+          "completion_tokens": 6670,
+          "total_tokens": 26722
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 162,
+          "completion_tokens": 0,
+          "total_tokens": 162
+        }
+      },
+      "generation_revision": {
+        "question_id": 773,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.hair_colour_id = T1.skin_colour_id",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 60.3461821321107,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 20052,
+          "completion_tokens": 6670,
+          "total_tokens": 26722
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 162,
+          "completion_tokens": 0,
+          "total_tokens": 162
+        }
+      },
+      "full_pipeline": {
+        "question_id": 773,
+        "database_id": "superhero",
+        "difficulty": "challenging",
+        "sql": "SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.hair_colour_id = T1.skin_colour_id",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 60.36102893386851,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 20052,
+          "completion_tokens": 6670,
+          "total_tokens": 26722
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 162,
+          "completion_tokens": 0,
+          "total_tokens": 162
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1358,
+    "database_id": "student_club",
+    "difficulty": "simple",
+    "question": "Who was the first one paid his/her dues? Tell the full name.",
+    "gold_sql": "SELECT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN income AS T2 ON T1.member_id = T2.link_to_member WHERE T2.source = 'Dues' ORDER BY T2.date_received LIMIT 1",
+    "variants": {
+      "generation_only": {
+        "question_id": 1358,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT T2.first_name, T2.last_name FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T1.source = 'Dues' ORDER BY T1.date_received ASC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 64.42176228013705,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27385,
+          "completion_tokens": 6375,
+          "total_tokens": 33760
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 127,
+          "completion_tokens": 0,
+          "total_tokens": 127
+        }
+      },
+      "generation_revision": {
+        "question_id": 1358,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT T2.first_name, T2.last_name FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T1.source = 'Dues' AND T1.date_received IS NOT NULL ORDER BY T1.date_received ASC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 70.98805671182345,
+        "chat_usage": {
+          "responses": 12,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31411,
+          "completion_tokens": 7366,
+          "total_tokens": 38777
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 127,
+          "completion_tokens": 0,
+          "total_tokens": 127
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1358,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT T2.first_name, T2.last_name FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T1.source = 'Dues' AND T1.date_received IS NOT NULL ORDER BY T1.date_received ASC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 70.99552207437227,
+        "chat_usage": {
+          "responses": 12,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31411,
+          "completion_tokens": 7366,
+          "total_tokens": 38777
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 127,
+          "completion_tokens": 0,
+          "total_tokens": 127
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1372,
+    "database_id": "student_club",
+    "difficulty": "simple",
+    "question": "When did the member, Casey Mason, received the income?",
+    "gold_sql": "SELECT T2.date_received FROM member AS T1 INNER JOIN income AS T2 ON T1.member_id = T2.link_to_member WHERE T1.first_name = 'Casey' AND T1.last_name = 'Mason'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1372,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT T1.date_received FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T2.first_name = 'Casey' AND T2.last_name = 'Mason'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 41.233690811146516,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27742,
+          "completion_tokens": 5210,
+          "total_tokens": 32952
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 91,
+          "completion_tokens": 0,
+          "total_tokens": 91
+        }
+      },
+      "generation_revision": {
+        "question_id": 1372,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT T1.date_received FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T2.first_name = 'Casey' AND T2.last_name = 'Mason'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.42147929762723,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27742,
+          "completion_tokens": 5210,
+          "total_tokens": 32952
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 91,
+          "completion_tokens": 0,
+          "total_tokens": 91
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1372,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT T1.date_received FROM income AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T2.first_name = 'Casey' AND T2.last_name = 'Mason'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.425588680256624,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27742,
+          "completion_tokens": 5210,
+          "total_tokens": 32952
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 91,
+          "completion_tokens": 0,
+          "total_tokens": 91
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1418,
+    "database_id": "student_club",
+    "difficulty": "simple",
+    "question": "Mention the category of events which were held at MU 215.",
+    "gold_sql": "SELECT T2.category FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T1.location = 'MU 215'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1418,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT type FROM event WHERE location = 'MU 215'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 43.754676573793404,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 25825,
+          "completion_tokens": 3762,
+          "total_tokens": 29587
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 72,
+          "completion_tokens": 0,
+          "total_tokens": 72
+        }
+      },
+      "generation_revision": {
+        "question_id": 1418,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT type FROM event WHERE location = 'MU 215'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 43.76011418632697,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 25825,
+          "completion_tokens": 3762,
+          "total_tokens": 29587
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 72,
+          "completion_tokens": 0,
+          "total_tokens": 72
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1418,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT type FROM event WHERE location = 'MU 215'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 43.766148083726875,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 25825,
+          "completion_tokens": 3762,
+          "total_tokens": 29587
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 72,
+          "completion_tokens": 0,
+          "total_tokens": 72
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1424,
+    "database_id": "student_club",
+    "difficulty": "simple",
+    "question": "Among the members, how many of them have an extra large t-shirt size?",
+    "gold_sql": "SELECT COUNT(member_id) FROM member WHERE position = 'Member' AND t_shirt_size = 'X-Large'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1424,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(*) FROM member WHERE position = 'Member' AND t_shirt_size = 'X-Large'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 38.45673650538083,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 25815,
+          "completion_tokens": 4245,
+          "total_tokens": 30060
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 84,
+          "completion_tokens": 0,
+          "total_tokens": 84
+        }
+      },
+      "generation_revision": {
+        "question_id": 1424,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(*) FROM member WHERE position = 'Member' AND t_shirt_size = 'X-Large'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 38.459737003198825,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 25815,
+          "completion_tokens": 4245,
+          "total_tokens": 30060
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 84,
+          "completion_tokens": 0,
+          "total_tokens": 84
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1424,
+        "database_id": "student_club",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(*) FROM member WHERE position = 'Member' AND t_shirt_size = 'X-Large'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 38.46273750101682,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 25815,
+          "completion_tokens": 4245,
+          "total_tokens": 30060
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 84,
+          "completion_tokens": 0,
+          "total_tokens": 84
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1321,
+    "database_id": "student_club",
+    "difficulty": "moderate",
+    "question": "How many events of the Student_Club did Sacha Harrison attend in 2019?",
+    "gold_sql": "SELECT COUNT(T1.event_id) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event INNER JOIN member AS T3 ON T2.link_to_member = T3.member_id WHERE T3.first_name = 'Sacha' AND T3.last_name = 'Harrison' AND SUBSTR(T1.event_date, 1, 4) = '2019'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1321,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(*) FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Sacha' AND T1.last_name = 'Harrison' AND STRFTIME('%Y', T3.event_date) = '2019'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 52.23362171417102,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29096,
+          "completion_tokens": 7608,
+          "total_tokens": 36704
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 146,
+          "completion_tokens": 0,
+          "total_tokens": 146
+        }
+      },
+      "generation_revision": {
+        "question_id": 1321,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(*) FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Sacha' AND T1.last_name = 'Harrison' AND STRFTIME('%Y', T3.event_date) = '2019'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 52.23812734847888,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29096,
+          "completion_tokens": 7608,
+          "total_tokens": 36704
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 146,
+          "completion_tokens": 0,
+          "total_tokens": 146
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1321,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(*) FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Sacha' AND T1.last_name = 'Harrison' AND STRFTIME('%Y', T3.event_date) = '2019'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 52.2440937734209,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29096,
+          "completion_tokens": 7608,
+          "total_tokens": 36704
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 146,
+          "completion_tokens": 0,
+          "total_tokens": 146
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1327,
+    "database_id": "student_club",
+    "difficulty": "moderate",
+    "question": "List the full name of all the members of the Student_Club who attended the \"Laugh Out Loud\" event.",
+    "gold_sql": "SELECT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Laugh Out Loud'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1327,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Laugh Out Loud'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 44.31906539940974,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27622,
+          "completion_tokens": 6137,
+          "total_tokens": 33759
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 145,
+          "completion_tokens": 0,
+          "total_tokens": 145
+        }
+      },
+      "generation_revision": {
+        "question_id": 1327,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Laugh Out Loud'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 44.32573420548579,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27622,
+          "completion_tokens": 6137,
+          "total_tokens": 33759
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 145,
+          "completion_tokens": 0,
+          "total_tokens": 145
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1327,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Laugh Out Loud'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 44.333695717097726,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27622,
+          "completion_tokens": 6137,
+          "total_tokens": 33759
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 145,
+          "completion_tokens": 0,
+          "total_tokens": 145
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1449,
+    "database_id": "student_club",
+    "difficulty": "moderate",
+    "question": "What is the name and major of members who had to spend more than a hundred dollars on an expense?",
+    "gold_sql": "SELECT DISTINCT T1.first_name, T1.last_name, T2.major_name FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major INNER JOIN expense AS T3 ON T1.member_id = T3.link_to_member WHERE T3.cost > 100",
+    "variants": {
+      "generation_only": {
+        "question_id": 1449,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name, T3.major_name FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member INNER JOIN major AS T3 ON T1.link_to_major = T3.major_id WHERE T2.cost > 100",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.36944614071399,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 28373,
+          "completion_tokens": 6879,
+          "total_tokens": 35252
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 186,
+          "completion_tokens": 0,
+          "total_tokens": 186
+        }
+      },
+      "generation_revision": {
+        "question_id": 1449,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name, T3.major_name FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member INNER JOIN major AS T3 ON T1.link_to_major = T3.major_id WHERE T2.cost > 100",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.380035740323365,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 28373,
+          "completion_tokens": 6879,
+          "total_tokens": 35252
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 186,
+          "completion_tokens": 0,
+          "total_tokens": 186
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1449,
+        "database_id": "student_club",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name, T3.major_name FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member INNER JOIN major AS T3 ON T1.link_to_major = T3.major_id WHERE T2.cost > 100",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.39274011272937,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 28373,
+          "completion_tokens": 6879,
+          "total_tokens": 35252
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 186,
+          "completion_tokens": 0,
+          "total_tokens": 186
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1359,
+    "database_id": "student_club",
+    "difficulty": "challenging",
+    "question": "How many times was the budget in Advertisement for \"Yearly Kickoff\" meeting more than \"October Meeting\"?",
+    "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement' AND T2.type = 'Meeting'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1359,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 63.6145864436985,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27853,
+          "completion_tokens": 8887,
+          "total_tokens": 36740
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 209,
+          "completion_tokens": 0,
+          "total_tokens": 209
+        }
+      },
+      "generation_revision": {
+        "question_id": 1359,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 63.624170393741224,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27853,
+          "completion_tokens": 8887,
+          "total_tokens": 36740
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 209,
+          "completion_tokens": 0,
+          "total_tokens": 209
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1359,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 63.62969669798622,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27853,
+          "completion_tokens": 8887,
+          "total_tokens": 36740
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 209,
+          "completion_tokens": 0,
+          "total_tokens": 209
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1451,
+    "database_id": "student_club",
+    "difficulty": "challenging",
+    "question": "Among the members who incurred expenses in more than one event, who paid the most amount?",
+    "gold_sql": "SELECT T2.member_id FROM expense AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id INNER JOIN budget AS T3 ON T1.link_to_budget = T3.budget_id INNER JOIN event AS T4 ON T3.link_to_event = T4.event_id GROUP BY T2.member_id HAVING COUNT(DISTINCT T4.event_id) > 1 ORDER BY SUM(T1.cost) DESC LIMIT 1",
+    "variants": {
+      "generation_only": {
+        "question_id": 1451,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  T1.first_name,\n  T1.last_name\nFROM member AS T1\nJOIN expense AS T2\n  ON T1.member_id = T2.link_to_member\nJOIN budget AS T3\n  ON T2.link_to_budget = T3.budget_id\nJOIN event AS T4\n  ON T3.link_to_event = T4.event_id\nGROUP BY\n  T1.member_id\nHAVING\n  COUNT(DISTINCT T4.event_id) > 1\nORDER BY\n  MAX(T2.cost) DESC\nLIMIT 1;",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 141.1945045243774,
+        "chat_usage": {
+          "responses": 10,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30989,
+          "completion_tokens": 25302,
+          "total_tokens": 56291
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 188,
+          "completion_tokens": 0,
+          "total_tokens": 188
+        }
+      },
+      "generation_revision": {
+        "question_id": 1451,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  T1.first_name,\n  T1.last_name\nFROM member AS T1\nJOIN expense AS T2\n  ON T1.member_id = T2.link_to_member\nJOIN budget AS T3\n  ON T2.link_to_budget = T3.budget_id\nJOIN event AS T4\n  ON T3.link_to_event = T4.event_id\nGROUP BY\n  T1.member_id\nHAVING\n  COUNT(DISTINCT T4.event_id) > 1\nORDER BY\n  MAX(T2.cost) DESC\nLIMIT 1;",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 141.2047517549072,
+        "chat_usage": {
+          "responses": 10,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30989,
+          "completion_tokens": 25302,
+          "total_tokens": 56291
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 188,
+          "completion_tokens": 0,
+          "total_tokens": 188
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1451,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  T1.first_name,\n  T1.last_name\nFROM member AS T1\nJOIN expense AS T2\n  ON T1.member_id = T2.link_to_member\nJOIN budget AS T3\n  ON T2.link_to_budget = T3.budget_id\nJOIN event AS T4\n  ON T3.link_to_event = T4.event_id\nGROUP BY\n  T1.member_id\nHAVING\n  COUNT(DISTINCT T4.event_id) > 1\nORDER BY\n  MAX(T2.cost) DESC\nLIMIT 1;",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 141.2185147058044,
+        "chat_usage": {
+          "responses": 10,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30989,
+          "completion_tokens": 25302,
+          "total_tokens": 56291
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 188,
+          "completion_tokens": 0,
+          "total_tokens": 188
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1457,
+    "database_id": "student_club",
+    "difficulty": "challenging",
+    "question": "Give the full name and contact number of members who had to spend more than average on each expense.",
+    "gold_sql": "SELECT DISTINCT T3.first_name, T3.last_name, T3.phone FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member WHERE T1.cost > ( SELECT AVG(T1.cost) FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member )",
+    "variants": {
+      "generation_only": {
+        "question_id": 1457,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name, T1.phone FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T2.cost > (SELECT AVG(cost) FROM expense)",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 78.6007825426932,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27622,
+          "completion_tokens": 8997,
+          "total_tokens": 36619
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 158,
+          "completion_tokens": 0,
+          "total_tokens": 158
+        }
+      },
+      "generation_revision": {
+        "question_id": 1457,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name, T1.phone FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T2.cost > (SELECT AVG(cost) FROM expense)",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 78.61187091397005,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27622,
+          "completion_tokens": 8997,
+          "total_tokens": 36619
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 158,
+          "completion_tokens": 0,
+          "total_tokens": 158
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1457,
+        "database_id": "student_club",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT T1.first_name, T1.last_name, T1.phone FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T2.cost > (SELECT AVG(cost) FROM expense)",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 78.62197652386385,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 27622,
+          "completion_tokens": 8997,
+          "total_tokens": 36619
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 158,
+          "completion_tokens": 0,
+          "total_tokens": 158
+        }
+      }
+    }
+  },
+  {
+    "question_id": 202,
+    "database_id": "toxicology",
+    "difficulty": "simple",
+    "question": "How many triple type bonds are there?",
+    "gold_sql": "SELECT COUNT(T.bond_id) FROM bond AS T WHERE T.bond_type = '#'",
+    "variants": {
+      "generation_only": {
+        "question_id": 202,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(bond_id) FROM bond WHERE bond_type = '#'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.0886852433905,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 12275,
+          "completion_tokens": 2850,
+          "total_tokens": 15125
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 59,
+          "completion_tokens": 0,
+          "total_tokens": 59
+        }
+      },
+      "generation_revision": {
+        "question_id": 202,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(bond_id) FROM bond WHERE bond_type = '#'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.09898492600769,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 12275,
+          "completion_tokens": 2850,
+          "total_tokens": 15125
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 59,
+          "completion_tokens": 0,
+          "total_tokens": 59
+        }
+      },
+      "full_pipeline": {
+        "question_id": 202,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(bond_id) FROM bond WHERE bond_type = '#'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.105396955274045,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 12275,
+          "completion_tokens": 2850,
+          "total_tokens": 15125
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 59,
+          "completion_tokens": 0,
+          "total_tokens": 59
+        }
+      }
+    }
+  },
+  {
+    "question_id": 223,
+    "database_id": "toxicology",
+    "difficulty": "simple",
+    "question": "What are the atom IDs of the bond TR000_2_5?",
+    "gold_sql": "SELECT T.atom_id FROM connected AS T WHERE T.bond_id = 'TR000_2_5'",
+    "variants": {
+      "generation_only": {
+        "question_id": 223,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT atom_id, atom_id2 FROM connected WHERE bond_id = 'TR000_2_5'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 70.82062715812935,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13570,
+          "completion_tokens": 7154,
+          "total_tokens": 20724
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 71,
+          "completion_tokens": 0,
+          "total_tokens": 71
+        }
+      },
+      "generation_revision": {
+        "question_id": 223,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT atom_id, atom_id2 FROM connected WHERE bond_id = 'TR000_2_5'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 70.83185619636788,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13570,
+          "completion_tokens": 7154,
+          "total_tokens": 20724
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 71,
+          "completion_tokens": 0,
+          "total_tokens": 71
+        }
+      },
+      "full_pipeline": {
+        "question_id": 223,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT atom_id, atom_id2 FROM connected WHERE bond_id = 'TR000_2_5'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 70.84601325317635,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13570,
+          "completion_tokens": 7154,
+          "total_tokens": 20724
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 71,
+          "completion_tokens": 0,
+          "total_tokens": 71
+        }
+      }
+    }
+  },
+  {
+    "question_id": 235,
+    "database_id": "toxicology",
+    "difficulty": "simple",
+    "question": "How many molecules are carcinogenic and have the bromine element?",
+    "gold_sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+' AND T1.element = 'br'",
+    "variants": {
+      "generation_only": {
+        "question_id": 235,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+' AND T2.element = 'br'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 40.51887745701242,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13618,
+          "completion_tokens": 5405,
+          "total_tokens": 19023
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 130,
+          "completion_tokens": 0,
+          "total_tokens": 130
+        }
+      },
+      "generation_revision": {
+        "question_id": 235,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+' AND T2.element = 'br'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 40.5289034351008,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13618,
+          "completion_tokens": 5405,
+          "total_tokens": 19023
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 130,
+          "completion_tokens": 0,
+          "total_tokens": 130
+        }
+      },
+      "full_pipeline": {
+        "question_id": 235,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+' AND T2.element = 'br'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 40.536837051738985,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13618,
+          "completion_tokens": 5405,
+          "total_tokens": 19023
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 130,
+          "completion_tokens": 0,
+          "total_tokens": 130
+        }
+      }
+    }
+  },
+  {
+    "question_id": 339,
+    "database_id": "toxicology",
+    "difficulty": "simple",
+    "question": "List the atom ID of the carcinogenic molecule that contains oxygen?",
+    "gold_sql": "SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'o' AND T2.label = '+'",
+    "variants": {
+      "generation_only": {
+        "question_id": 339,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'o' AND T2.label = '+'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.178040079190396,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 14497,
+          "completion_tokens": 4944,
+          "total_tokens": 19441
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 143,
+          "completion_tokens": 0,
+          "total_tokens": 143
+        }
+      },
+      "generation_revision": {
+        "question_id": 339,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'o' AND T2.label = '+'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.19051390083041,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 14497,
+          "completion_tokens": 4944,
+          "total_tokens": 19441
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 143,
+          "completion_tokens": 0,
+          "total_tokens": 143
+        }
+      },
+      "full_pipeline": {
+        "question_id": 339,
+        "database_id": "toxicology",
+        "difficulty": "simple",
+        "sql": "SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'o' AND T2.label = '+'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 45.209163240506314,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 14497,
+          "completion_tokens": 4944,
+          "total_tokens": 19441
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 143,
+          "completion_tokens": 0,
+          "total_tokens": 143
+        }
+      }
+    }
+  },
+  {
+    "question_id": 236,
+    "database_id": "toxicology",
+    "difficulty": "moderate",
+    "question": "What are the bond type and the atoms of the bond ID of TR001_6_9?",
+    "gold_sql": "SELECT T1.bond_type, T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.bond_id = 'TR001_6_9'",
+    "variants": {
+      "generation_only": {
+        "question_id": 236,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.bond_type, T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_id = 'TR001_6_9'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 38.99227838689694,
+        "chat_usage": {
+          "responses": 8,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13305,
+          "completion_tokens": 6253,
+          "total_tokens": 19558
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 118,
+          "completion_tokens": 0,
+          "total_tokens": 118
+        }
+      },
+      "generation_revision": {
+        "question_id": 236,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.bond_type, T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_id = 'TR001_6_9'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 39.00714211637387,
+        "chat_usage": {
+          "responses": 8,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13305,
+          "completion_tokens": 6253,
+          "total_tokens": 19558
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 118,
+          "completion_tokens": 0,
+          "total_tokens": 118
+        }
+      },
+      "full_pipeline": {
+        "question_id": 236,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.bond_type, T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_id = 'TR001_6_9'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 39.02790241414914,
+        "chat_usage": {
+          "responses": 8,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13305,
+          "completion_tokens": 6253,
+          "total_tokens": 19558
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 118,
+          "completion_tokens": 0,
+          "total_tokens": 118
+        }
+      }
+    }
+  },
+  {
+    "question_id": 283,
+    "database_id": "toxicology",
+    "difficulty": "moderate",
+    "question": "Identify whether the chemical compound that contains Calcium is carcinogenic.",
+    "gold_sql": "SELECT T2.label AS flag_carcinogenic FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'",
+    "variants": {
+      "generation_only": {
+        "question_id": 283,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.36387721862411,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13720,
+          "completion_tokens": 5842,
+          "total_tokens": 19562
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 134,
+          "completion_tokens": 0,
+          "total_tokens": 134
+        }
+      },
+      "generation_revision": {
+        "question_id": 283,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.37404887046432,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13720,
+          "completion_tokens": 5842,
+          "total_tokens": 19562
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 134,
+          "completion_tokens": 0,
+          "total_tokens": 134
+        }
+      },
+      "full_pipeline": {
+        "question_id": 283,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 49.381706159969326,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 13720,
+          "completion_tokens": 5842,
+          "total_tokens": 19562
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 134,
+          "completion_tokens": 0,
+          "total_tokens": 134
+        }
+      }
+    }
+  },
+  {
+    "question_id": 284,
+    "database_id": "toxicology",
+    "difficulty": "moderate",
+    "question": "Determine the bond type that is formed in the chemical compound containing element Carbon.",
+    "gold_sql": "SELECT DISTINCT T2.bond_type FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'c'",
+    "variants": {
+      "generation_only": {
+        "question_id": 284,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.bond_type FROM bond AS T1 JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'c'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 77.55639282456832,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 15583,
+          "completion_tokens": 13238,
+          "total_tokens": 28821
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 153,
+          "completion_tokens": 0,
+          "total_tokens": 153
+        }
+      },
+      "generation_revision": {
+        "question_id": 284,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.bond_type FROM bond AS T1 JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'c'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 77.68193904153304,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 15583,
+          "completion_tokens": 13238,
+          "total_tokens": 28821
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 153,
+          "completion_tokens": 0,
+          "total_tokens": 153
+        }
+      },
+      "full_pipeline": {
+        "question_id": 284,
+        "database_id": "toxicology",
+        "difficulty": "moderate",
+        "sql": "SELECT DISTINCT T1.bond_type FROM bond AS T1 JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'c'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 77.94805232278304,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 15583,
+          "completion_tokens": 13238,
+          "total_tokens": 28821
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 153,
+          "completion_tokens": 0,
+          "total_tokens": 153
+        }
+      }
+    }
+  },
+  {
+    "question_id": 240,
+    "database_id": "toxicology",
+    "difficulty": "challenging",
+    "question": "List all the elements of the toxicology of the molecule \"TR004\".",
+    "gold_sql": "SELECT DISTINCT T.element FROM atom AS T WHERE T.molecule_id = 'TR004'",
+    "variants": {
+      "generation_only": {
+        "question_id": 240,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT element FROM atom WHERE molecule_id = 'TR004'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 57.917651858122554,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 15073,
+          "completion_tokens": 6286,
+          "total_tokens": 21359
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 63,
+          "completion_tokens": 0,
+          "total_tokens": 63
+        }
+      },
+      "generation_revision": {
+        "question_id": 240,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT element FROM atom WHERE molecule_id = 'TR004'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 58.04516407469055,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 15073,
+          "completion_tokens": 6286,
+          "total_tokens": 21359
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 63,
+          "completion_tokens": 0,
+          "total_tokens": 63
+        }
+      },
+      "full_pipeline": {
+        "question_id": 240,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT element FROM atom WHERE molecule_id = 'TR004'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 58.05257579305908,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 15073,
+          "completion_tokens": 6286,
+          "total_tokens": 21359
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 63,
+          "completion_tokens": 0,
+          "total_tokens": 63
+        }
+      }
+    }
+  },
+  {
+    "question_id": 282,
+    "database_id": "toxicology",
+    "difficulty": "challenging",
+    "question": "What is the ratio of Hydrogen elements in molecule ID TR006? List the ratio with its label.",
+    "gold_sql": "WITH SubQuery AS (SELECT DISTINCT T1.atom_id, T1.element, T1.molecule_id, T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.molecule_id = 'TR006') SELECT CAST(COUNT(CASE WHEN element = 'h' THEN atom_id ELSE NULL END) AS REAL) / (CASE WHEN COUNT(atom_id) = 0 THEN NULL ELSE COUNT(atom_id) END) AS ratio, label FROM SubQuery GROUP BY label",
+    "variants": {
+      "generation_only": {
+        "question_id": 282,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T1.element = 'h' THEN 1 ELSE 0 END) AS REAL) / COUNT(T1.element), T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR006' GROUP BY T2.label",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 66.86634136008797,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 16093,
+          "completion_tokens": 9036,
+          "total_tokens": 25129
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      },
+      "generation_revision": {
+        "question_id": 282,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T1.element = 'h' THEN 1 ELSE 0 END) AS REAL) / COUNT(T1.element), T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR006' GROUP BY T2.label",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 66.87759233283577,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 16093,
+          "completion_tokens": 9036,
+          "total_tokens": 25129
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      },
+      "full_pipeline": {
+        "question_id": 282,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT CAST(SUM(CASE WHEN T1.element = 'h' THEN 1 ELSE 0 END) AS REAL) / COUNT(T1.element), T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR006' GROUP BY T2.label",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 66.8876519279438,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 16093,
+          "completion_tokens": 9036,
+          "total_tokens": 25129
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      }
+    }
+  },
+  {
+    "question_id": 328,
+    "database_id": "toxicology",
+    "difficulty": "challenging",
+    "question": "List all the elements with double bond, consisted in molecule TR024.",
+    "gold_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR024' AND T2.bond_type = '='",
+    "variants": {
+      "generation_only": {
+        "question_id": 328,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id OR T1.atom_id = T2.atom_id2 JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 99.84665819242946,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 16664,
+          "completion_tokens": 17461,
+          "total_tokens": 34125
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 320,
+          "completion_tokens": 0,
+          "total_tokens": 320
+        }
+      },
+      "generation_revision": {
+        "question_id": 328,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024' UNION SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id2 JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 119.52826734617702,
+        "chat_usage": {
+          "responses": 11,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 20486,
+          "completion_tokens": 21384,
+          "total_tokens": 41870
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 320,
+          "completion_tokens": 0,
+          "total_tokens": 320
+        }
+      },
+      "full_pipeline": {
+        "question_id": 328,
+        "database_id": "toxicology",
+        "difficulty": "challenging",
+        "sql": "SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024' UNION SELECT DISTINCT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id2 JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '=' AND T3.molecule_id = 'TR024'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 119.67528148725978,
+        "chat_usage": {
+          "responses": 11,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 20486,
+          "completion_tokens": 21384,
+          "total_tokens": 41870
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 320,
+          "completion_tokens": 0,
+          "total_tokens": 320
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1166,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "simple",
+    "question": "What are the symptoms observed by the youngest patient to ever did a medical examination? Identify their diagnosis.",
+    "gold_sql": "SELECT T2.Symptoms, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1",
+    "variants": {
+      "generation_only": {
+        "question_id": 1166,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT T2.Symptoms, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 90.41176360379905,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29392,
+          "completion_tokens": 13109,
+          "total_tokens": 42501
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 137,
+          "completion_tokens": 0,
+          "total_tokens": 137
+        }
+      },
+      "generation_revision": {
+        "question_id": 1166,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT T2.Symptoms, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 92.60783260595053,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29392,
+          "completion_tokens": 13109,
+          "total_tokens": 42501
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 137,
+          "completion_tokens": 0,
+          "total_tokens": 137
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1166,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT T2.Symptoms, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 100.03422373067588,
+        "chat_usage": {
+          "responses": 10,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30477,
+          "completion_tokens": 14978,
+          "total_tokens": 45455
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 137,
+          "completion_tokens": 0,
+          "total_tokens": 137
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1249,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "simple",
+    "question": "Please list the disease names of the patients that have a proteinuria level higher than normal.",
+    "gold_sql": "SELECT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.`U-PRO` >= 30",
+    "variants": {
+      "generation_only": {
+        "question_id": 1249,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE CAST(T2.`U-PRO` AS REAL) >= 30",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 96.31565742642852,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29890,
+          "completion_tokens": 14654,
+          "total_tokens": 44544
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 127,
+          "completion_tokens": 0,
+          "total_tokens": 127
+        }
+      },
+      "generation_revision": {
+        "question_id": 1249,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE CAST(T2.`U-PRO` AS REAL) >= 30",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 96.36533074529143,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29890,
+          "completion_tokens": 14654,
+          "total_tokens": 44544
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 127,
+          "completion_tokens": 0,
+          "total_tokens": 127
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1249,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T2.Diagnosis FROM Laboratory AS T1 INNER JOIN Patient AS T2 ON T1.ID = T2.ID WHERE T1.\"U-PRO\" >= 30",
+        "execution_correct": true,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 96.39245276601287,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 29890,
+          "completion_tokens": 14654,
+          "total_tokens": 44544
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 127,
+          "completion_tokens": 0,
+          "total_tokens": 127
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1251,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "simple",
+    "question": "How many patients with an Ig G higher than normal?",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID INNER JOIN Examination AS T3 ON T3.ID = T2.ID WHERE T2.IGG >= 2000",
+    "variants": {
+      "generation_only": {
+        "question_id": 1251,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(DISTINCT ID) FROM Laboratory WHERE IGG >= 2000",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 60.07642587140435,
+        "chat_usage": {
+          "responses": 8,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 28628,
+          "completion_tokens": 3948,
+          "total_tokens": 32576
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 94,
+          "completion_tokens": 0,
+          "total_tokens": 94
+        }
+      },
+      "generation_revision": {
+        "question_id": 1251,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(DISTINCT ID) FROM Laboratory WHERE IGG >= 2000",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 60.09827240422601,
+        "chat_usage": {
+          "responses": 8,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 28628,
+          "completion_tokens": 3948,
+          "total_tokens": 32576
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 94,
+          "completion_tokens": 0,
+          "total_tokens": 94
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1251,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT COUNT(DISTINCT ID) FROM Laboratory WHERE IGG >= 2000",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 60.11584528401727,
+        "chat_usage": {
+          "responses": 8,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 28628,
+          "completion_tokens": 3948,
+          "total_tokens": 32576
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 94,
+          "completion_tokens": 0,
+          "total_tokens": 94
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1301,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "simple",
+    "question": "Please list the IDs of the patients with no thrombosis and an abnormal level of creatinine phosphokinase.",
+    "gold_sql": "SELECT DISTINCT T1.ID FROM Laboratory AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Thrombosis = 0 AND T1.CPK < 250",
+    "variants": {
+      "generation_only": {
+        "question_id": 1301,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.ID FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Thrombosis = 0 AND T2.CPK < 250",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 77.18841437311494,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 32105,
+          "completion_tokens": 12296,
+          "total_tokens": 44401
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 149,
+          "completion_tokens": 0,
+          "total_tokens": 149
+        }
+      },
+      "generation_revision": {
+        "question_id": 1301,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.ID FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Thrombosis = 0 AND T2.CPK < 250",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 77.19912771196687,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 32105,
+          "completion_tokens": 12296,
+          "total_tokens": 44401
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 149,
+          "completion_tokens": 0,
+          "total_tokens": 149
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1301,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "simple",
+        "sql": "SELECT DISTINCT T1.ID FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Thrombosis = 0 AND T2.CPK < 250",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 77.2093196293863,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 32105,
+          "completion_tokens": 12296,
+          "total_tokens": 44401
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 149,
+          "completion_tokens": 0,
+          "total_tokens": 149
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1264,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "moderate",
+    "question": "Among the patients have blood clots in veins, how many of them have a normal level of complement 4?",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.C4 > 10 AND T1.Diagnosis = 'APS'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1264,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Diagnosis = 'APS' AND T2.C4 > 10",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 74.2238733987906,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31445,
+          "completion_tokens": 9634,
+          "total_tokens": 41079
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 179,
+          "completion_tokens": 0,
+          "total_tokens": 179
+        }
+      },
+      "generation_revision": {
+        "question_id": 1264,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Diagnosis = 'APS' AND T2.C4 > 10",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 74.2309043626883,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31445,
+          "completion_tokens": 9634,
+          "total_tokens": 41079
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 179,
+          "completion_tokens": 0,
+          "total_tokens": 179
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1264,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Diagnosis = 'APS' AND T2.C4 > 10",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 74.23595645237947,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31445,
+          "completion_tokens": 9634,
+          "total_tokens": 41079
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 179,
+          "completion_tokens": 0,
+          "total_tokens": 179
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1272,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "moderate",
+    "question": "Which patient is the first patient with an abnormal anti-SSA to come to the hospital? Please give his or her ID.",
+    "gold_sql": "SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.`First Date` IS NOT NULL AND T2.SSA NOT IN ('negative', '0') ORDER BY T1.`First Date` ASC LIMIT 1",
+    "variants": {
+      "generation_only": {
+        "question_id": 1272,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSA NOT IN ('negative', '0') AND T1.\"First Date\" IS NOT NULL ORDER BY T1.\"First Date\" ASC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 60.12568595298217,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31351,
+          "completion_tokens": 7873,
+          "total_tokens": 39224
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 158,
+          "completion_tokens": 0,
+          "total_tokens": 158
+        }
+      },
+      "generation_revision": {
+        "question_id": 1272,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSA NOT IN ('negative', '0') AND T1.\"First Date\" IS NOT NULL ORDER BY T1.\"First Date\" ASC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 70.43605162986205,
+        "chat_usage": {
+          "responses": 13,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 38152,
+          "completion_tokens": 9827,
+          "total_tokens": 47979
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 158,
+          "completion_tokens": 0,
+          "total_tokens": 158
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1272,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSA NOT IN ('negative', '0') AND T1.\"First Date\" IS NOT NULL ORDER BY T1.\"First Date\" ASC LIMIT 1",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 70.45092131980346,
+        "chat_usage": {
+          "responses": 13,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 38152,
+          "completion_tokens": 9827,
+          "total_tokens": 47979
+        },
+        "embedding_usage": {
+          "responses": 2,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 158,
+          "completion_tokens": 0,
+          "total_tokens": 158
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1291,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "moderate",
+    "question": "How many male patients have a normal level of both albumin and total protein?",
+    "gold_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M'  AND T2.ALB > 3.5 AND T2.ALB < 5.5 AND T2.TP BETWEEN 6.0 AND 8.5",
+    "variants": {
+      "generation_only": {
+        "question_id": 1291,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.ALB > 3.5 AND T2.ALB < 5.5 AND T2.TP > 6.0 AND T2.TP < 8.5",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 90.48220660557854,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30877,
+          "completion_tokens": 13147,
+          "total_tokens": 44024
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 232,
+          "completion_tokens": 0,
+          "total_tokens": 232
+        }
+      },
+      "generation_revision": {
+        "question_id": 1291,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.ALB > 3.5 AND T2.ALB < 5.5 AND T2.TP > 6.0 AND T2.TP < 8.5",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 100.04269530644524,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30877,
+          "completion_tokens": 13147,
+          "total_tokens": 44024
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 232,
+          "completion_tokens": 0,
+          "total_tokens": 232
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1291,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "moderate",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.ALB > 3.5 AND T2.ALB < 5.5 AND T2.TP > 6.0 AND T2.TP < 8.5",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 100.04874541630852,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30877,
+          "completion_tokens": 13147,
+          "total_tokens": 44024
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 232,
+          "completion_tokens": 0,
+          "total_tokens": 232
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1185,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "challenging",
+    "question": "For the patient who was born on 1959/2/18, what is the decrease rate for his/her total cholesterol from November to December in 1981?",
+    "gold_sql": "SELECT CAST((SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)) AS REAL) / SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1959-02-18'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1185,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)\nFROM Patient AS T1\nINNER JOIN Laboratory AS T2 ON T1.ID = T2.ID\nWHERE\n  T1.Birthday = '1959-02-18'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 89.17815135943238,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31466,
+          "completion_tokens": 13930,
+          "total_tokens": 45396
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      },
+      "generation_revision": {
+        "question_id": 1185,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)\nFROM Patient AS T1\nINNER JOIN Laboratory AS T2 ON T1.ID = T2.ID\nWHERE\n  T1.Birthday = '1959-02-18'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 96.8639831446344,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31466,
+          "completion_tokens": 13930,
+          "total_tokens": 45396
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1185,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT\n  SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)\nFROM Patient AS T1\nINNER JOIN Laboratory AS T2 ON T1.ID = T2.ID\nWHERE\n  T1.Birthday = '1959-02-18'",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 96.8690462015802,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 31466,
+          "completion_tokens": 13930,
+          "total_tokens": 45396
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 222,
+          "completion_tokens": 0,
+          "total_tokens": 222
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1202,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "challenging",
+    "question": "How many male patients who underwent testing between 1995 and 1997 and were subsequently diagnosed with Behcet disease did not stay in the hospital for treatment?",
+    "gold_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Diagnosis = 'Behcet' AND T1.SEX = 'M' AND STRFTIME('%Y', T2.`Examination Date`) BETWEEN '1995' AND '1997' AND T1.Admission = '-'",
+    "variants": {
+      "generation_only": {
+        "question_id": 1202,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T1.Admission = '-' AND T1.Diagnosis LIKE '%Behcet%' AND STRFTIME('%Y', T2.\"Examination Date\") BETWEEN '1995' AND '1997'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 113.53219133047969,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30733,
+          "completion_tokens": 21112,
+          "total_tokens": 51845
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 267,
+          "completion_tokens": 0,
+          "total_tokens": 267
+        }
+      },
+      "generation_revision": {
+        "question_id": 1202,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T1.Admission = '-' AND T1.Diagnosis LIKE '%Behcet%' AND STRFTIME('%Y', T2.\"Examination Date\") BETWEEN '1995' AND '1997'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 113.54509025244624,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30733,
+          "completion_tokens": 21112,
+          "total_tokens": 51845
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 267,
+          "completion_tokens": 0,
+          "total_tokens": 267
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1202,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T1.Admission = '-' AND T1.Diagnosis LIKE '%Behcet%' AND STRFTIME('%Y', T2.\"Examination Date\") BETWEEN '1995' AND '1997'",
+        "execution_correct": true,
+        "multiset_match": true,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 113.55314379362972,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30733,
+          "completion_tokens": 21112,
+          "total_tokens": 51845
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 267,
+          "completion_tokens": 0,
+          "total_tokens": 267
+        }
+      }
+    }
+  },
+  {
+    "question_id": 1241,
+    "database_id": "thrombosis_prediction",
+    "difficulty": "challenging",
+    "question": "For patients with abnormal platelet level, state the number of patients with lower than normal range. How is it compare to the number of patients with higher than normal range?",
+    "gold_sql": "SELECT SUM(CASE WHEN T2.PLT <= 100 THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.PLT >= 400 THEN 1 ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID",
+    "variants": {
+      "generation_only": {
+        "question_id": 1241,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT SUM(PLT < 100) - SUM(PLT > 400) FROM Laboratory",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 104.18209674669197,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30370,
+          "completion_tokens": 12187,
+          "total_tokens": 42557
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 182,
+          "completion_tokens": 0,
+          "total_tokens": 182
+        }
+      },
+      "generation_revision": {
+        "question_id": 1241,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT SUM(PLT < 100) - SUM(PLT > 400) FROM Laboratory",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 104.2025163443177,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30370,
+          "completion_tokens": 12187,
+          "total_tokens": 42557
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 182,
+          "completion_tokens": 0,
+          "total_tokens": 182
+        }
+      },
+      "full_pipeline": {
+        "question_id": 1241,
+        "database_id": "thrombosis_prediction",
+        "difficulty": "challenging",
+        "sql": "SELECT SUM(PLT < 100) - SUM(PLT > 400) FROM Laboratory",
+        "execution_correct": false,
+        "multiset_match": false,
+        "prediction_status": "success",
+        "prediction_error": null,
+        "seconds": 104.21538307977607,
+        "chat_usage": {
+          "responses": 9,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 30370,
+          "completion_tokens": 12187,
+          "total_tokens": 42557
+        },
+        "embedding_usage": {
+          "responses": 3,
+          "missing_usage_responses": 0,
+          "prompt_tokens": 182,
+          "completion_tokens": 0,
+          "total_tokens": 182
+        }
+      }
+    }
+  }
+]

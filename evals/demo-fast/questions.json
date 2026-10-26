@@ -1,0 +1,38 @@
+[
+  {
+    "question_id": 0,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "What is the highest eligible free rate for K-12 students in the schools in Alameda County?",
+    "predicted_sql": "SELECT MAX(\"Free Meal Count (K-12)\" / \"Enrollment (K-12)\") FROM frpm WHERE \"County Name\" = 'Alameda'",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "returned_rows": 1,
+    "query_stage_seconds": 47.310573
+  },
+  {
+    "question_id": 2,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "Please list the zip code of all the charter schools in Fresno County Office of Education.",
+    "predicted_sql": "SELECT DISTINCT T1.Zip FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.\"Charter School (Y/N)\" = 1 AND T2.\"District Name\" = 'Fresno County Office of Education'",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "returned_rows": 5,
+    "query_stage_seconds": 44.8363938
+  },
+  {
+    "question_id": 5,
+    "database_id": "california_schools",
+    "difficulty": "simple",
+    "question": "How many schools with an average score in Math greater than 400 in the SAT test are exclusively virtual?",
+    "predicted_sql": "SELECT COUNT(T1.CDSCode) FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.Virtual = 'F' AND T2.AvgScrMath > 400",
+    "execution_correct": true,
+    "multiset_match": true,
+    "prediction_status": "success",
+    "returned_rows": 1,
+    "query_stage_seconds": 32.7107127
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "sample_count": 3,
+  "correct_count": 3,
+  "execution_accuracy": 1.0,
+  "strict_multiset_accuracy": 1.0,
+  "successful_executions": 3,
+  "mean_query_stage_seconds": 41.6192265,
+  "p95_query_stage_seconds_nearest_rank": 47.310573,
+  "online_chat_usage": {
+    "responses": 27,
+    "missing_usage_responses": 0,
+    "prompt_tokens": 134455,
+    "completion_tokens": 18582,
+    "total_tokens": 153037
+  },
+  "online_embedding_usage": {
+    "responses": 9,
+    "missing_usage_responses": 0,
+    "prompt_tokens": 399,
+    "completion_tokens": 0,
+    "total_tokens": 399
+  }
+}
