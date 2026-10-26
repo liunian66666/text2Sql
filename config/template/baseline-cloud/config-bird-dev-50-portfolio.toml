@@ -1,0 +1,97 @@
+# 实习作品集评测配置：50题、5数据库、三组流程对照。
+# 比论文复现实验使用更小的采样预算，优先保证可复跑、可展示和成本可控。
+
+[logger]
+print_level = "INFO"
+
+[run]
+save_root = "workspace/runs"
+exp_name = "bird-dev-portfolio-50-qwen"
+parallelism = 4
+embedding_batch_size = 64
+llm_timeout = 60
+progress_log_interval = 10
+checkpoint_interval = 1
+default_llm_profile = "qwen_http"
+
+[llm_profiles.qwen_http]
+model = "qwen"
+base_url = "http://127.0.0.1:1030/v1"
+api_key = "EMPTY"
+max_tokens = 4096
+temperature = 0.2
+n_call_strategy = "single"
+max_request_n = 2
+api_type = "openai"
+max_model_len = 65536
+extra_body = { extra_body = { chat_template_kwargs = { enable_thinking = false } } }
+
+[embedding]
+api_type = "openai"
+embedding_model_name_or_path = "text-embedding-v4"
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+api_key = "YOUR_DASHSCOPE_API_KEY"
+
+[dataset]
+type = "bird"
+split = "dev"
+root_path = "data/bird"
+question_ids_path = "evals/bird-dev-50/sample.json"
+sql_execution_timeout = 60
+
+[vector_database]
+store_root_path = "workspace/runs/_shared/bird/value-text-embedding-v4"
+api_type = "openai"
+embedding_model_name_or_path = "text-embedding-v4"
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+api_key = "YOUR_DASHSCOPE_API_KEY"
+max_value_length = 100
+lower_meta_data = true
+build_backend = "local_index"
+
+[few_shot_index]
+save_path = "workspace/runs/_shared/bird/train100-text-embedding-v4"
+num_examples = 5
+question_weight = 0.6
+sql_weight = 0.4
+similarity_device = "cpu"
+force_rebuild = false
+llm_profile = "qwen_http"
+max_samples = 100
+
+[few_shot_index.preliminary_sql]
+enabled = true
+dc_sampling_budget = 1
+skeleton_sampling_budget = 1
+llm_profile = "qwen_http"
+
+[value_retrieval]
+max_values_per_column = 5
+backend = "local_index"
+local_index_device = "cpu"
+llm_profile = "qwen_http"
+
+[schema_linking]
+direct_linking_sampling_budget = 1
+reversed_linking_sampling_budget = 1
+value_distance_threshold = 0.05
+llm_profile = "qwen_http"
+
+[sql_generation]
+dc_sampling_budget = 2
+skeleton_sampling_budget = 2
+icl_sampling_budget = 2
+llm_profile = "qwen_http"
+
+[sql_revision]
+checker_sampling_budget = 1
+llm_profile = "qwen_http"
+
+[sql_selection]
+filter_top_k_sql = 2
+evaluator_sampling_budget = 2
+shortcut_consistency_score_threshold = 0.6
+llm_profile = "qwen_http"
+
+[llm_extractor]
+max_retry = 2
