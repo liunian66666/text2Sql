@@ -6,7 +6,8 @@ from app.llm_extractor import LLMExtractor
 from app.pipeline.validation import validate_pipeline_step
 from app.progress import log_progress, should_checkpoint
 from typing import Dict, List, Any, Optional, Tuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
+from app.llm.usage import ThreadPoolExecutor, meter_item
 import numpy as np
 import re
 from collections import Counter
@@ -297,6 +298,7 @@ class SQLSelectionRunner:
                     robust_win_matrix[sql_a_idx, sql_b_idx] = win_prob
         return robust_win_matrix
     
+    @meter_item
     def _select_best_sql(self, data_item: DataItem) -> None:
         """
         Select the best sql based on the eval scores.
@@ -383,6 +385,11 @@ class SQLSelectionRunner:
             sql_a, sql_b = future_to_pair[future]
             try:
                 votes, token_usage = future.result()
+                if len(votes) != self._stage_config.evaluator_sampling_budget:
+                    raise ValueError(
+                        f"Expected {self._stage_config.evaluator_sampling_budget} valid votes, "
+                        f"got {len(votes)}"
+                    )
                 self._update_win_matrix(sql_to_idx[sql_a[0]], sql_to_idx[sql_b[0]], votes, win_matrix)
                 total_token_usage["prompt_tokens"] += token_usage["prompt_tokens"]
                 total_token_usage["completion_tokens"] += token_usage["completion_tokens"]

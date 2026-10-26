@@ -44,6 +44,7 @@ class DatasetConfig(BaseModel):
     save_path: Optional[str] = Field(default=None, description="The save path of the dataset snapshot manifest")
     max_samples: Optional[int] = Field(default=None, description="The maximum number of samples to load")
     max_samples_per_db: Optional[int] = Field(default=None, description="The maximum number of samples to load per database")
+    question_ids_path: Optional[str] = Field(default=None, description="Optional JSON file containing a reproducible question_id subset")
     
     # Spider2 specific configurations
     snowflake_credential_path: Optional[str] = Field(default=None, description="Path to Snowflake credential JSON file")
@@ -403,6 +404,7 @@ class Config:
             ),
             "max_samples": dataset_config.get("max_samples", None),
             "max_samples_per_db": dataset_config.get("max_samples_per_db", None),
+            "question_ids_path": dataset_config.get("question_ids_path", None),
             # Spider2 specific configurations
             "snowflake_credential_path": dataset_config.get("snowflake_credential_path", None),
             "bigquery_credential_path": dataset_config.get("bigquery_credential_path", None),

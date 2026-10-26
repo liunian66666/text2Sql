@@ -1,6 +1,7 @@
 import sys
+import time
 from argparse import ArgumentParser
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
 from pathlib import Path
 
 from tqdm import tqdm
@@ -17,6 +18,7 @@ from app.few_shot.runtime import (
     prepare_few_shot_examples_for_item,
 )
 from app.llm import LLM
+from app.llm.usage import ThreadPoolExecutor, meter_item
 from app.logger import configure_logger, logger
 from app.progress import log_progress, should_checkpoint
 
@@ -128,7 +130,9 @@ def main() -> None:
             continue
         items_to_process.append(data_item)
 
+    @meter_item
     def prepare_item(data_item):
+        started = time.perf_counter()
         preliminary_sql = get_preliminary_sql_for_item(data_item, preliminary_sql_map)
         preliminary_sql_source = "map" if preliminary_sql is not None else None
         preliminary_sql_metadata = {
@@ -170,6 +174,7 @@ def main() -> None:
             llm_timeout=app_config.run_config.llm_timeout,
         )
         return {
+            "wall_seconds": time.perf_counter() - started,
             "preliminary_sql": preliminary_sql,
             "preliminary_sql_source": preliminary_sql_source,
             "preliminary_sql_metadata": preliminary_sql_metadata,
@@ -181,6 +186,7 @@ def main() -> None:
         data_item.few_shot_examples = prepared.examples
         data_item.few_shot_preliminary_sql = result["preliminary_sql"]
         data_item.few_shot_preparation_metadata = {
+            "wall_seconds": result["wall_seconds"],
             "preliminary_sql": result["preliminary_sql_metadata"],
             "target_mask_source": prepared.mask_source,
             "used_sql_similarity": prepared.masked_sql is not None,

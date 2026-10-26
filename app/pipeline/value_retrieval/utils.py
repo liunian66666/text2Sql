@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
 from app.llm import LLM
+from app.llm.budget import TruncatedResponseError
 from chromadb.types import Collection
 from app.prompt import PromptFactory
 from app.llm_extractor import LLMExtractor
@@ -58,14 +59,25 @@ def extract_keywords(
 
     if extractor is None:
         extractor = LLMExtractor() if extractor_max_retry is None else LLMExtractor(max_retry=extractor_max_retry)
-    results, total_token_usage = extractor.extract_with_retry(
-        llm=llm,
-        messages=[{"role": "user", "content": prompt}],
-        rule_parser=_parse_keywords_response,
-        fix_end_token=fix_end_token,
-        end_token="</result>",
-        n=1,
-    )
+    try:
+        results, total_token_usage = extractor.extract_with_retry(
+            llm=llm,
+            messages=[{"role": "user", "content": prompt}],
+            rule_parser=_parse_keywords_response,
+            fix_end_token=fix_end_token,
+            end_token="</result>",
+            n=1,
+        )
+    except TruncatedResponseError as exc:
+        # A forced-thinking model can spend the entire max_tokens budget deliberating
+        # and still return no final content. Keyword extraction only feeds vector
+        # retrieval, so prefer the heuristic fallback below over failing the stage —
+        # and over aborting a demo request whose real cause would then be buried.
+        logger.warning(
+            f"Keyword extraction was truncated by max_tokens; falling back to the default keywords splitting strategy. Error: {exc}"
+        )
+        results = []
+        total_token_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
     if results:
         keywords_list = results[0]
@@ -80,7 +92,7 @@ def extract_keywords(
 
 @retry(
     wait=wait_random_exponential(multiplier=1, max=60),
-    stop=stop_after_attempt(10),
+    stop=stop_after_attempt(3),
     retry=retry_if_exception_type((RateLimitError, APITimeoutError))
 )
 def embed_keywords(keywords: List[str], embedding_function: Any, embedding_batch_size: int) -> List[List[float]]:

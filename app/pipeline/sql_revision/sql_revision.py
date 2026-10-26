@@ -1,6 +1,7 @@
 from app.dataset import BaseDataset, load_dataset, save_dataset, DataItem
 from app.llm import LLM
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
+from app.llm.usage import ThreadPoolExecutor, meter_item
 from .checkers import BaseChecker, ResultChecker, SyntaxChecker, SelectChecker, MaxMinChecker, OrderByLimitChecker, OrderByNullChecker, JoinChecker, TimeChecker
 from app.pipeline.validation import validate_pipeline_step
 import time
@@ -139,6 +140,7 @@ class SQLRevisionRunner:
             total_tokens["total_tokens"] += tokens["total_tokens"]
         return current_sql, total_tokens
 
+    @meter_item
     def _revise_sql(self, data_item: DataItem) -> None:
         start_time = time.time()
         

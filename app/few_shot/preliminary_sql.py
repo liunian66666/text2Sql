@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
+from app.llm.usage import ThreadPoolExecutor, meter_item
 from dataclasses import dataclass
 import traceback
 from typing import Any, Dict, List, Optional, Tuple
@@ -64,19 +64,24 @@ class PreliminarySQLGenerator:
         self._dc_generator = DCGenerator(extractor_max_retry=extractor_max_retry)
         self._skeleton_generator = SkeletonGenerator(extractor_max_retry=extractor_max_retry)
 
+    @meter_item
     def generate(self, data_item: DataItem) -> PreliminarySQLResult:
         generation_item = data_item.model_copy(deep=True)
         generation_item.database_schema_after_schema_linking = data_item.database_schema
 
+        # NOTE(2026-10-25): dc/skeleton used to be submitted to self._executor,
+        # i.e. the same pool whose workers call generate() per item. Once every
+        # worker was occupied by item-level generate(), the nested sub-tasks were
+        # queued forever -> deadlock (observed: runs freeze with 0 progress).
+        # Run the two generators sequentially on the current thread instead;
+        # item-level parallelism above already saturates the pool.
         generation_tasks = {
-            "dc": self._executor.submit(
-                self._dc_generator.generate,
+            "dc": lambda: self._dc_generator.generate(
                 generation_item,
                 self._llm,
                 self._config.dc_sampling_budget,
             ),
-            "skeleton": self._executor.submit(
-                self._skeleton_generator.generate,
+            "skeleton": lambda: self._skeleton_generator.generate(
                 generation_item,
                 self._llm,
                 self._config.skeleton_sampling_budget,
@@ -85,10 +90,13 @@ class PreliminarySQLGenerator:
 
         candidates: List[str] = []
         total_token_usage = dict(TOKEN_USAGE_ZERO)
-        for name, future in generation_tasks.items():
+        for name, task in generation_tasks.items():
             try:
-                generated_candidates, token_usage = future.result()
+                generated_candidates, token_usage = task()
             except Exception as exc:
+                from app.llm.budget import BudgetExceededError
+                if isinstance(exc, BudgetExceededError):
+                    raise  # abort the request instead of degrading silently
                 logger.error(f"Error in preliminary {name} generation for item {data_item.get_item_id()}: {exc}")
                 traceback.print_exc()
                 generated_candidates, token_usage = [], TOKEN_USAGE_ZERO

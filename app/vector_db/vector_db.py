@@ -1,9 +1,10 @@
 from chromadb import PersistentClient
-from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction, OpenAIEmbeddingFunction
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from pathlib import Path
 import shutil
 from typing import List, Dict, Any
 from .qwen_embedding_function import QwenEmbeddingFunction
+from .metered_embedding import MeteredOpenAIEmbeddingFunction
 from .local_index import get_local_index_path, write_local_index_column, write_local_index_manifest
 from app.db_utils import load_table_names, load_column_names_and_types, execute_sql_without_cache
 from app.logger import logger
@@ -90,7 +91,7 @@ def get_embedding_function(
             )
     elif api_type == "openai":
         logger.info(f"Using OpenAI embedding function for {model_name_or_path}")
-        return OpenAIEmbeddingFunction(
+        return MeteredOpenAIEmbeddingFunction(
             model_name=model_name_or_path, 
             api_base=base_url, 
             api_key=api_key

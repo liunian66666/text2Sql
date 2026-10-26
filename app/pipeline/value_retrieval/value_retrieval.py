@@ -1,6 +1,7 @@
 from pathlib import Path
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
+from app.llm.usage import ThreadPoolExecutor, meter_item
 from .utils import extract_keywords, retrieve_values_for_one_column, embed_keywords
 from app.dataset import BaseDataset, load_dataset, save_dataset, DataItem
 from app.llm import LLM
@@ -249,6 +250,7 @@ class ValueRetrievalRunner:
     def _get_item_log_prefix(data_item: DataItem) -> str:
         return f"[value_retrieval][item {data_item.get_item_id()}][db {data_item.database_id}]"
 
+    @meter_item
     def _retrieve_values_for_item(self, data_item: DataItem):
         """Processes a single data item: keyword extraction + vector retrieval."""
         start_time = time.time()
@@ -454,6 +456,7 @@ class ValueRetrievalRunner:
     def run(self):
         future_to_item = {}
         skipped_spider2_count = 0
+        item_errors: List[str] = []
         
         for data_item in self._dataset:
             if data_item.is_stage_complete("value_retrieval"):
@@ -480,6 +483,7 @@ class ValueRetrievalRunner:
                 future.result()
                 self._artifact_store.record_item(data_item)
             except Exception as e:
+                item_errors.append(f"{type(e).__name__}: {e}")
                 logger.exception(f"Error processing data item {data_item.get_item_id()}: {e}")
             
             log_progress("Value Retrieval", idx, len(future_to_item), self._progress_log_interval, previous_completed=idx - 1)
@@ -488,7 +492,14 @@ class ValueRetrievalRunner:
             
         # Validate that all required fields are filled
         self._artifact_store.flush()
-        validate_pipeline_step(self._dataset, "value_retrieval")
+        try:
+            validate_pipeline_step(self._dataset, "value_retrieval")
+        except RuntimeError as exc:
+            # The per-item exceptions above are the real cause; "missing required
+            # fields" is only the symptom. Without this the truth stays in stderr.
+            if item_errors:
+                raise RuntimeError(f"{exc}; underlying errors: {'; '.join(item_errors[:3])}") from exc
+            raise
         self.save_result(materialize_snapshot=True)
         
         self._clean_up()

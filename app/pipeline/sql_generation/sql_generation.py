@@ -1,6 +1,7 @@
 from app.dataset import BaseDataset, load_dataset, save_dataset, DataItem
 from app.llm import LLM
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
+from app.llm.usage import ThreadPoolExecutor, meter_item
 from .generators import DCGenerator, SkeletonGenerator, ICLGenerator
 from app.pipeline.validation import validate_pipeline_step
 import time
@@ -88,6 +89,7 @@ class SQLGenerationRunner:
             checkpoint_interval=app_config.run_config.checkpoint_interval,
         )
         
+    @meter_item
     def _generate_sql(self, data_item: DataItem) -> None:
         start_time = time.time()
         

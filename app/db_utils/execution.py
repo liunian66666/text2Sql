@@ -71,8 +71,22 @@ def _get_connection_cache() -> OrderedDict[str, sqlite3.Connection]:
 
 
 def _create_connection(db_path: str) -> sqlite3.Connection:
-    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    connection = sqlite3.connect(Path(db_path).resolve().as_uri() + "?mode=ro", uri=True)
     connection.text_factory = lambda x: str(x, "utf-8", errors="replace")
+    connection.execute("PRAGMA query_only=ON")
+    # mode=ro protects the main database; the authorizer also prevents attaching
+    # a writable database or mutating connection state via generated SQL.
+    allowed_actions = {sqlite3.SQLITE_SELECT, sqlite3.SQLITE_READ, sqlite3.SQLITE_FUNCTION, sqlite3.SQLITE_RECURSIVE}
+    metadata_pragmas = {"table_info", "table_xinfo", "foreign_key_list", "index_list", "index_info", "index_xinfo"}
+
+    def authorize(action, arg1, arg2, database, source):
+        if action == sqlite3.SQLITE_PRAGMA and (arg1 or "").lower() in metadata_pragmas:
+            return sqlite3.SQLITE_OK
+        if action == sqlite3.SQLITE_FUNCTION and (arg2 or "").lower() == "load_extension":
+            return sqlite3.SQLITE_DENY
+        return sqlite3.SQLITE_OK if action in allowed_actions else sqlite3.SQLITE_DENY
+
+    connection.set_authorizer(authorize)
     return connection
 
 

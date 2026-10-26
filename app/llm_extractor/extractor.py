@@ -121,6 +121,9 @@ class LLMExtractor:
                         logger.debug(f"Response content: {content}")
                         
             except Exception as e:
+                from app.llm.budget import BudgetExceededError
+                if isinstance(e, BudgetExceededError):
+                    raise  # budget exhaustion is deterministic — never retry it
                 logger.warning(f"Error during LLM call (retry {retry_count + 1}/{retry_limit}): {e}")
             
             retry_count += 1

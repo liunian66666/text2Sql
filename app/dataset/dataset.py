@@ -249,6 +249,20 @@ class BirdDataset(BaseDataset):
         data_path = Path(self._config.root_path) / self._config.split / f"{self._config.split}.json"
         with open(data_path, "r") as f:
             data_list = json.load(f)
+
+        if self._config.question_ids_path:
+            selection_path = Path(self._config.question_ids_path)
+            selection = json.loads(selection_path.read_text(encoding="utf-8"))
+            selected_ids = selection.get("question_ids") if isinstance(selection, dict) else selection
+            if not isinstance(selected_ids, list) or not selected_ids:
+                raise ValueError(f"question_ids_path must contain a non-empty list: {selection_path}")
+            if len(selected_ids) != len(set(selected_ids)):
+                raise ValueError(f"Duplicate question ids in {selection_path}")
+            by_id = {item.get("question_id"): item for item in data_list}
+            missing_ids = [question_id for question_id in selected_ids if question_id not in by_id]
+            if missing_ids:
+                raise ValueError(f"Unknown BIRD question ids in {selection_path}: {missing_ids}")
+            data_list = [by_id[question_id] for question_id in selected_ids]
         
         if self._config.max_samples is not None:
             data_list = data_list[:self._config.max_samples]

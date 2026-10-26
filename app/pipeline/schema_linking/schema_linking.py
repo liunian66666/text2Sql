@@ -4,7 +4,8 @@ from app.db_utils import filter_used_database_schema
 from .linkers import DirectLinker, ReversedLinker, ValueLinker
 from .utils import merge_schema_linking_results
 from app.pipeline.validation import validate_pipeline_step
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
+from app.llm.usage import ThreadPoolExecutor, meter_item
 from tqdm import tqdm
 from app.logger import logger
 from app.progress import log_progress, should_checkpoint
@@ -100,6 +101,7 @@ class SchemaLinkingRunner:
             checkpoint_interval=app_config.run_config.checkpoint_interval,
         )
     
+    @meter_item
     def _link_tables_and_columns(self, data_item: DataItem) -> None:
         start_time = time.time()
         
