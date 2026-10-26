@@ -12,8 +12,7 @@ wheels/
 # vllm model commands
 .vllm_model_cmd
 
-# tests and workspace
-tests/
+# generated workspace (tests are source-controlled)
 workspace/
 bak_workspace/
 gemini3_flash_on_qwen3_failed_workspace/
@@ -42,3 +41,13 @@ local_docs/
 # Jupyter checkpoints
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
+
+# local environment and credentials
+.env
+.env.*
+!.env.example
+
+# scratch dirs from local debugging
+.tmp-tests/
+.tmp-demo-tests/
+.hang_probe.py
