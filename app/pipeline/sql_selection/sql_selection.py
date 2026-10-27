@@ -1,5 +1,6 @@
 from app.dataset import BaseDataset, load_dataset, save_dataset, DataItem
 from app.llm import LLM
+from app.llm.budget import BudgetExceededError
 from app.logger import logger
 from app.prompt import PromptFactory
 from app.llm_extractor import LLMExtractor
@@ -394,6 +395,11 @@ class SQLSelectionRunner:
                 total_token_usage["prompt_tokens"] += token_usage["prompt_tokens"]
                 total_token_usage["completion_tokens"] += token_usage["completion_tokens"]
                 total_token_usage["total_tokens"] += token_usage["total_tokens"]
+            except BudgetExceededError:
+                # Request-level abort. Swallowing it here sets
+                # final_selected_sql to None, which reads as "selection failed"
+                # instead of "the request hit its token/time cap".
+                raise
             except Exception as e:
                 logger.error(f"Error comparing SQLs {sql_a[0]} and {sql_b[0]}: {e}")
                 has_failure = True

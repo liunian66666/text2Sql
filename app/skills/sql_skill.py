@@ -41,6 +41,7 @@ DEFAULT_REQUEST_SECONDS_CAP = 240
 class SQLSkillRequest(BaseModel):
     question: str = Field(min_length=1)
     database_id: str = Field(min_length=1)
+    conversation_id: str | None = Field(default=None, max_length=128)
     evidence: str = ""
     max_rows: int = Field(default=100, ge=1, le=1000)
     sql_timeout_seconds: int = Field(default=30, ge=1, le=600)
@@ -127,8 +128,16 @@ def _summarize_usage(path):
     result = {}
     for kind in ("chat", "embedding"):
         selected = [r for r in records if r.get("kind", "chat") == kind]
-        result[kind] = {"responses": len(selected), "missing_usage_responses": sum(not r["usage_available"] for r in selected),
-                        **{key: sum(r.get(key) or 0 for r in selected) for key in ("prompt_tokens", "completion_tokens", "total_tokens")}}
+        # Attempts that produced no response (timeout, 429/401, empty content) are
+        # kept out of `responses` so that count still means "billed calls", but
+        # their wall time is reported instead of vanishing from the ledger.
+        succeeded = [r for r in selected if r.get("status", "success") == "success"]
+        failed = [r for r in selected if r.get("status") == "failed"]
+        result[kind] = {"responses": len(succeeded),
+                        "failed_responses": len(failed),
+                        "failed_seconds": round(sum(r.get("elapsed_seconds") or 0 for r in failed), 1),
+                        "missing_usage_responses": sum(not r.get("usage_available") for r in succeeded),
+                        **{key: sum(r.get(key) or 0 for r in succeeded) for key in ("prompt_tokens", "completion_tokens", "total_tokens")}}
     return result
 
 

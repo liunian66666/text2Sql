@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import threading
 import time
-from .usage import record_usage
+from .usage import record_usage, record_failure
 from .budget import BudgetExceededError, TruncatedResponseError, get_meter as _get_budget_meter
 from typing import TYPE_CHECKING, Dict, List, Optional
 from tenacity import(
@@ -112,6 +112,7 @@ class LLM:
             if meter is not None:
                 meter.check()
             current_n = min(target_n - len(all_choices), max_request_n)
+            attempt_started = time.perf_counter()
             try:
                 request_params = {
                     "model": self._config.model,
@@ -171,6 +172,11 @@ class LLM:
                     total_token_usage["total_tokens"] += response.usage.total_tokens
                 
             except OpenAIError as e:
+                # Record before branching: the context-length path below
+                # `continue`s and retries, and every attempt costs wall time
+                # that the success-only token ledger would otherwise lose.
+                record_failure(model=self._config.model,
+                               elapsed_seconds=time.perf_counter() - attempt_started, error=e)
                 if isinstance(e, RateLimitError):
                     logger.error(f"OpenAI error: {e}")
                     logger.error("Rate limit exceeded, please try again later.")
@@ -198,6 +204,8 @@ class LLM:
                 logger.warning("Aborting request: budget exhausted (hard cap or all choices truncated)")
                 raise
             except Exception as e:
+                record_failure(model=self._config.model,
+                               elapsed_seconds=time.perf_counter() - attempt_started, error=e)
                 logger.error(f"Unexpected error: {e}")
                 raise e
                 

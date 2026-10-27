@@ -151,6 +151,59 @@ class UsageTest(unittest.TestCase):
         self.assertEqual(usage, {"prompt_tokens": 20, "completion_tokens": 6, "total_tokens": 26})
 
 
+class FailureLedgerTest(unittest.TestCase):
+    """Attempts that produced no response must still be accountable."""
+
+    def test_provider_failure_leaves_a_ledger_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "usage.jsonl"
+
+            def boom(**kwargs):
+                raise RuntimeError("upstream exploded")
+
+            client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=boom)))
+            llm = LLM(LLMConfig(model="test", base_url="http://localhost/v1", api_key="secret-key"))
+            llm._client = client
+
+            with _usage_environment(ledger):
+                with self.assertRaises(RuntimeError):
+                    llm.ask([{"role": "user", "content": "test"}])
+
+            records = [json.loads(line) for line in ledger.read_text().splitlines()]
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0]["status"], "failed")
+            self.assertEqual(records[0]["error_type"], "RuntimeError")
+            self.assertIsNone(records[0]["completion_tokens"])
+            self.assertGreaterEqual(records[0]["elapsed_seconds"], 0)
+            # The ledger is safe to ship: no key, no message body.
+            self.assertNotIn("secret-key", ledger.read_text())
+            self.assertNotIn("upstream exploded", ledger.read_text())
+
+    def test_summary_keeps_failed_attempts_out_of_billed_responses(self):
+        from app.skills.sql_skill import _summarize_usage
+
+        records = [
+            {"kind": "chat", "status": "success", "usage_available": True, "elapsed_seconds": 1.0,
+             "prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+            {"kind": "chat", "status": "failed", "usage_available": False, "elapsed_seconds": 45.0,
+             "prompt_tokens": None, "completion_tokens": None, "total_tokens": None},
+            {"kind": "chat", "status": "failed", "usage_available": False, "elapsed_seconds": 45.0,
+             "prompt_tokens": None, "completion_tokens": None, "total_tokens": None},
+            {"kind": "chat", "usage_available": True, "elapsed_seconds": 2.0,  # legacy line, no status
+             "prompt_tokens": 4, "completion_tokens": 2, "total_tokens": 6},
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "usage.jsonl"
+            ledger.write_text("\n".join(json.dumps(r) for r in records), encoding="utf-8")
+            summary = _summarize_usage(ledger)
+
+        self.assertEqual(summary["chat"]["responses"], 2)
+        self.assertEqual(summary["chat"]["failed_responses"], 2)
+        self.assertEqual(summary["chat"]["failed_seconds"], 90.0)
+        self.assertEqual(summary["chat"]["total_tokens"], 21)
+        self.assertEqual(summary["embedding"]["responses"], 0)
+
+
 class EvaluationTest(unittest.TestCase):
     def test_empty_invalid_and_duplicate_results_are_explicit(self):
         result = lambda rows: SimpleNamespace(result_rows=rows)

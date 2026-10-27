@@ -1,5 +1,6 @@
 from app.dataset import BaseDataset, load_dataset, save_dataset, DataItem
 from app.llm import LLM
+from app.llm.budget import BudgetExceededError
 from concurrent.futures import as_completed
 from app.llm.usage import ThreadPoolExecutor, meter_item
 from .checkers import BaseChecker, ResultChecker, SyntaxChecker, SelectChecker, MaxMinChecker, OrderByLimitChecker, OrderByNullChecker, JoinChecker, TimeChecker
@@ -187,6 +188,10 @@ class SQLRevisionRunner:
             try:
                 revised_sql, tokens = future.result()
                 norm_to_result[norm] = (revised_sql, tokens)
+            except BudgetExceededError:
+                # Request-level abort; do not record it as a failed candidate
+                # that later reports as missing revision fields.
+                raise
             except Exception as e:
                 logger.error(f"Error revising SQL candidate for item {data_item.question_id}: {e}")
                 traceback.print_exc()

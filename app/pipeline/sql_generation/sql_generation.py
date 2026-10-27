@@ -1,5 +1,6 @@
 from app.dataset import BaseDataset, load_dataset, save_dataset, DataItem
 from app.llm import LLM
+from app.llm.budget import BudgetExceededError
 from concurrent.futures import as_completed
 from app.llm.usage import ThreadPoolExecutor, meter_item
 from .generators import DCGenerator, SkeletonGenerator, ICLGenerator
@@ -107,6 +108,11 @@ class SQLGenerationRunner:
         for name, future in generation_tasks.items():
             try:
                 results[name] = future.result()
+            except BudgetExceededError:
+                # Request-level abort, not a per-candidate failure: None here
+                # would surface as a generation validation error and bury the
+                # real cause (token/time cap already spent).
+                raise
             except Exception as e:
                 logger.error(f"Error in {name} generation for item {data_item.question_id}: {e}")
                 traceback.print_exc()

@@ -10,6 +10,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 from app.few_shot.train_loader import TrainingExample
 from app.llm import LLM
+from app.llm.budget import BudgetExceededError, TruncatedResponseError
 from app.logger import logger
 
 
@@ -284,10 +285,31 @@ def mask_target_question_sql(
             llm_timeout=llm_timeout,
         )
         return TargetMaskResult(masked_question=parsed_question, masked_sql=None, source="llm")
+    except BudgetExceededError as exc:
+        # One call spending max_tokens on thinking stays soft: the mask only
+        # feeds few-shot retrieval, so degrade instead of failing the stage.
+        # A real token/time cap hit must abort, otherwise the ~3x45s of retries
+        # below disappears into "fallback" and the request looks slow for no
+        # attributable reason.
+        if not isinstance(exc, TruncatedResponseError):
+            raise
+        return _raw_target_mask_fallback(question_context, sql, item_id, exc)
     except Exception as exc:
-        prefix = f" for item {item_id}" if item_id is not None else ""
-        logger.warning(f"Failed to mask target question/SQL{prefix}; using raw text for this run. Error: {exc}")
-        return TargetMaskResult(masked_question=question_context, masked_sql=sql, source="fallback")
+        return _raw_target_mask_fallback(question_context, sql, item_id, exc)
+
+
+def _raw_target_mask_fallback(
+    question_context: str,
+    sql: Optional[str],
+    item_id: Optional[str],
+    exc: BaseException,
+) -> TargetMaskResult:
+    prefix = f" for item {item_id}" if item_id is not None else ""
+    logger.warning(
+        f"Failed to mask target question/SQL{prefix}; using raw text for this run. "
+        f"Error: {type(exc).__name__}: {exc}"
+    )
+    return TargetMaskResult(masked_question=question_context, masked_sql=sql, source="fallback")
 
 
 def _ask_mask_question_sql(question: str, evidence: str, sql: str, llm: LLM, llm_timeout: int) -> Dict[str, str]:

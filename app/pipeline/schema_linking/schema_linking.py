@@ -1,5 +1,6 @@
 from app.dataset import BaseDataset, load_dataset, save_dataset, DataItem
 from app.llm import LLM
+from app.llm.budget import BudgetExceededError
 from app.db_utils import filter_used_database_schema
 from .linkers import DirectLinker, ReversedLinker, ValueLinker
 from .utils import merge_schema_linking_results
@@ -119,6 +120,12 @@ class SchemaLinkingRunner:
         for name, future in linker_tasks.items():
             try:
                 results[name] = future.result()
+            except BudgetExceededError:
+                # A budget abort is a request-level decision, not a per-item
+                # linking failure. Turning it into None here made the stage
+                # validation report "missing required fields" and hid the real
+                # cause (the request's token/time cap was already spent).
+                raise
             except Exception as e:
                 logger.error(f"Error in {name} linking for item {data_item.question_id}: {e}")
                 traceback.print_exc()
