@@ -21,8 +21,12 @@ base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 api_key = "YOUR_DASHSCOPE_API_KEY"
 max_tokens = 4096
 temperature = 0.2
-n_call_strategy = "single"
-max_request_n = 2
+# DashScope 只接受 n=1（`Invalid n value (currently only n = 1 is supported)`）。
+# split 让 ask() 循环发 n=1 直到凑满 sampling_budget；自建端点支持一次 n>1，
+# 所以下面保留的 qwen_http profile 仍是 single。只有 sql_selection 的
+# evaluator_sampling_budget=2 会真正触发多票，单候选走捷径时不会调用比较模型。
+n_call_strategy = "split"
+max_request_n = 1
 api_type = "openai"
 max_model_len = 65536
 # DashScope 支持顶层 enable_thinking；关掉思考后同一条抽关键词请求从

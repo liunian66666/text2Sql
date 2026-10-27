@@ -151,6 +151,39 @@ class UsageTest(unittest.TestCase):
         self.assertEqual(usage, {"prompt_tokens": 20, "completion_tokens": 6, "total_tokens": 26})
 
 
+    def test_split_strategy_sends_only_n_equals_one(self):
+        # DashScope rejects n>1 with "Invalid n value (currently only n = 1 is
+        # supported)". Only sql_selection asks for 2 evaluator votes, so this
+        # stayed invisible until a question produced two distinct candidates.
+        received = []
+
+        def create(**kwargs):
+            received.append(kwargs["n"])
+            return SimpleNamespace(
+                id="fake",
+                choices=[SimpleNamespace(message=SimpleNamespace(content="A"), finish_reason="stop")],
+                usage=SimpleNamespace(prompt_tokens=10, completion_tokens=1, total_tokens=11),
+            )
+
+        client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+        split = LLM(LLMConfig(model="test", base_url="http://localhost/v1", api_key="test",
+                               n_call_strategy="split", max_request_n=1))
+        split._client = client
+        messages, usage = split.ask([{"role": "user", "content": "vote"}], n=2)
+        self.assertEqual(received, [1, 1])
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(usage["total_tokens"], 22)
+
+        single = LLM(LLMConfig(model="test", base_url="http://localhost/v1", api_key="test",
+                               n_call_strategy="single", max_request_n=2))
+        single._client = client
+        received.clear()
+        messages, _ = single.ask([{"role": "user", "content": "vote"}], n=2)
+        # The first request carries n=2, which is exactly what DashScope 400s on.
+        self.assertEqual(received[0], 2)
+        self.assertEqual(len(messages), 2)
+
+
 class FailureLedgerTest(unittest.TestCase):
     """Attempts that produced no response must still be accountable."""
 

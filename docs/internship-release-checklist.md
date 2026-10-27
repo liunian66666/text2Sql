@@ -42,6 +42,8 @@
 
 验收标准：报告、JSON、CSV 都能生成，演示页可以直接读取结果；明确注明这是固定分层样本，不是 BIRD 官方成绩。
 
+> 重跑前注意（2026-10-27 新发现）：DashScope 兼容端点**只接受 `n=1`**，多候选必须用 `n_call_strategy = "split"` 逐条发请求；`config/local/baseline-dashscope/` 里几份评测配置仍是 `single` + `max_request_n = 4/8`，一旦 SQL 选择真的比较两个候选就会 400（`Invalid n value`）。这三份配置目前不影响演示档，重跑消融前要先改。
+
 ### 2. 增加“快速演示配置”
 
 状态：**已完成**。配置模板位于 `config/template/demo-fast/`。旧自建端点下三个预设问题实测 32.71 至 47.31 秒；切换到 DashScope 后由企业库三题取代，实测 44.9–49.9 秒（SQL Skill 口径）。
