@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from app.skills.sql_skill import SQLSkill, SQLSkillRequest, execute_readonly_table, _usage_environment
 from app.llm.usage import ThreadPoolExecutor, meter_item, record_usage
-from app.config import AppConfig
+from app.config import AppConfig, PROJECT_ROOT
 from app.config.config import LLMConfig
 from app.llm import LLM
 from runner.report_baseline import compare_execution, aggregate_usage
@@ -212,8 +212,14 @@ class EvaluationTest(unittest.TestCase):
         self.assertEqual(compare_execution(result([]), result(None)), (None, None))
         self.assertEqual(compare_execution(result([(1,), (1,)]), result([(1,)])), (True, False))
 
+    # The BIRD dev release is gitignored, so this is the only test that cannot
+    # run on a clean checkout. Skip it there rather than turn CI red: sampling
+    # determinism only matters when the data is actually present. Resolved
+    # against PROJECT_ROOT so it also survives being run from another CWD.
+    @unittest.skipUnless((PROJECT_ROOT / "data/bird/dev/dev.json").is_file(),
+                         "BIRD dev release not downloaded (gitignored)")
     def test_stratified_sample_is_deterministic_and_balanced(self):
-        source = Path("data/bird/dev/dev.json")
+        source = PROJECT_ROOT / "data/bird/dev/dev.json"
         databases = ["california_schools", "superhero", "student_club", "toxicology", "thrombosis_prediction"]
         quotas = {"simple": 4, "moderate": 3, "challenging": 3}
         first = select_sample(source, databases, quotas, 20261025)

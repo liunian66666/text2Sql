@@ -170,7 +170,7 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 
 | 检查项 | 结果 | 命令 / 位置 |
 |---|---|---|
-| 自动化单元测试 | **29 项通过 + 8 子测试**（离线，不触网，约 4 秒） | `uv run python -m unittest discover -s tests -q` |
+| 自动化单元测试 | **29 项通过**（本地，不触网，约 4 秒）；干净检出下 28 项通过 + 1 项跳过（BIRD 原始数据被 git 忽略） | `uv run python -m unittest discover -s tests -q` |
 | Agent 与工具 | LLM 工具循环、会话记忆、工具轨迹以及指标卡/柱状/折线/饼图规则均有离线测试 | `tests/test_agent.py` |
 | MCP | 4 个只读分析工具可被协议层发现 | `tests/test_mcp_server.py` |
 | 只读执行安全性 | 写操作 / 多语句 / `ATTACH` / `load_extension` 全部被拒；递归查询超时被中断 | `tests/test_sql_skill.py` |
