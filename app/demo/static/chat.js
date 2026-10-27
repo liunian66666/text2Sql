@@ -19,6 +19,92 @@ let timer = null;
 let reconnects = 0;
 let conversationId = crypto.randomUUID();
 
+// The Agent writes its answer in Markdown (headings, bold, lists, tables), but
+// the bubble used textContent, so `## 标题`, `**加粗**` and 60 个 `|` 全部当成字面
+// 字符显示，换行又被 HTML 折叠成一坨。这里按 DOM 节点逐段构建，不用 innerHTML，
+// 模型输出里的任何尖括号或伪标签都只能是文本。
+function renderInlineMarkdown(node, text) {
+  const pattern = /(\*\*[^*\n]+\*\*|`[^`\n]+`)/g;
+  let cursor = 0;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > cursor) node.appendChild(document.createTextNode(text.slice(cursor, match.index)));
+    const token = match[0];
+    const child = token.startsWith("**") ? document.createElement("strong") : document.createElement("code");
+    child.textContent = token.slice(1, -1);
+    node.appendChild(child);
+    cursor = match.index + token.length;
+  }
+  if (cursor < text.length) node.appendChild(document.createTextNode(text.slice(cursor)));
+  return node;
+}
+
+function renderMarkdown(container, source) {
+  const lines = String(source || "").replace(/\r\n?/g, "\n").split("\n");
+  const cells = line => line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(item => item.trim());
+  const isDivider = line => /^\|?[\s:|-]+\|?$/.test(line.trim()) && line.includes("-");
+  let index = 0;
+  while (index < lines.length) {
+    const line = lines[index].trim();
+    if (!line) { index += 1; continue; }
+
+    if (/^#{1,6}\s/.test(line)) {
+      const heading = document.createElement("div");
+      heading.className = "md-heading";
+      renderInlineMarkdown(heading, line.replace(/^#{1,6}\s+/, ""));
+      container.appendChild(heading);
+      index += 1;
+      continue;
+    }
+
+    if (line.startsWith("|") && isDivider(lines[index + 1] || "")) {
+      const table = document.createElement("table");
+      table.className = "md-table";
+      const head = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      cells(line).forEach(cell => { const th = document.createElement("th"); renderInlineMarkdown(th, cell); headRow.appendChild(th); });
+      head.appendChild(headRow);
+      table.appendChild(head);
+      const body = document.createElement("tbody");
+      index += 2;
+      while (index < lines.length && lines[index].trim().startsWith("|")) {
+        const row = document.createElement("tr");
+        cells(lines[index]).forEach(cell => { const td = document.createElement("td"); renderInlineMarkdown(td, cell); row.appendChild(td); });
+        body.appendChild(row);
+        index += 1;
+      }
+      table.appendChild(body);
+      container.appendChild(table);
+      continue;
+    }
+
+    if (/^([-*+]|\d+\.)\s+/.test(line)) {
+      const ordered = /^\d+\./.test(line);
+      const list = document.createElement(ordered ? "ol" : "ul");
+      list.className = "md-list";
+      while (index < lines.length && /^([-*+]|\d+\.)\s+/.test(lines[index].trim())) {
+        const item = document.createElement("li");
+        renderInlineMarkdown(item, lines[index].trim().replace(/^([-*+]|\d+\.)\s+/, ""));
+        list.appendChild(item);
+        index += 1;
+      }
+      container.appendChild(list);
+      continue;
+    }
+
+    const paragraph = document.createElement("div");
+    paragraph.className = "md-para";
+    while (index < lines.length && lines[index].trim() && !/^#{1,6}\s/.test(lines[index].trim())
+      && !lines[index].trim().startsWith("|") && !/^([-*+]|\d+\.)\s+/.test(lines[index].trim())) {
+      if (paragraph.childNodes.length) paragraph.appendChild(document.createElement("br"));
+      renderInlineMarkdown(paragraph, lines[index].trim());
+      index += 1;
+    }
+    container.appendChild(paragraph);
+  }
+  return container;
+}
+
 function setService(text, state = "neutral") {
   const element = $("#service-state");
   element.lastChild.textContent = text;
@@ -240,9 +326,10 @@ function renderAssistantResult(run, task) {
   header.append(title, intent);
   run.bubble.appendChild(header);
 
-  const answer = document.createElement("p");
+  // div, not p: the answer now contains block children (tables, lists).
+  const answer = document.createElement("div");
   answer.className = `answer-text${success ? "" : " error-text"}`;
-  answer.textContent = result.answer || result.error || (success ? "查询已经完成。" : "请稍后重试。");
+  renderMarkdown(answer, result.answer || result.error || (success ? "查询已经完成。" : "请稍后重试。"));
   run.bubble.appendChild(answer);
   if (!success) {
     const stage = document.createElement("p");

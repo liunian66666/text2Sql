@@ -89,6 +89,16 @@ select:focus, input:focus, textarea:focus { border-color: var(--blue); box-shado
 .result-header strong { font-size: 15px; }
 .intent-badge { padding: 5px 8px; border-radius: 99px; color: #315fd8; background: #e6edff; font-size: 10px; font-weight: 800; }
 .answer-text { margin: 0 0 12px !important; color: #34445b !important; font-size: 14px !important; }
+/* Markdown 渲染出的块级结构（标题/段落/列表/表格）；表格要覆盖全局 th,td 的 nowrap。 */
+.answer-text .md-heading { margin: 12px 0 6px; color: #22314a; font-size: 15px; font-weight: 650; }
+.answer-text .md-para { margin: 0 0 8px; }
+.answer-text .md-list { margin: 0 0 8px; padding-left: 18px; }
+.answer-text .md-list li { margin: 2px 0; }
+.answer-text code { padding: 1px 5px; border-radius: 4px; background: #eef2f7; color: #2c4763; font: 12px ui-monospace, Consolas, monospace; }
+.answer-text .md-table { width: 100%; margin: 8px 0 10px; border-collapse: collapse; font-size: 13px; }
+.answer-text .md-table th, .answer-text .md-table td { padding: 6px 8px; border: 1px solid #e3e9f1; white-space: normal; text-align: left; }
+.answer-text .md-table th { background: #f3f6fa; font-weight: 600; }
+.answer-text > .md-para:first-child, .answer-text > .md-heading:first-child { margin-top: 0; }
 .business-context { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .business-context small { color: var(--muted); }
 .chip { padding: 4px 7px; border-radius: 5px; color: #31516e; background: #e7edf5; font: 10px ui-monospace, Consolas, monospace; }
