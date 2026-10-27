@@ -1,5 +1,6 @@
 const STAGES = [
   ["agent_planning", "LLM 规划"], ["agent_tool", "工具调用"],
+  ["agent_orchestration", "规划与编排"],
   ["value_retrieval", "值检索"], ["few_shot_preparation", "Few-shot"],
   ["schema_linking", "Schema"], ["sql_generation", "SQL 生成"],
   ["sql_revision", "SQL 修订"], ["sql_selection", "SQL 选择"],
@@ -275,7 +276,10 @@ function renderAssistantResult(run, task) {
 function buildMetrics(result, artifacts) {
   const usage = result.usage || {}, agentUsage = result.agent_usage || {};
   const values = [
-    ["总耗时", formatSeconds(result.elapsed_seconds)],
+    // The live timer above is client-measured and includes Agent planning, so
+    // the final card must use the same scope or it ends up reading lower than
+    // the spinner it just replaced.
+    ["总耗时", formatSeconds(result.agent_elapsed_seconds ?? result.elapsed_seconds)],
     ["Token", formatNumber((usage.chat?.total_tokens || 0) + (usage.embedding?.total_tokens || 0) + (agentUsage.total_tokens || 0))],
     ["Agent 决策", formatNumber(result.model_calls || 0)],
     ["结果行数", formatNumber(result.rows?.length || 0)],
