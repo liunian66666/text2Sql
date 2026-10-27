@@ -23,6 +23,7 @@ from app.vector_db.local_index import get_local_index_path, write_local_index_co
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reuse-legacy-columns", action="store_true")
+    parser.add_argument("--database", help="Build one SQLite database directly instead of reading the dataset snapshot")
     args = parser.parse_args()
     config = get_config()
     cfg = config.vector_database_config
@@ -37,8 +38,8 @@ def main():
         use_qwen3_embedding=cfg.use_qwen3_embedding, local_files_only=cfg.local_files_only,
         normalize_embeddings=cfg.normalize_embeddings, base_url=cfg.base_url,
         api_key=cfg.api_key, embedding_device=cfg.embedding_device)
-    dataset = load_dataset(config.dataset_config.save_path)
-    for db in dataset.get_all_database_paths():
+    databases = [args.database] if args.database else load_dataset(config.dataset_config.save_path).get_all_database_paths()
+    for db in databases:
         db = Path(db).resolve()
         index = get_local_index_path(Path(cfg.store_root_path) / db.stem)
         index.mkdir(parents=True, exist_ok=True)

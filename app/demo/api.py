@@ -75,7 +75,7 @@ def create_app(*, manager, registry, evaluations: EvaluationRepository, static_d
 
     @app.get("/")
     def index():
-        return FileResponse(static_dir / "index.html")
+        return FileResponse(static_dir / "chat.html")
 
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
     return app

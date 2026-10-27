@@ -1,0 +1,8 @@
+[
+  {"difficulty": "查数", "intent": "query", "question": "统计2026年有效订单的销售额、订单量和平均客单价。"},
+  {"difficulty": "排名", "intent": "ranking", "question": "统计2026年销售额最高的10个商品，返回商品名称、销量、销售额和排名。"},
+  {"difficulty": "趋势", "intent": "trend", "question": "按月统计2026年的销售额和订单量变化趋势。"},
+  {"difficulty": "占比", "intent": "proportion", "question": "计算2026年各商品分类的销售额及其占总销售额的比例。"},
+  {"difficulty": "综合", "intent": "ranking", "question": "找出2026年销售额排名前5且退款率高于整体平均退款率的商品。"},
+  {"difficulty": "闲聊", "intent": "chat", "question": "你支持分析哪些经营指标？"}
+]

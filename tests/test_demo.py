@@ -181,9 +181,15 @@ class DemoAPITest(unittest.TestCase):
 
         health, databases, evaluations, page, missing = asyncio.run(exercise())
         self.assertEqual(health.json(), {"status": "ok"})
-        self.assertEqual(len(databases.json()["databases"]), 5)
+        # Only databases with a value index for the active embedding model are
+        # listed; see DEMO_READY_DATABASES in app/demo/registry.py.
+        entries = databases.json()["databases"]
+        self.assertEqual([entry["id"] for entry in entries], ["enterprise_sales"])
+        self.assertGreaterEqual(len(entries[0]["examples"]), 3)
         self.assertGreaterEqual(len(evaluations.json()["evaluations"]), 1)
         self.assertIn("DeepEye-SQL", page.text)
+        self.assertIn("对话分析", page.text)
+        self.assertIn("企业数据分析助手", page.text)
         self.assertEqual(missing.status_code, 404)
 
 

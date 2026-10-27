@@ -1,4 +1,6 @@
 const STAGES = [
+  ["intent_classification", "意图分类"],
+  ["business_context", "业务口径 RAG"],
   ["value_retrieval", "值检索"],
   ["few_shot_preparation", "Few-shot 准备"],
   ["schema_linking", "Schema Linking"],
@@ -6,7 +8,9 @@ const STAGES = [
   ["sql_revision", "SQL 修订"],
   ["sql_selection", "SQL 选择"],
   ["execution", "只读执行"],
+  ["visualization", "结果可视化"],
 ];
+const INTENT_NAMES = {query: "查数", ranking: "排名", trend: "趋势", proportion: "占比", chat: "闲聊"};
 const VARIANT_NAMES = {generation_only: "仅生成", generation_revision: "生成＋修订", full_pipeline: "完整流程"};
 let databases = [];
 let stageState = {};
@@ -186,9 +190,20 @@ function renderResult(task) {
   setBadge($("#service-state"), interrupted ? "服务已重启" : success ? "已完成" : "运行失败", success ? "success" : "error");
   setBadge($("#result-badge"), interrupted ? "请求中断" : result.status === "success" ? "执行成功" : result.status === "empty_result" ? "结果为空" : "运行失败", success ? "success" : "error");
   $("#result-section").classList.remove("hidden");
+  const chatOnly = result.intent === "chat";
+  $("#sql-grid").classList.toggle("hidden", chatOnly);
+  $("#details-grid").classList.toggle("hidden", chatOnly);
+  $("#result-table-card").classList.toggle("hidden", chatOnly);
   $("#generated-sql").textContent = artifacts.generated_sql || "未生成";
   $("#revised-sql").textContent = artifacts.revised_sql || "未生成";
   $("#final-sql").textContent = artifacts.final_sql || result.sql || "未生成";
+  $("#intent-badge").textContent = INTENT_NAMES[result.intent] || result.intent || "通用查询";
+  $("#agent-answer").textContent = result.answer || (success ? "查询已完成。" : "未生成分析结论。");
+  const context = result.business_context || [];
+  $("#business-context").innerHTML = context.length
+    ? `<strong>命中的业务口径</strong>${context.map(item => `<span class="chip">${item.name}</span>`).join("")}`
+    : `<span class="muted">本次未命中企业指标口径</span>`;
+  renderVisualization(result.visualization);
 
   const usage = result.usage || {};
   const tokens = (usage.chat?.total_tokens || 0) + (usage.embedding?.total_tokens || 0);
@@ -226,6 +241,66 @@ function renderResult(task) {
   renderTable(result.columns || [], result.rows || []);
   $("#row-note").textContent = result.truncated ? `显示前 ${result.rows.length} 行，结果已截断` : `${result.rows?.length || 0} 行`;
   $("#result-section").scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function renderVisualization(chart) {
+  const card = $("#chart-card");
+  const container = $("#chart-container");
+  container.replaceChildren();
+  if (!chart || chart.type === "table") { card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  $("#chart-title").textContent = chart.title || "数据可视化";
+  $("#chart-type").textContent = {bar: "柱状图", line: "折线图", pie: "饼图", metric: "指标卡"}[chart.type] || chart.type;
+  if (chart.type === "metric") {
+    const grid = document.createElement("div"); grid.className = "chart-metrics";
+    (chart.items || []).forEach(item => { const node = document.createElement("div"); node.className = "chart-metric"; node.innerHTML = `<span>${item.name}</span><strong>${formatNumber(item.value)}</strong>`; grid.appendChild(node); });
+    container.appendChild(grid); return;
+  }
+  if (chart.type === "pie") { renderPie(container, chart.items || []); return; }
+  renderCartesian(container, chart);
+}
+
+function svgNode(name, attrs = {}) {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+  Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+  return node;
+}
+
+function renderCartesian(container, chart) {
+  const labels = chart.labels || [], series = chart.series || [];
+  const width = 900, height = 340, left = 70, right = 24, top = 30, bottom = 72;
+  const svg = svgNode("svg", {viewBox: `0 0 ${width} ${height}`, role: "img"});
+  const values = series.flatMap(item => item.values || []).map(Number).filter(Number.isFinite);
+  const max = Math.max(...values, 1), plotW = width - left - right, plotH = height - top - bottom;
+  svg.appendChild(svgNode("line", {x1:left,y1:top,x2:left,y2:top+plotH,class:"chart-axis"}));
+  svg.appendChild(svgNode("line", {x1:left,y1:top+plotH,x2:left+plotW,y2:top+plotH,class:"chart-axis"}));
+  const count = Math.max(labels.length, 1), step = plotW / count;
+  if (chart.type === "bar") {
+    const vals = series[0]?.values || [];
+    vals.forEach((value, index) => {
+      const barH = Number(value) / max * plotH;
+      svg.appendChild(svgNode("rect", {x:left+index*step+step*.18,y:top+plotH-barH,width:step*.64,height:barH,rx:5,class:"chart-bar"}));
+    });
+  } else {
+    series.forEach((item, seriesIndex) => {
+      const points = (item.values || []).map((value,index) => `${left+index*step+step/2},${top+plotH-Number(value)/max*plotH}`).join(" ");
+      svg.appendChild(svgNode("polyline", {points,fill:"none",class:`chart-line series-${seriesIndex}`}));
+    });
+  }
+  labels.forEach((label,index) => { const text=svgNode("text",{x:left+index*step+step/2,y:top+plotH+24,class:"chart-label","text-anchor":"middle"}); text.textContent=String(label).slice(0,10); svg.appendChild(text); });
+  container.appendChild(svg);
+}
+
+function renderPie(container, items) {
+  const total = items.reduce((sum,item)=>sum+Number(item.value||0),0) || 1;
+  const colors = ["#14b8a6","#3b82f6","#8b5cf6","#f59e0b","#ef4444","#06b6d4"];
+  let angle = 0; const stops=[];
+  items.forEach((item,index)=>{ const next=angle+Number(item.value||0)/total*360; stops.push(`${colors[index%colors.length]} ${angle}deg ${next}deg`); angle=next; });
+  const wrap=document.createElement("div"); wrap.className="pie-layout";
+  const pie=document.createElement("div"); pie.className="pie-chart"; pie.style.background=`conic-gradient(${stops.join(",")})`; wrap.appendChild(pie);
+  const legend=document.createElement("div"); legend.className="pie-legend";
+  items.forEach((item,index)=>{ const row=document.createElement("div"); const pct=Number(item.value||0)/total*100; row.innerHTML=`<i style="background:${colors[index%colors.length]}"></i><span>${item.name}</span><strong>${pct.toFixed(1)}%</strong>`; legend.appendChild(row); });
+  wrap.appendChild(legend); container.appendChild(wrap);
 }
 
 function renderTable(columns, rows) {

@@ -1,5 +1,6 @@
-# 实习演示配置：OpenAI 兼容 qwen + 云端 text-embedding-v4
+# 实习演示配置模板：DashScope OpenAI 兼容 deepseek-v4-pro-0813 + qwen3.7-text-embedding-flash
 # 目标是保留完整六阶段流程，同时把单题等待和 Token 控制在可演示范围。
+# 复制到 config/local/demo-fast/ 后填入自己的密钥；config/local/ 已被 git 忽略。
 
 [logger]
 print_level = "INFO"
@@ -12,7 +13,22 @@ embedding_batch_size = 64
 llm_timeout = 45
 progress_log_interval = 1
 checkpoint_interval = 1
-default_llm_profile = "qwen_http"
+default_llm_profile = "deepseek_dashscope"
+
+[llm_profiles.deepseek_dashscope]
+model = "deepseek-v4-pro-0813"
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+api_key = "YOUR_DASHSCOPE_API_KEY"
+max_tokens = 4096
+temperature = 0.2
+n_call_strategy = "single"
+max_request_n = 2
+api_type = "openai"
+max_model_len = 65536
+# DashScope 支持顶层 enable_thinking；关掉思考后同一条抽关键词请求从
+# 8.6s/378 completion token 降到 1.2s/30 token。thinking_budget 会被忽略，
+# reasoning_effort 仍会生成 reasoning_content。自建端点则两种都不可用。
+extra_body = { enable_thinking = false }
 
 [llm_profiles.qwen_http]
 model = "qwen"
@@ -30,7 +46,7 @@ extra_body = { extra_body = { chat_template_kwargs = { enable_thinking = false }
 
 [embedding]
 api_type = "openai"
-embedding_model_name_or_path = "text-embedding-v4"
+embedding_model_name_or_path = "qwen3.7-text-embedding-flash"
 base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 api_key = "YOUR_DASHSCOPE_API_KEY"
 
@@ -41,9 +57,9 @@ root_path = "data/bird"
 sql_execution_timeout = 30
 
 [vector_database]
-store_root_path = "workspace/runs/_shared/bird/value-text-embedding-v4"
+store_root_path = "workspace/runs/_shared/bird/value-qwen3.7-text-embedding-flash"
 api_type = "openai"
-embedding_model_name_or_path = "text-embedding-v4"
+embedding_model_name_or_path = "qwen3.7-text-embedding-flash"
 base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 api_key = "YOUR_DASHSCOPE_API_KEY"
 max_value_length = 100
@@ -51,48 +67,48 @@ lower_meta_data = true
 build_backend = "local_index"
 
 [few_shot_index]
-save_path = "workspace/runs/_shared/bird/train100-text-embedding-v4"
+save_path = "workspace/runs/_shared/bird/train100-qwen3.7-text-embedding-flash"
 num_examples = 5
 question_weight = 0.6
 sql_weight = 0.4
 similarity_device = "cpu"
 force_rebuild = false
-llm_profile = "qwen_http"
+llm_profile = "deepseek_dashscope"
 max_samples = 100
 
 [few_shot_index.preliminary_sql]
 enabled = true
 dc_sampling_budget = 1
 skeleton_sampling_budget = 1
-llm_profile = "qwen_http"
+llm_profile = "deepseek_dashscope"
 
 [value_retrieval]
 max_values_per_column = 5
 backend = "local_index"
 local_index_device = "cpu"
-llm_profile = "qwen_http"
+llm_profile = "deepseek_dashscope"
 
 [schema_linking]
 direct_linking_sampling_budget = 1
 reversed_linking_sampling_budget = 1
 value_distance_threshold = 0.05
-llm_profile = "qwen_http"
+llm_profile = "deepseek_dashscope"
 
 [sql_generation]
 dc_sampling_budget = 1
 skeleton_sampling_budget = 1
 icl_sampling_budget = 1
-llm_profile = "qwen_http"
+llm_profile = "deepseek_dashscope"
 
 [sql_revision]
 checker_sampling_budget = 1
-llm_profile = "qwen_http"
+llm_profile = "deepseek_dashscope"
 
 [sql_selection]
 filter_top_k_sql = 2
 evaluator_sampling_budget = 2
 shortcut_consistency_score_threshold = 0.6
-llm_profile = "qwen_http"
+llm_profile = "deepseek_dashscope"
 
 [llm_extractor]
 max_retry = 2

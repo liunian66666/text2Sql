@@ -9,9 +9,9 @@
 <body>
   <header class="hero">
     <div class="hero-copy">
-      <span class="eyebrow">TEXT-TO-SQL · STAGED ENGINEERING</span>
+      <span class="eyebrow">RAG · LANGGRAPH · TEXT-TO-SQL</span>
       <h1>DeepEye-SQL</h1>
-      <p>从自然语言问题到可执行 SQL，完整展示检索、生成、修订与选择过程。</p>
+      <p>面向企业分析场景，自动完成意图识别、业务口径检索、SQL 生成执行与结果可视化。</p>
     </div>
     <div class="hero-mark" aria-hidden="true"><span>SQL</span></div>
   </header>
@@ -61,18 +61,29 @@
         <div class="section-heading"><div><span class="step-number">03</span><h2>分析结果</h2></div><span id="result-badge" class="badge"></span></div>
         <div id="metrics" class="metric-grid"></div>
 
-        <div class="sql-grid">
+        <article id="agent-summary" class="card agent-summary">
+          <div class="card-heading"><div><h3>Agent 分析结论</h3></div><span id="intent-badge" class="badge neutral">—</span></div>
+          <p id="agent-answer" class="agent-answer"></p>
+          <div id="business-context" class="business-context"></div>
+        </article>
+
+        <article id="chart-card" class="card chart-card hidden">
+          <div class="card-heading"><h3 id="chart-title">数据可视化</h3><span id="chart-type" class="badge neutral"></span></div>
+          <div id="chart-container" class="chart-container"></div>
+        </article>
+
+        <div id="sql-grid" class="sql-grid">
           <article class="card sql-card"><header><span>初始生成</span><button class="copy" data-copy="generated-sql">复制</button></header><pre><code id="generated-sql"></code></pre></article>
           <article class="card sql-card accent"><header><span>Checker 修订</span><button class="copy" data-copy="revised-sql">复制</button></header><pre><code id="revised-sql"></code></pre></article>
           <article class="card sql-card final"><header><span>最终选择</span><button class="copy" data-copy="final-sql">复制</button></header><pre><code id="final-sql"></code></pre></article>
         </div>
 
-        <div class="details-grid">
+        <div id="details-grid" class="details-grid">
           <article class="card"><div class="card-heading"><h3>关联 Schema</h3></div><div id="schema-chips" class="chips"></div></article>
           <article class="card"><div class="card-heading"><h3>阶段耗时</h3></div><div id="stage-times" class="stage-times"></div></article>
         </div>
 
-        <article class="card table-card">
+        <article id="result-table-card" class="card table-card">
           <div class="card-heading"><h3>查询结果</h3><span id="row-note" class="muted"></span></div>
           <div id="result-message" class="message hidden"></div>
           <div class="table-wrap"><table id="result-table"></table></div>
@@ -91,7 +102,7 @@
     </section>
   </main>
 
-  <footer>DeepEye-SQL · 本地只读演示入口</footer>
+  <footer>DeepEye-SQL · 企业数据分析 Agent · 本地只读演示入口</footer>
   <script src="/static/app.js" defer></script>
 </body>
 </html>

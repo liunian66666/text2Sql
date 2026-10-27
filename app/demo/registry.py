@@ -7,12 +7,21 @@ from typing import Any
 
 
 DISPLAY_NAMES = {
+    "enterprise_sales": "企业电商销售分析",
     "california_schools": "California Schools",
     "superhero": "Superhero",
     "student_club": "Student Club",
     "toxicology": "Toxicology",
     "thrombosis_prediction": "Thrombosis Prediction",
 }
+
+# Databases whose value index has been rebuilt for the embedding model that the
+# active config selects. Vectors from text-embedding-v4 are not comparable with
+# qwen3.7-text-embedding-flash, and an unindexed database fails inside
+# value_retrieval with "Prepare the database value index" -- showing it in the
+# picker only turns a known gap into a live demo error. Rebuild with
+# `runner/complete_value_index.py --database <path>`, then add the ID back here.
+DEMO_READY_DATABASES = ("enterprise_sales",)
 
 
 class DatabaseRegistry:
@@ -26,11 +35,11 @@ class DatabaseRegistry:
 
     def _discover_databases(self) -> dict[str, Path]:
         database_root = self.project_root / "data/bird/dev/dev_databases"
-        allowed = set(DISPLAY_NAMES)
-        if self.sample_path.exists():
-            sample = json.loads(self.sample_path.read_text(encoding="utf-8"))
-            allowed = set(sample.get("databases", allowed))
+        allowed = set(DEMO_READY_DATABASES)
         databases: dict[str, Path] = {}
+        from app.enterprise import ensure_enterprise_demo_database
+        enterprise = ensure_enterprise_demo_database(self.project_root)
+        databases["enterprise_sales"] = enterprise
         for database_id in sorted(allowed):
             candidate = database_root / database_id / f"{database_id}.sqlite"
             if candidate.is_file():
@@ -39,6 +48,9 @@ class DatabaseRegistry:
 
     def _load_examples(self) -> dict[str, list[dict[str, Any]]]:
         grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        enterprise_examples = Path(__file__).parents[1] / "enterprise" / "examples.json"
+        if enterprise_examples.is_file():
+            grouped["enterprise_sales"] = json.loads(enterprise_examples.read_text(encoding="utf-8"))
         if not self.sample_path.exists():
             return grouped
         sample = json.loads(self.sample_path.read_text(encoding="utf-8"))
@@ -66,11 +78,12 @@ class DatabaseRegistry:
         return dict(self._databases)
 
     def public_entries(self) -> list[dict[str, Any]]:
+        order = {"enterprise_sales": 0}
         return [
             {
                 "id": database_id,
                 "name": DISPLAY_NAMES.get(database_id, database_id.replace("_", " ").title()),
                 "examples": self._examples.get(database_id, []),
             }
-            for database_id in self._databases
+            for database_id in sorted(self._databases, key=lambda item: (order.get(item, 1), item))
         ]

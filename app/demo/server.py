@@ -6,7 +6,7 @@
 
 三大依赖：
     DatabaseRegistry  扫描白名单 sqlite 库 + 读取示例题单（只读）
-    SQLSkill          流水线本体，进程级单例（上游服务为进程全局，故整站单进程）
+    DataAnalysisAgent LangGraph 编排器，内部复用 SQLSkill
     TaskManager       串行任务队列 + 事件回放，状态落盘 workspace/demo_tasks/
 
 两种启动方式：
@@ -31,6 +31,7 @@ FALLBACK_CONFIG_PATH = Path("config/local/baseline-dashscope/config-bird-dev-50-
 # 演示产物根目录：每个请求一个子目录，浏览器刷新后仍可按请求 ID 查询。
 DEMO_REQUESTS_DIR = PROJECT_ROOT / "workspace/demo_requests"
 DEMO_TASKS_DIR = PROJECT_ROOT / "workspace/demo_tasks"
+AGENT_REQUESTS_DIR = PROJECT_ROOT / "workspace/agent_requests"
 
 
 def resolve_config_path(config_path: str | os.PathLike | None) -> Path:
@@ -65,7 +66,14 @@ def build_app(config_path: str | os.PathLike | None = None):
         max_total_tokens=int(os.environ.get("DEMO_MAX_TOTAL_TOKENS", str(DEFAULT_REQUEST_TOKEN_CAP))),
         max_seconds=int(os.environ.get("DEMO_MAX_SECONDS", str(DEFAULT_REQUEST_SECONDS_CAP))),
     )
-    manager = TaskManager(skill, DEMO_TASKS_DIR)
+    from app.agent import DataAnalysisAgent
+    agent = DataAnalysisAgent(
+        skill,
+        workspace=AGENT_REQUESTS_DIR,
+        databases=registry.database_paths,
+        llm_config=get_config().sql_generation_config.llm,
+    )
+    manager = TaskManager(agent, DEMO_TASKS_DIR)
     return create_app(
         manager=manager,
         registry=registry,

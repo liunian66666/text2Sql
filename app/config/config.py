@@ -1,6 +1,7 @@
 import shutil
 import threading
 import tomllib
+import os
 from typing import Dict, List, Optional, Literal, Any
 from pathlib import Path
 from pydantic import BaseModel, Field, model_validator
@@ -348,7 +349,44 @@ class Config:
     @staticmethod
     def _load_config(config_path: Path):
         with open(config_path, "rb") as f:
-            return tomllib.load(f)
+            config = tomllib.load(f)
+        # Deployment-friendly OpenAI-compatible overrides. Secrets stay out of
+        # TOML and Git; the same variables configure both the Agent brain and
+        # the underlying Text-to-SQL stages through the selected LLM profile.
+        llm_key = os.environ.get("OPENAI_API_KEY")
+        llm_base = os.environ.get("OPENAI_BASE_URL")
+        llm_model = os.environ.get("DEFAULT_LLM_MODEL")
+        embedding_model = os.environ.get("EMBEDDING_MODEL")
+        profile_name = (config.get("run") or {}).get("default_llm_profile")
+        if profile_name and profile_name in config.get("llm_profiles", {}):
+            profile = config["llm_profiles"][profile_name]
+        else:
+            profile = config.setdefault("llm", {})
+        if llm_key:
+            profile["api_key"] = llm_key
+        if llm_base:
+            profile["base_url"] = llm_base.rstrip("/")
+        if llm_model:
+            if llm_model != profile.get("model"):
+                # A real model swap: drop endpoint-specific request bodies (e.g.
+                # the self-hosted chat_template_kwargs) that other providers
+                # reject. Re-stating the same model must not clear a declared
+                # body such as {"enable_thinking": false}, which is what keeps
+                # demo latency bounded on DashScope.
+                profile["extra_body"] = {}
+            profile["model"] = llm_model
+        if embedding_model:
+            embedding = config.setdefault("embedding", {})
+            vector = config.setdefault("vector_database", {})
+            embedding["embedding_model_name_or_path"] = embedding_model
+            vector["embedding_model_name_or_path"] = embedding_model
+            if llm_key:
+                embedding["api_key"] = llm_key
+                vector["api_key"] = llm_key
+            if llm_base:
+                embedding["base_url"] = llm_base.rstrip("/")
+                vector["base_url"] = llm_base.rstrip("/")
+        return config
 
     def _initialize_config(self, config_path: Optional[Path] = None):
         if config_path is None:

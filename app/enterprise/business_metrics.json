@@ -1,0 +1,39 @@
+{
+  "metrics": [
+    {
+      "id": "revenue",
+      "name": "销售额",
+      "keywords": ["销售额", "销售收入", "GMV", "营收"],
+      "definition": "有效订单的商品成交金额之和，计算公式为 quantity * unit_price * (1 - discount_rate)。",
+      "sql_rule": "只统计 orders.status IN ('paid', 'shipped', 'completed')。"
+    },
+    {
+      "id": "net_revenue",
+      "name": "净销售额",
+      "keywords": ["净销售额", "净收入"],
+      "definition": "销售额减去退款金额；没有退款的订单退款金额按0处理。",
+      "sql_rule": "退款按 order_id 聚合后再与订单连接，避免订单明细导致退款金额重复。"
+    },
+    {
+      "id": "average_order_value",
+      "name": "平均客单价",
+      "keywords": ["客单价", "平均订单金额", "AOV"],
+      "definition": "有效订单销售额除以有效订单去重数量。",
+      "sql_rule": "分母使用 COUNT(DISTINCT orders.order_id)。"
+    },
+    {
+      "id": "refund_rate",
+      "name": "退款率",
+      "keywords": ["退款率", "退款比例"],
+      "definition": "退款金额除以销售额，结果通常乘100表示百分比。",
+      "sql_rule": "使用 NULLIF(销售额, 0) 防止除零。"
+    },
+    {
+      "id": "new_customer",
+      "name": "新增客户",
+      "keywords": ["新增客户", "新客户", "首购"],
+      "definition": "首次有效订单日期位于统计周期内的客户。",
+      "sql_rule": "先按 customer_id 计算 MIN(order_date)，且订单状态必须有效。"
+    }
+  ]
+}
