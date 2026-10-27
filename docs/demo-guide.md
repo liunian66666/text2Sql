@@ -1,20 +1,20 @@
 # DeepEye-SQL 演示站说明（答辩用一页纸）
 
-本地单用户演示入口：单题在线演示 + 离线评测结果浏览。只读数据库、串行任务队列，不启动任何评测任务。
+本地单用户演示入口：企业数据分析 Agent + 离线评测结果浏览。只读数据库、串行任务队列，不启动任何评测任务。
 
 ## 启动
 
 ```bash
-# 在项目根目录 DeepEye-SQL/ 下执行
-.venv/Scripts/python.exe -B runner/run_demo.py --check-only
-.venv/Scripts/python.exe -B runner/run_demo.py
-
-# 等价的 uv 启动方式（--no-sync 表示不动现有环境，直接复用 .venv）
-uv run --no-sync python -B runner/run_demo.py
+# 在项目根目录 DeepEye-SQL/ 下执行；首次先同步依赖
+uv sync
+uv run python -B runner/run_demo.py --check-only
+uv run python -B runner/run_demo.py
 
 # uvicorn 零参工厂方式（不支持 --config，用默认配置或环境变量 CONFIG_PATH）
-uv run --no-sync uvicorn app.demo.server:create_app_from_env --factory --port 8000
+uv run uvicorn app.demo.server:create_app_from_env --factory --port 8000
 ```
+
+`uv run` 默认会确认锁文件与虚拟环境一致，适合首次启动和换机器复现。只有已经执行过 `uv sync`、并且明确不希望 uv 再检查依赖时，才需要可选的 `--no-sync`。
 
 浏览器打开 <http://127.0.0.1:8000> 即可。可选参数：
 
@@ -29,32 +29,54 @@ uv run --no-sync uvicorn app.demo.server:create_app_from_env --factory --port 80
 ## 页面结构
 
 - **单题在线演示**：选数据库 → 选示例问题（或手输）→ 可填证据口径 → 开始分析。
-  流水线七个阶段（值检索 / Few-shot 准备 / Schema Linking / SQL 生成 / SQL 修订 / SQL 选择 / 只读执行）实时推送状态与耗时；完成后展示初始生成、Checker 修订、最终选择三版 SQL，可复制，附指标卡（总耗时、Token、模型响应数、候选数、行数）与查询结果表。
+  LLM Planner 根据对话和工具描述决定调用业务口径、Schema、Text-to-SQL 或可视化工具；工具结果返回模型继续规划，最终展示 Agent 结论、工具轨迹、SQL、阶段耗时、Token、结果表与图表。
 - **离线评测结果**：自动读取 `evals/` 下已生成的 `summary.json` 报告，展示三组对照（仅生成 / 生成＋修订 / 完整流程）的正确率、可执行率、耗时、Token，修订与选择的修复/退化题号，以及逐题明细。50 题评测跑完后点“刷新结果”即出现。
 
-## 三条推荐演示问题
+## 推荐企业演示问题
 
-三条均选自 `evals/bird-dev-10-qwen-http`，已端到端验证正确（集合式 EX 通过），数据库均为 **California Schools**：
+数据库选择 **企业电商销售分析**。页面已预置以下问题：
 
-| # | 演示点 | 问题（直接粘贴） | 证据（填“补充证据”框） |
-| --- | --- | --- | --- |
-| 1 | 快速成功案例：完整端到端流程 | `What is the highest eligible free rate for K-12 students in the schools in Alameda County?` | `Eligible free rate for K-12 = `Free Meal Count (K-12)` / `Enrollment (K-12)`` |
-| 2 | 口径理解案例：证据驱动的条件过滤 | `Please list the zip code of all the charter schools in Fresno County Office of Education.` | `Charter schools refers to `Charter School (Y/N)` = 1 in the table fprm` |
-| 3 | 复杂多表案例：Schema Linking + 候选选择 | `How many schools with an average score in Math greater than 400 in the SAT test are exclusively virtual?` | `Exclusively virtual refers to Virtual = 'F'` |
+| 类型 | 问题 | 重点展示 |
+| --- | --- | --- |
+| 查数 | `统计2026年有效订单的销售额、订单量和平均客单价。` | 多指标口径、指标卡 |
+| 排名 | `统计2026年销售额最高的10个商品，返回商品名称、销量、销售额和排名。` | 多表关联、柱状图 |
+| 趋势 | `按月统计2026年的销售额和订单量变化趋势。` | 时间聚合、折线图 |
+| 占比 | `计算2026年各商品分类的销售额及其占总销售额的比例。` | 占比计算、饼图 |
+| 综合 | `找出2026年销售额排名前5且退款率高于整体平均退款率的商品。` | CTE/子查询、复杂业务口径 |
+| 闲聊 | `你支持分析哪些经营指标？` | 路由分支、不调用 SQL |
 
 “修订纠错”展示点：结果区对比**初始生成**与**Checker 修订**两栏 SQL 的差异；若当次运行修订前后一致，说明初版已通过执行检查，可在评测页用“修订修复”题号做离线佐证。
 
-## 快速配置实测（2026-10-26）
+## 企业库端到端实测（2026-10-27，DashScope deepseek-v4-pro-0813 + qwen3.7-text-embedding-flash，已关思考）
 
-上面三条推荐问题均已用快速配置真实运行，并分别与 BIRD 标准 SQL 的执行结果比较：集合式 EX 3/3，严格多重集合 EX 3/3，平均耗时 41.62 秒，在线 Token 合计 153,436。逐题 SQL 和指标保存在 `evals/demo-fast/`，并会作为“3题基线评测”出现在离线评测页。
+| 类型 | 结果 | Agent 墙钟 | SQL Skill | Token（Skill chat + embedding + Planner） | 图表 |
+| --- | --- | --- | --- | --- | --- |
+| 查数（销售额/订单量/客单价） | success | 60.3s | 48.8s | 36,336 | 指标卡，1 行 |
+| 排名（Top10 商品） | success | 62.2s | 49.9s | 36,176 | 柱状图，10 行 |
+| 趋势（按月） | success | 57.6s | 44.9s | 35,517 | 折线图，12 行 |
+| **平均** | 3/3 成功 | **60.0s** | **48.5s** | **36,010 / 题** | 27 次 chat 调用，0 次失败尝试 |
 
-这三题的初始候选均已通过执行检查，因此修订没有改写，最终选择使用单一有效候选捷径。现场用它们展示稳定的端到端过程；修订和选择带来的变化在 50 题对照页展示。
+阶段平均耗时：值检索 5.1s · Few-shot 24.0s · Schema Linking 5.6s · SQL 生成 13.1s · 修订 0.0s · 选择 0.0s · Agent 规划与工具编排 12.2s。Few-shot 是当前最大的一段（预备 SQL 两次采样 + 目标掩码一次），演示时进度条在这一段停留最久。
+
+三题的修订与选择均为 **0 次模型调用**：三路生成的候选执行结果一致，选择走 `候选数 ≤ 1` 捷径、修订无错误模式可修。所以这三题适合演示"链路稳定"，不适合演示"修订纠错"；纠错请看 50 题离线对照页。
+
+结果核对方式：企业库是合成数据、没有 BIRD 金标 SQL，因此不声称 EX 准确率。用「JOIN 后直接聚合」与「先按订单聚合再求和」两种写法对 `enterprise_sales.sqlite` 独立复算，得到相同的 **2,513,691.692 元 / 453 单 / 5,548.99 元客单价**；2026 年状态分布 367 completed + 44 paid + 42 shipped = 453，36 笔 cancelled 被正确排除。
+
+> 历史数据：2026-10-26 那组"3 题 41.62 秒 / 153,436 Token、集合式 EX 3/3"是在自建端点 + text-embedding-v4 下跑在 BIRD 库上的结果，保存在 `evals/demo-fast/`。切换模型和向量后它不代表当前配置，且当时"思考输出无法关闭"的结论只适用于自建端点。
+
+## 当前可用范围
+
+演示站下拉只列出**值索引与当前向量模型一致**的库，即企业电商库；5 个 BIRD 演示库的索引仍是 text-embedding-v4 建的，未重建前不会出现在下拉里（`app/demo/registry.py` 的 `DEMO_READY_DATABASES`）。启动自检因此为 `ready: true`。重建某个库后把它的 ID 加回常量即可：
+
+```powershell
+uv run python -B runner/complete_value_index.py --database data/bird/dev/dev_databases/<id>/<id>.sqlite
+```
 
 ## 演示流程建议（约 8 分钟）
 
-1. 先开**离线评测结果**页，讲三组对照与修复/退化统计（1–2 分钟）。
-2. 切**单题演示**，跑问题 1，边跑边讲七阶段流水线（等待期 1–3 分钟正好讲解）。
-3. 用问题 3 收场，重点讲 Schema Linking 关联出的表.字段 chips 与候选选择。
+1. 先用闲聊问题展示 Agent 路由，说明它不会把所有输入都送进昂贵的 Text-to-SQL 流程。
+2. 跑一个趋势或排名问题，讲 LLM 规划 → 工具调用 → 指标口径 → Schema Linking → SQL → 图表的完整链路。
+3. 打开**离线评测结果**页，用 50 题三组对照说明准确率、耗时、Token 和已知边界。
 
 ## 排查
 

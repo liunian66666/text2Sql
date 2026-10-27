@@ -7,7 +7,7 @@
 - 在仓库根目录完成依赖安装，配置生成模型及向量模型。
 - 数据库由应用预先注册，用户请求只提供数据库标识。
 - 提前建立对应数据库的值向量索引及训练 few-shot 索引。索引文件夹名称应与注册数据库标识一致。
-- 参考 `docs/baseline-10.md` 完成准备；云端配置的向量模型为 `text-embedding-v4`，不要混用本地 Qwen 向量索引。
+- 向量模型跟着配置走：DashScope 演示配置使用 `qwen3.7-text-embedding-flash`，旧 `text-embedding-v4` 索引与它**不在同一相似度空间，不能混用**。索引目录按向量模型名分开；切换模型后要用 `runner/complete_value_index.py --database <路径>` 重建，未重建的库不会进入演示白名单（`app/demo/registry.py` 的 `DEMO_READY_DATABASES`），Skill 也会直接报"Prepare the database value index"。
 
 ## Python 调用
 
@@ -35,7 +35,7 @@ print(result.model_dump())
 
 返回字段包括 `status`、`sql`、`columns`、`rows`、`truncated`、`elapsed_seconds`、`stage_seconds`、`usage`、`artifacts_dir`。失败时返回 `failed_stage` 和经过简化的错误说明。空表使用 `empty_result`，不会直接认定为 SQL 错误。
 
-输入验证失败和未知数据库标识会抛出 `ValueError`；运行期间的阶段失败返回结构化错误结果。`on_stage` 接收每个阶段的开始/完成事件，可用于后续 LangGraph 或 SSE 集成。
+输入验证失败和未知数据库标识会抛出 `ValueError`；运行期间的阶段失败返回结构化错误结果。`on_stage` 接收每个阶段的开始/完成事件，现已由 `app/agent/` 的 LangGraph 编排和演示站 SSE 直接复用。
 
 ## 命令行调用
 
@@ -49,7 +49,7 @@ print(result.model_dump())
 
 ## 当前边界
 
-- 当前支持 SQLite 单问题同步调用，并已通过 `app/demo/` 接入 FastAPI、SSE 阶段进度与本地单页演示；尚未实现 LangGraph、聊天记忆或自动图表。
+- 当前支持 SQLite 单问题同步调用，并已通过 `app/agent/` 接入 LangGraph、通过 `app/demo/` 接入 FastAPI/SSE 和自动图表；仍未实现跨轮聊天记忆。
 - 原内核使用进程级共享服务，因此同一进程的 Skill 请求通过互斥锁串行执行。需要并发时应使用多个工作进程；不要在其他线程同时直接运行原内核。
 - 每次请求复用离线索引，但不复用上一请求的 SQL 快照。带有数据库哈希的索引在数据变更后会被拒绝，需重新建索引。
 - 最终执行使用只读连接、SQLite authorizer、超时和最多 1,000 行输出限制；内部候选评估仍需要完整结果集，尚无内存/结果字节硬上限。
