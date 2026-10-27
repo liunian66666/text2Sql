@@ -23,19 +23,36 @@ let conversationId = crypto.randomUUID();
 // the bubble used textContent, so `## 标题`, `**加粗**` and 60 个 `|` 全部当成字面
 // 字符显示，换行又被 HTML 折叠成一坨。这里按 DOM 节点逐段构建，不用 innerHTML，
 // 模型输出里的任何尖括号或伪标签都只能是文本。
-function renderInlineMarkdown(node, text) {
-  const pattern = /(\*\*[^*\n]+\*\*|`[^`\n]+`)/g;
+function renderCodeSpans(node, text) {
+  const pattern = /`[^`\n]+`/g;
   let cursor = 0;
   let match;
   while ((match = pattern.exec(text)) !== null) {
     if (match.index > cursor) node.appendChild(document.createTextNode(text.slice(cursor, match.index)));
-    const token = match[0];
-    const child = token.startsWith("**") ? document.createElement("strong") : document.createElement("code");
-    child.textContent = token.slice(1, -1);
-    node.appendChild(child);
-    cursor = match.index + token.length;
+    const code = document.createElement("code");
+    code.textContent = match[0].slice(1, -1);
+    node.appendChild(code);
+    cursor = match.index + match[0].length;
   }
   if (cursor < text.length) node.appendChild(document.createTextNode(text.slice(cursor)));
+  return node;
+}
+
+function renderInlineMarkdown(node, text) {
+  // 粗体用非贪婪匹配，允许内部夹行内代码；粗体之外的内容再单独解析代码。
+  // 刻意不支持斜体 `*文字*`：结果里全是 `SUM(a*b)`、`1 - discount_rate` 这类乘法，
+  // 当斜体解析会把公式咬掉一段。
+  const pattern = /\*\*(.+?)\*\*/g;
+  let cursor = 0;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > cursor) renderCodeSpans(node, text.slice(cursor, match.index));
+    const strong = document.createElement("strong");
+    renderCodeSpans(strong, match[1]);
+    node.appendChild(strong);
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < text.length) renderCodeSpans(node, text.slice(cursor));
   return node;
 }
 

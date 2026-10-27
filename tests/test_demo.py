@@ -176,11 +176,14 @@ class DemoAPITest(unittest.TestCase):
                 databases = await client.get("/api/databases")
                 evaluations = await client.get("/api/evaluations")
                 page = await client.get("/")
+                asset = await client.get("/static/chat.js")
                 missing = await client.get("/api/query/missing")
-            return health, databases, evaluations, page, missing
+            return health, databases, evaluations, page, asset, missing
 
-        health, databases, evaluations, page, missing = asyncio.run(exercise())
+        health, databases, evaluations, page, asset, missing = asyncio.run(exercise())
         self.assertEqual(health.json(), {"status": "ok"})
+        # 改完前端不用强制刷新也不会拿到旧脚本，否则排练时的真假回归分不开。
+        self.assertEqual(asset.headers.get("cache-control"), "no-store")
         # Only databases with a value index for the active embedding model are
         # listed; see DEMO_READY_DATABASES in app/demo/registry.py.
         entries = databases.json()["databases"]

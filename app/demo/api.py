@@ -77,5 +77,16 @@ def create_app(*, manager, registry, evaluations: EvaluationRepository, static_d
     def index():
         return FileResponse(static_dir / "chat.html")
 
+    # Local single-user demo: never let the browser serve a stale chat.js. An
+    # edited frontend otherwise looks unchanged until a hard refresh, which
+    # silently masks both real fixes and real regressions during a rehearsal.
+    # (StaticFiles in this Starlette version has no `headers=` argument.)
+    @app.middleware("http")
+    async def no_store_static(request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/static"):
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
     return app
