@@ -47,6 +47,8 @@ uv run uvicorn app.demo.server:create_app_from_env --factory --port 8000
 
 “修订纠错”展示点：结果区对比**初始生成**与**Checker 修订**两栏 SQL 的差异；若当次运行修订前后一致，说明初版已通过执行检查，可在评测页用“修订修复”题号做离线佐证。
 
+图表默认按意图自动选择（查数→指标卡、排名→柱状、趋势→折线、占比→饼图），**不需要额外提要求**；现场可以补一句"用柱状图展示占比"来展示 `chart_type` 参数——模型会把它传给工具，数据不支持时（例如 12 个分类的饼图）自动回退并在答案里如实说明回退原因。回答正文只写结论、关键数字和口径，不再重复结果表格，因为图表和完整结果表已经由页面渲染。
+
 ## 企业库端到端实测（2026-10-27，DashScope deepseek-v4-pro-0813 + qwen3.7-text-embedding-flash，已关思考）
 
 | 类型 | 结果 | Agent 墙钟 | SQL Skill | Token（Skill chat + embedding + Planner） | 图表 |

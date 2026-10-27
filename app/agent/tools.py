@@ -8,7 +8,7 @@ import sqlite3
 from typing import Any, Callable
 
 from app.enterprise import EnterpriseKnowledgeBase
-from .visualization import build_visualization
+from .visualization import build_visualization, MAX_SLICES
 
 
 @dataclass
@@ -40,8 +40,11 @@ class AgentToolbox:
             self._schema("run_text_to_sql", "调用 DeepEye RAG Text-to-SQL Skill：值检索、Few-shot、Schema Linking、生成、修订、选择并只读执行。",
                          {"question": {"type": "string", "description": "需要查询数据库的完整自然语言问题"},
                           "evidence": {"type": "string", "description": "已经确认的业务口径，可为空"}}, ["question"]),
-            self._schema("build_visualization", "根据 SQL 查询结果和分析意图生成指标卡、柱状图、折线图、饼图或表格配置。",
-                         {"intent": {"type": "string", "enum": ["query", "ranking", "trend", "proportion"], "description": "结果展示意图"}}, ["intent"]),
+            self._schema("build_visualization", "根据 SQL 查询结果和分析意图生成指标卡、柱状图、折线图、饼图或表格配置。"
+                         "只有用户明确指定图表类型时才传 chart_type，数据不支持时自动回退为按意图选定的图表。",
+                         {"intent": {"type": "string", "enum": ["query", "ranking", "trend", "proportion"], "description": "结果展示意图"},
+                          "chart_type": {"type": "string", "enum": ["metric", "bar", "line", "pie", "table"],
+                                         "description": "可选，用户显式要求的图表类型；省略即按意图自动选择"}}, ["intent"]),
             self._schema("get_capabilities", "查询当前 Agent 支持的分析能力，不访问数据库。", {}, []),
         ]
 
@@ -117,8 +120,19 @@ class AgentToolbox:
         if result.get("status") not in {"success", "empty_result"}:
             return ToolOutcome(json.dumps({"error": "必须先成功调用 run_text_to_sql"}, ensure_ascii=False))
         intent = arguments.get("intent", "query")
-        chart = build_visualization(intent, result.get("columns", []), result.get("rows", []))
-        return ToolOutcome(json.dumps({"visualization": chart}, ensure_ascii=False, default=str),
+        requested = arguments.get("chart_type")
+        chart = build_visualization(intent, result.get("columns", []), result.get("rows", []), requested)
+        payload = {"visualization": chart}
+        if requested and chart:
+            # Tell the model which type actually won, so an unsupported request
+            # ("12 个扇区的饼图") is reported as a fallback instead of silently
+            # drawing what the rules picked.
+            payload["requested_chart_type"] = requested
+            payload["chart_type_applied"] = chart["type"]
+            if chart["type"] != str(requested).lower():
+                payload["note"] = (f"数据不适合 {requested}（饼图最多 {MAX_SLICES} 个分类、指标卡只支持单行），"
+                                   f"已改用 {chart['type']}")
+        return ToolOutcome(json.dumps(payload, ensure_ascii=False, default=str),
                            {"visualization": chart, "intent": intent})
 
     @staticmethod

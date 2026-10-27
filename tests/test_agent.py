@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -42,6 +43,43 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(build_visualization("ranking", ["name", "amount"], [["A", 3], ["B", 2]])["type"], "bar")
         self.assertEqual(build_visualization("trend", ["month", "amount"], [["01", 3], ["02", 4]])["type"], "line")
         self.assertEqual(build_visualization("proportion", ["name", "amount"], [["A", 3], ["B", 2]])["type"], "pie")
+
+    def test_explicit_chart_type_overrides_and_falls_back(self):
+        columns = ["分类", "销售额"]
+        three = [["智能设备", 120], ["办公用品", 80], ["家居生活", 60]]
+        twelve = [[f"分类{i}", i] for i in range(12)]
+        self.assertEqual(build_visualization("proportion", columns, three)["type"], "pie")
+        # 用户点名要柱状图，就按点名的画。
+        self.assertEqual(build_visualization("proportion", columns, three, "bar")["type"], "bar")
+        # 未知类型、以及数据撑不起的形状，一律退回按意图选定的图，不画残图。
+        self.assertEqual(build_visualization("proportion", columns, three, "donut")["type"], "pie")
+        self.assertEqual(build_visualization("proportion", columns, three, "metric")["type"], "pie")
+        self.assertEqual(build_visualization("ranking", columns, twelve, "pie")["type"], "bar")
+        self.assertEqual(build_visualization("query", columns, three, "table")["type"], "table")
+
+    def test_visualization_tool_tells_the_model_when_it_fell_back(self):
+        # 回退必须可见，否则模型会以为用户拿到了饼图。
+        from app.agent.tools import AgentToolbox
+
+        with tempfile.TemporaryDirectory() as tmp:
+            toolbox = AgentToolbox(FakeSQLSkill(), {"enterprise_sales": Path(tmp) / "demo.sqlite"})
+            state = {"skill_result": {"status": "success", "columns": ["分类", "销售额"],
+                                      "rows": [[f"分类{i}", i] for i in range(12)]}}
+            outcome = toolbox.execute("build_visualization", {"intent": "ranking", "chart_type": "pie"}, state)
+            payload = json.loads(outcome.content)
+            self.assertEqual(payload["visualization"]["type"], "bar")
+            self.assertEqual(payload["chart_type_applied"], "bar")
+            self.assertIn("note", payload)
+            schema = next(item for item in toolbox.schemas
+                          if item["function"]["name"] == "build_visualization")
+            self.assertIn("chart_type", schema["function"]["parameters"]["properties"])
+            self.assertEqual(schema["function"]["parameters"]["required"], ["intent"])
+
+    def test_prompt_keeps_prose_out_of_the_results_table(self):
+        from app.agent.prompts import SYSTEM_PROMPT
+
+        self.assertIn("不要再输出 Markdown 表格", SYSTEM_PROMPT)
+        self.assertIn("chart_type", SYSTEM_PROMPT)
 
     def test_llm_driven_agent_calls_sql_and_visualization_tools(self):
         with tempfile.TemporaryDirectory() as tmp:

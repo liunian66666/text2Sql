@@ -80,4 +80,4 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 - 只支持服务端注册的 SQLite 数据库，且下拉只列出**值索引与当前向量模型一致**的库；切换 embedding 模型后未重建索引的库不会出现。
 - SQL 工作流依赖外部推理与向量服务；服务异常时会返回结构化失败阶段，闲聊分支仍可用。预算/时间熔断按层上抛，`error` 直接写"预算熔断：LLM time budget exceeded (36s/35s) after 6 calls"，不会再伪装成"字段缺失"。
 - 实测耗时（2026-10-27，DashScope deepseek-v4-pro-0813 关思考 + qwen3.7 向量）：企业库三题 3/3 成功，平均 60.0 秒 Agent 墙钟、48.5 秒 SQL Skill、36,010 token 每题；`elapsed_seconds` 是 SQL Skill 秒表，`agent_elapsed_seconds` 与 `stage_seconds["agent_orchestration"]` 才是含 Planner 决策的完整口径。
-- 图表是根据结果列自动推荐，不做复杂 BI 自定义配置。
+- 图表按意图和结果列自动推荐；用户点名图表类型时模型可传 `chart_type`（白名单 metric/bar/line/pie/table），数据撑不起时自动回退为按意图选定的图，并在工具返回里写明 `chart_type_applied` 与回退原因。仍不做复杂 BI 自定义配置（轴、颜色、堆叠、双 Y 轴等）。
