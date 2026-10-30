@@ -11,7 +11,7 @@
 
 两种启动方式：
     python runner/run_demo.py                                  # 带 --config/--host/--port 参数
-    uvicorn app.demo.server:create_app_from_env --factory      # 零参工厂，用默认配置
+    uvicorn app.web.server:create_app_from_env --factory      # 零参工厂，用默认配置
 """
 from __future__ import annotations
 

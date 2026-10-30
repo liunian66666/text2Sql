@@ -112,7 +112,7 @@ def main() -> None:
 
     from app.agent import DataAnalysisAgent
     from app.enterprise import create_enterprise_knowledge
-    from app.demo.registry import DatabaseRegistry
+    from app.web.registry import DatabaseRegistry
     from app.skills import SQLSkill
 
     registry = DatabaseRegistry(PROJECT_ROOT)

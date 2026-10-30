@@ -1,6 +1,6 @@
 """刷新恢复的契约测试：接口字段、静态资源与前端状态机。
 
-前端判定逻辑放在 app/demo/static/recovery.js，用 Node 跑纯函数测试；
+前端判定逻辑放在 app/web/static/recovery.js，用 Node 跑纯函数测试；
 后端这一侧只保证「刷新后能查到恢复所需的一切」，不新增接口。
 """
 import asyncio
@@ -14,8 +14,8 @@ import httpx
 
 from app.api import create_app
 from app.config import PROJECT_ROOT
-from app.demo.registry import DatabaseRegistry
-from app.demo.serializers import EvaluationRepository
+from app.web.registry import DatabaseRegistry
+from app.web.serializers import EvaluationRepository
 
 
 def _task(status: str, *, result=None) -> dict:
@@ -155,7 +155,7 @@ class RecoveryStaticAssetTest(unittest.TestCase):
     """恢复脚本必须真的被页面加载，否则前端状态机等于没上。"""
 
     def test_page_loads_recovery_before_chat(self):
-        html = (PROJECT_ROOT / "app/demo/static/chat.html").read_text(encoding="utf-8")
+        html = (PROJECT_ROOT / "app/web/static/chat.html").read_text(encoding="utf-8")
         recovery_at = html.find("/static/recovery.js")
         chat_at = html.find("/static/chat.js")
         self.assertGreaterEqual(recovery_at, 0, "chat.html 必须引入 recovery.js")
@@ -181,7 +181,7 @@ class RecoveryStaticAssetTest(unittest.TestCase):
 
     def test_restore_path_never_resubmits_the_question(self):
         """恢复只能用 GET 查状态；一旦在恢复分支里调 POST /api/chat 就会重复烧 Token。"""
-        source = (PROJECT_ROOT / "app/demo/static/chat.js").read_text(encoding="utf-8")
+        source = (PROJECT_ROOT / "app/web/static/chat.js").read_text(encoding="utf-8")
         start = source.index("async function restoreActiveTask")
         end = source.index("\nfunction renderAssistantResult", start)
         restore = source[start:end]
@@ -194,7 +194,7 @@ class RecoveryStaticAssetTest(unittest.TestCase):
 
     def test_duplicate_submit_is_blocked_while_a_run_is_active(self):
         """双击发送、恢复期间点推荐问题都必须被同一个守卫挡住。"""
-        source = (PROJECT_ROOT / "app/demo/static/chat.js").read_text(encoding="utf-8")
+        source = (PROJECT_ROOT / "app/web/static/chat.js").read_text(encoding="utf-8")
         start = source.index("async function submitQuery")
         end = source.index("function persistRun", start)
         submit = source[start:end]

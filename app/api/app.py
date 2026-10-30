@@ -13,7 +13,7 @@ from app.api.schemas import HealthResponse
 
 def create_app(*, manager, registry, evaluations, static_dir: Path | None = None) -> FastAPI:
     app = FastAPI(title="Enterprise Data Analyst Agent", version="2.0")
-    static_dir = static_dir or Path(__file__).resolve().parents[1] / "demo" / "static"
+    static_dir = static_dir or Path(__file__).resolve().parents[1] / "web" / "static"
 
     @app.get("/api/health", response_model=HealthResponse, tags=["system"])
     def health():

@@ -11,7 +11,7 @@ uv run python -B runner/run_demo.py --check-only
 uv run python -B runner/run_demo.py
 
 # uvicorn 零参工厂方式（不支持 --config，用默认配置或环境变量 CONFIG_PATH）
-uv run uvicorn app.demo.server:create_app_from_env --factory --port 8000
+uv run uvicorn app.web.server:create_app_from_env --factory --port 8000
 ```
 
 `uv run` 默认会确认锁文件与虚拟环境一致，适合首次启动和换机器复现。只有已经执行过 `uv sync`、并且明确不希望 uv 再检查依赖时，才需要可选的 `--no-sync`。

@@ -54,10 +54,10 @@
 | LangGraph 数据分析 Agent | `ChatOpenAI.bind_tools()` 在标准 ReAct 循环中选择业务口径、Schema、Text-to-SQL 和可视化工具；支持会话记忆和工具轨迹 | `app/agent/`、`runner/run_agent.py` |
 | MCP 工具服务 | 通过官方 MCP Python SDK 暴露数据库发现、业务口径、Schema 和只读 Text-to-SQL，供其他 Agent/MCP Client 复用 | `app/mcp_server.py`、`runner/run_mcp_server.py` |
 | 双业务域演示数据与指标 RAG | 固定随机种子生成销售 7 表与 HR 4 表；指标检索按业务域隔离，Agent 可自动选择 `enterprise_sales` / `enterprise_hr`，手动指定优先 | `app/enterprise/`、`runner/create_enterprise_demo.py` |
-| Web 演示站 | FastAPI + 原生单页（零构建）：串行任务队列、SSE 进度流、断线重连、按请求 ID 回放；展示意图、业务口径、三版 SQL、阶段耗时、结果表与自动图表 | `app/demo/`、`runner/run_demo.py` |
-| 重启不丢状态 | 任务状态落盘，进程重启后把上一次遗留的 `queued` / `running` 记录标记为 `interrupted` 并回放一条终结事件，避免前端对着已消失的请求 ID 无限等待 | `app/demo/task_manager.py` |
-| 刷新不丢任务 | 页面刷新只重建前端，不取消也不重复提交后端任务：`sessionStorage` 只存 `request_id` / `conversation_id` / 问题文本等白名单字段，初始化时查 `GET /api/query/{id}`，按 `queued` / `running` / 终态分别重连 SSE、回填结果或提示失效；本地无记录时退化为问 `GET /api/query/active` 接手服务端正在跑的任务，新标签页因此不会提重复任务 | `app/demo/static/recovery.js`、`app/demo/static/chat.js`、`app/demo/task_manager.py` |
-| 启动自检 | `--check-only` 输出数据库、值索引、few-shot 索引、离线报告的就绪状态 JSON，不泄漏任何凭据 | `app/demo/preflight.py` |
+| Web 应用 | FastAPI + 原生单页（零构建）：串行任务队列、SSE 进度流、断线重连、按请求 ID 回放；展示意图、业务口径、三版 SQL、阶段耗时、结果表与自动图表 | `app/web/`、`runner/run_demo.py` |
+| 重启不丢状态 | 任务状态落盘，进程重启后把上一次遗留的 `queued` / `running` 记录标记为 `interrupted` 并回放一条终结事件，避免前端对着已消失的请求 ID 无限等待 | `app/web/task_manager.py` |
+| 刷新不丢任务 | 页面刷新只重建前端，不取消也不重复提交后端任务：`sessionStorage` 只存 `request_id` / `conversation_id` / 问题文本等白名单字段，初始化时查 `GET /api/query/{id}`，按 `queued` / `running` / 终态分别重连 SSE、回填结果或提示失效；本地无记录时退化为问 `GET /api/query/active` 接手服务端正在跑的任务，新标签页因此不会提重复任务 | `app/web/static/recovery.js`、`app/web/static/chat.js`、`app/web/task_manager.py` |
+| 启动自检 | `--check-only` 输出数据库、值索引、few-shot 索引、离线报告的就绪状态 JSON，不泄漏任何凭据 | `app/web/preflight.py` |
 | 评测基础设施 | 固定种子分层抽样、三档消融报告（仅生成 / 生成＋修订 / 完整流程）、阶段实测计时、进度看板、基线报告与逐题明细落盘为可只读浏览的 `evals/` | `runner/report_ablation.py`、`runner/report_baseline.py`、`runner/select_bird_sample.py` |
 | 配置分层 | 按模型组织模板；`demo-fast` 用低延迟档（采样预算 4→1、few-shot 7→5）与评测口径配置分离；本地实验配置与被忽略的密钥统一放在 `config/local/`；端点与密钥可用 `.env` 覆盖（shell > .env > TOML） | `config/template/`、`app/config/config.py`、`app/config/env.py` |
 | 业务口径混合 RAG | 关键词基线 + 向量语义召回 + 加权重排，支持命中分数解释、查询/语料向量缓存和向量故障自动降级 | `app/enterprise/knowledge.py`、`runner/evaluate_metric_rag.py` |
@@ -139,7 +139,7 @@ uv run python -B runner/run_demo.py --check-only
 
 # 6. 启动演示站
 uv run python -B runner/run_demo.py --config config/local/demo-fast/config-bird-demo.toml
-#    等价：uvicorn app.demo.server:create_app_from_env --factory --port 8000
+#    等价：uvicorn app.web.server:create_app_from_env --factory --port 8000
 
 # 7. 打开 http://127.0.0.1:8000
 ```

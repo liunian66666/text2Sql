@@ -9,10 +9,10 @@ import httpx
 
 from app.config import PROJECT_ROOT
 from app.api import create_app
-from app.demo.preflight import collect_preflight
-from app.demo.registry import DatabaseRegistry
-from app.demo.serializers import EvaluationRepository
-from app.demo.task_manager import TaskManager
+from app.web.preflight import collect_preflight
+from app.web.registry import DatabaseRegistry
+from app.web.serializers import EvaluationRepository
+from app.web.task_manager import TaskManager
 from app.skills import SQLSkillResult
 
 
@@ -232,7 +232,7 @@ class DemoAPITest(unittest.TestCase):
         # 改完前端不用强制刷新也不会拿到旧脚本，否则排练时的真假回归分不开。
         self.assertEqual(asset.headers.get("cache-control"), "no-store")
         # Only databases with a value index for the active embedding model are
-        # listed; see DEMO_READY_DATABASES in app/demo/registry.py.
+        # listed; see DEMO_READY_DATABASES in app/web/registry.py.
         entries = databases.json()["databases"]
         self.assertEqual([entry["id"] for entry in entries], ["enterprise_sales", "enterprise_hr"])
         self.assertTrue(all(len(entry["examples"]) >= 3 for entry in entries))

@@ -75,7 +75,7 @@ Function Calling 的端点，应在模型适配层明确报错或单独增加受
 3. **刷新能恢复结果，但重启不能恢复对话**。任务结果已落盘，所以刷新都能把图表、表格、SQL、耗时与 Token 回填；但 LangGraph 记忆只在内存，后端重启后即使结果还在，追问也不再拥有上一轮上下文。
 4. **`interrupted` 不是失败**。它只表示“进程在任务执行期间退出，这个任务没有任何 worker 会再推进它”。前端据此停止重连、清掉活动任务、把问题文本填回输入框，而不是无限重试或自动重提。
 
-判定逻辑抽在 `app/demo/static/recovery.js`（纯函数、不碰 DOM），由 `tests/js/recovery.test.mjs` 用 Node 断言；接口字段与静态资源由 `tests/test_demo_recovery.py` 覆盖。
+判定逻辑抽在 `app/web/static/recovery.js`（纯函数、不碰 DOM），由 `tests/js/recovery.test.mjs` 用 Node 断言；接口字段与静态资源由 `tests/test_demo_recovery.py` 覆盖。
 
 ## 当前限制
 

@@ -1,9 +1,9 @@
 """演示站启动入口：解析参数 → 装配 app → 启动 uvicorn。
 
-装配逻辑见 app/demo/server.py（build_app）。
+装配逻辑见 app/web/server.py（build_app）。
 等价的 uvicorn 启动方式（无法传 --config，用默认或环境变量 CONFIG_PATH）：
 
-    uv run --no-sync uvicorn app.demo.server:create_app_from_env --factory --port 8000
+    uv run --no-sync uvicorn app.web.server:create_app_from_env --factory --port 8000
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.check_only:
-        from app.demo.preflight import preflight_report
+        from app.web.preflight import preflight_report
 
         report = preflight_report(args.config)
         print(json.dumps(report, ensure_ascii=False, indent=2))
@@ -43,7 +43,7 @@ def main() -> None:
 
     import uvicorn
 
-    from app.demo.server import build_app
+    from app.web.server import build_app
 
     uvicorn.run(build_app(args.config), host=args.host, port=args.port, log_level="info")
 

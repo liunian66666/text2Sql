@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.config import PROJECT_ROOT, get_config
-from app.demo.registry import DatabaseRegistry
+from app.web.registry import DatabaseRegistry
 
 
 def main():

@@ -61,11 +61,11 @@
 app/api/routes/chat.py       对话提交、状态查询与SSE
 app/api/routes/database.py   数据库发现
 app/api/routes/evaluation.py 评测报告查询
-app/demo/registry.py         数据库和示例问题注册
-app/demo/task_manager.py     单任务队列、状态与事件
-app/demo/static/chat.html    对话式单页界面
-app/demo/static/chat.js      请求、SSE与结果渲染
-app/demo/static/chat.css     页面样式
+app/web/registry.py          数据库和示例问题注册
+app/web/task_manager.py      单任务队列、状态与事件
+app/web/static/chat.html     对话式单页界面
+app/web/static/chat.js       请求、SSE与结果渲染
+app/web/static/chat.css      页面样式
 runner/run_demo.py           本地启动入口
 config/local/demo.toml       本地数据库注册与模型配置
 ```

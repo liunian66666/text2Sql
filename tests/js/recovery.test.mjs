@@ -9,7 +9,7 @@
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const recovery = require("../../app/demo/static/recovery.js");
+const recovery = require("../../app/web/static/recovery.js");
 
 let passed = 0;
 const failures = [];
