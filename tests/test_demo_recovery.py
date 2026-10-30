@@ -162,6 +162,14 @@ class RecoveryStaticAssetTest(unittest.TestCase):
         self.assertGreaterEqual(chat_at, 0)
         self.assertLess(recovery_at, chat_at, "recovery.js 必须先于 chat.js 执行")
 
+    def test_history_ui_reads_persisted_conversations(self):
+        html = (PROJECT_ROOT / "app/web/static/chat.html").read_text(encoding="utf-8")
+        source = (PROJECT_ROOT / "app/web/static/chat.js").read_text(encoding="utf-8")
+        self.assertIn('id="conversation-list"', html)
+        self.assertIn('/api/conversations?limit=30', source)
+        self.assertIn('openConversation', source)
+        self.assertIn('deleteConversation', source)
+
     def test_static_assets_are_served_without_cache(self):
         app = create_app(
             manager=object(),

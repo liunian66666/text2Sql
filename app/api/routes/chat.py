@@ -22,7 +22,28 @@ def create_chat_router(manager) -> APIRouter:
             task = manager.submit(request)
         except (ValidationError, ValueError) as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
-        return TaskAccepted(request_id=task["id"], status=task["status"])
+        return TaskAccepted(
+            request_id=task["id"], status=task["status"],
+            conversation_id=task["request"]["conversation_id"],
+        )
+
+    @router.get("/conversations")
+    def list_conversations(limit: int = Query(default=50, ge=1, le=200)):
+        return {"conversations": manager.list_conversations(limit)}
+
+    @router.get("/conversations/{conversation_id}")
+    def get_conversation(conversation_id: str):
+        try:
+            return manager.get_conversation(conversation_id)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="Unknown conversation ID") from exc
+
+    @router.delete("/conversations/{conversation_id}", status_code=204)
+    def delete_conversation(conversation_id: str):
+        try:
+            manager.delete_conversation(conversation_id)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="Unknown conversation ID") from exc
 
     # 必须声明在 /query/{request_id} 之前，否则 "active" 会被当成请求 ID。
     @router.get("/query/active")

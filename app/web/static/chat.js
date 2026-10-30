@@ -30,6 +30,100 @@ function newConversationId() {
     : `conv-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+async function loadConversations() {
+  const list = $("#conversation-list");
+  if (!list) return;
+  try {
+    const response = await fetch("/api/conversations?limit=30");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const conversations = (await response.json()).conversations || [];
+    list.replaceChildren();
+    if (!conversations.length) {
+      const empty = document.createElement("p");
+      empty.className = "conversation-empty";
+      empty.textContent = "完成一次分析后，会话会保存在本地状态库中。";
+      list.appendChild(empty);
+      return;
+    }
+    conversations.forEach(conversation => {
+      const item = document.createElement("div");
+      item.setAttribute("role", "button");
+      item.tabIndex = 0;
+      item.className = `conversation-item${conversation.id === conversationId ? " active" : ""}`;
+      const title = document.createElement("strong");
+      title.textContent = conversation.title || conversation.last_question || "未命名对话";
+      const meta = document.createElement("small");
+      const date = conversation.updated_at ? new Date(conversation.updated_at).toLocaleString("zh-CN") : "";
+      meta.textContent = `${conversation.task_count || 0} 轮 · ${date}`;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "conversation-delete";
+      remove.title = "删除会话";
+      remove.textContent = "×";
+      remove.addEventListener("click", event => {
+        event.stopPropagation();
+        deleteConversation(conversation.id);
+      });
+      item.append(title, meta, remove);
+      item.addEventListener("click", () => openConversation(conversation.id));
+      item.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") openConversation(conversation.id);
+      });
+      list.appendChild(item);
+    });
+  } catch (error) {
+    list.replaceChildren();
+    const empty = document.createElement("p");
+    empty.className = "conversation-empty";
+    empty.textContent = "历史会话暂时无法读取。";
+    list.appendChild(empty);
+  }
+}
+
+async function openConversation(id) {
+  if (activeRun || recovering) return;
+  const response = await fetch(`/api/conversations/${encodeURIComponent(id)}`);
+  if (!response.ok) return setService("会话读取失败", "error");
+  const conversation = await response.json();
+  conversationId = conversation.id;
+  Recovery.writeConversationId(sessionStorage, conversationId);
+  Recovery.clearRecord(sessionStorage);
+  const select = $("#database");
+  const requested = conversation.requested_database_id || "auto";
+  if ([...select.options].some(option => option.value === requested)) select.value = requested;
+  updateDatabaseUI();
+  const activeTask = (conversation.tasks || []).find(task => Recovery.isActiveStatus(task.status));
+  if (activeTask) {
+    const record = Recovery.recordFromTask(activeTask, conversationId);
+    if (record) Recovery.writeRecord(sessionStorage, record);
+    await restoreActiveTask();
+    await loadConversations();
+    return;
+  }
+  $("#messages").replaceChildren();
+  (conversation.tasks || []).forEach(task => {
+    appendUserMessage(task.request?.message || task.request?.question || "（历史问题）");
+    const run = appendProgressMessage();
+    run.requestId = task.id;
+    renderAssistantResult(run, task, false);
+  });
+  if (!(conversation.tasks || []).length) renderWelcome();
+  $("#conversation-title").textContent = conversation.title || "历史对话";
+  setService("历史会话已恢复", "success");
+  await loadConversations();
+}
+
+async function deleteConversation(id) {
+  if (activeRun || recovering) return;
+  const response = await fetch(`/api/conversations/${encodeURIComponent(id)}`, {method: "DELETE"});
+  if (!response.ok && response.status !== 404) return setService("删除失败", "error");
+  if (id === conversationId) {
+    startNewConversation();
+    renderWelcome();
+  }
+  await loadConversations();
+}
+
 // The Agent writes its answer in Markdown (headings, bold, lists, tables), but
 // the bubble used textContent, so `## 标题`, `**加粗**` and 60 个 `|` 全部当成字面
 // 字符显示，换行又被 HTML 折叠成一坨。这里按 DOM 节点逐段构建，不用 innerHTML，
@@ -322,6 +416,10 @@ async function submitQuery(event) {
     const response = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || "请求提交失败");
+    if (data.conversation_id) {
+      conversationId = data.conversation_id;
+      Recovery.writeConversationId(sessionStorage, conversationId);
+    }
     run.requestId = data.request_id;
     run.meta.textContent = `请求 ${data.request_id} 已进入分析队列`;
     // 拿到 request_id 才写记录：提交失败时不该留下一条指向不存在任务的记录。
@@ -430,6 +528,7 @@ function finishRun(success) {
   setBusy(false);
   setService(success ? "分析完成" : "分析失败", success ? "success" : "error");
   activeRun = null;
+  loadConversations();
   $("#question").focus();
   scrollToLatest();
 }
@@ -574,7 +673,7 @@ async function adoptServerTask() {
   }
 }
 
-function renderAssistantResult(run, task) {
+function renderAssistantResult(run, task, finalize = true) {
   const result = task.result || {};
   const artifacts = result.artifacts || {};
   const success = ["success", "empty_result"].includes(result.status);
@@ -604,7 +703,7 @@ function renderAssistantResult(run, task) {
     stage.className = "answer-text error-text";
     stage.textContent = `失败阶段：${result.failed_stage || "unknown"}`;
     run.bubble.appendChild(stage);
-    finishRun(false);
+    if (finalize) finishRun(false);
     return;
   }
 
@@ -638,7 +737,7 @@ function renderAssistantResult(run, task) {
     if (tableColumns.length) run.bubble.appendChild(buildTable(tableColumns, tableRows, result.truncated));
     run.bubble.appendChild(buildTechnicalDetails(result, artifacts));
   }
-  finishRun(true);
+  if (finalize) finishRun(true);
 }
 
 function buildMetrics(result, artifacts) {
@@ -830,8 +929,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (databases.length) {
     try { await restoreActiveTask(); } catch (error) { setService("恢复失败", "error"); }
   }
+  await loadConversations();
   $("#database").addEventListener("change", () => { startNewConversation(); updateDatabaseUI(); });
-  $("#new-chat").addEventListener("click", () => { startNewConversation(); $("#evidence").value=""; renderWelcome(); $("#question").focus(); });
+  $("#new-chat").addEventListener("click", () => { startNewConversation(); $("#evidence").value=""; renderWelcome(); loadConversations(); $("#question").focus(); });
+  $("#refresh-conversations").addEventListener("click", loadConversations);
   $("#query-form").addEventListener("submit", submitQuery);
   $("#question").addEventListener("input", autoGrow);
   $("#question").addEventListener("keydown", event => { if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();$("#query-form").requestSubmit();} });

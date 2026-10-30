@@ -14,6 +14,7 @@ dependencies = [
     "google-cloud-bigquery-storage>=2.36.0",
     "langchain-openai>=1.7.3",
     "langgraph>=1.2.18",
+    "langgraph-checkpoint-sqlite>=3.1.2",
     "loguru>=0.7.3",
     "matplotlib>=3.10.6",
     "mcp>=2.3.0",

@@ -70,13 +70,25 @@ class AgentResult(BaseModel):
 
 class DataAnalysisAgent:
     def __init__(self, sql_skill, *, workspace: Path, databases: dict[str, Path],
-                 llm_config=None, chat_model=None, knowledge=None):
+                 llm_config=None, chat_model=None, knowledge=None, checkpointer=None):
         self.workspace = workspace.resolve()
         self.workspace.mkdir(parents=True, exist_ok=True)
         self.tool_registry = ToolRegistry(sql_skill, databases, knowledge)
         self.chat_model = chat_model or create_chat_model(llm_config)
         self.tools = self.tool_registry.as_langchain_tools()
-        self.graph = build_agent_graph(self.chat_model, self.tools)
+        self.checkpointer = checkpointer
+        self.graph = build_agent_graph(self.chat_model, self.tools, checkpointer=checkpointer)
+
+    @staticmethod
+    def thread_id(conversation_id: str, database_id: str) -> str:
+        return f"{conversation_id}:{database_id}"
+
+    def delete_conversation(self, conversation_id: str) -> None:
+        """Delete every source-scoped checkpoint belonging to one conversation."""
+        if self.checkpointer is None or not hasattr(self.checkpointer, "delete_thread"):
+            return
+        for database_id in {"auto", *self.tool_registry.databases}:
+            self.checkpointer.delete_thread(self.thread_id(conversation_id, database_id))
 
     @staticmethod
     def _current_turn(messages):
@@ -126,7 +138,7 @@ class DataAnalysisAgent:
             "agent_usage": {},
             "agent_error": None,
         }, config={"configurable": {
-            "thread_id": f"{conversation_id}:{validated.database_id}",
+            "thread_id": self.thread_id(conversation_id, validated.database_id),
             "on_stage": on_stage,
         }})
         selected_database_id = state.get("database_id", validated.database_id)

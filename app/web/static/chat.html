@@ -23,6 +23,10 @@
     <section id="query-panel" class="panel active chat-shell">
       <aside class="chat-sidebar">
         <button id="new-chat" class="new-chat" type="button"><span>＋</span> 新建对话</button>
+        <div class="sidebar-section conversation-history">
+          <div class="sidebar-title"><span>历史对话</span><button id="refresh-conversations" type="button">刷新</button></div>
+          <div id="conversation-list" class="conversation-list" aria-live="polite"></div>
+        </div>
         <div class="sidebar-section">
           <label for="database">业务数据源</label>
           <select id="database" name="database_id" required></select>

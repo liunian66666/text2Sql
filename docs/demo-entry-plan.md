@@ -16,7 +16,7 @@
 .venv/Scripts/python.exe -B runner/run_demo.py --config config/local/baseline-dashscope/config-bird-dev-50-ablation.toml --port 8000
 ```
 
-页面提供单题在线演示和离线评测结果两个入口。单题请求串行运行，状态文件保存在 `workspace/demo_tasks/`，Skill产物保存在 `workspace/demo_requests/`。
+页面提供在线对话分析和离线评测结果两个入口。请求串行运行，LangGraph Checkpoint、会话目录、任务和 SSE 事件统一保存在 `workspace/state/agent_state.sqlite`，Skill 产物保存在 `workspace/demo_requests/`；旧版 `workspace/demo_tasks/*.json` 首次启动时自动导入。
 
 ## 推荐方案
 

@@ -9,3 +9,4 @@ class HealthResponse(BaseModel):
 class TaskAccepted(BaseModel):
     request_id: str
     status: str
+    conversation_id: str

@@ -94,7 +94,7 @@ uv run python runner/evaluate_agent.py --config config/local/demo-fast/config-bi
 
 ## 当前边界
 
-- 当前有进程内多轮会话记忆，但服务重启后不会持久化；尚无歧义追问和人工确认节点。
+- Web 应用已用 SQLite Checkpointer 持久化多轮会话，服务重启后可从历史会话继续追问；尚无跨会话用户画像、歧义追问和人工确认节点。
 - 业务指标检索仍是轻量本地检索；Agent 规划、工具选择和最终回答由 LLM 完成。
 - 只支持服务端注册的 SQLite 数据库，且下拉只列出**值索引与当前向量模型一致**的库；切换 embedding 模型后未重建索引的库不会出现。
 - SQL 工作流依赖外部推理与向量服务；服务异常时会返回结构化失败阶段，闲聊分支仍可用。预算/时间熔断按层上抛，`error` 直接写"预算熔断：LLM time budget exceeded (36s/35s) after 6 calls"，不会再伪装成"字段缺失"。

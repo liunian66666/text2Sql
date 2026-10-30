@@ -65,21 +65,21 @@ Function Calling 的端点，应在模型适配层明确报错或单独增加受
 | 层 | 存在哪 | 存什么 | 谁清理 | 丢了会怎样 |
 |---|---|---|---|---|
 | 浏览器状态 | `sessionStorage`：`deepeye.active_task` / `deepeye.conversation_id` | 只存恢复页面必需的标识：`request_id`、`conversation_id`、问题文本、`database_id`、创建时间、事件游标 | 用户点“新建对话”、切换数据源、任务 404、`interrupted` | 页面回到欢迎页，后端任务继续跑完，结果仍可通过请求 ID 查到 |
-| 后端任务记录 | 内存 `TaskManager._tasks` + 落盘 `workspace/demo_tasks/<id>.json` | 状态机（`queued`/`running`/`success`/`empty_result`/`error`/`interrupted`）、请求参数、序列化后的结果与事件序列 | 进程重启时把未完成记录改成 `interrupted`；不自动删除历史文件 | 404，前端清理记录并提示重新提交 |
-| LangGraph 会话记忆 | 进程内 Checkpointer，thread ID = `conversation_id + database_id` | 消息历史、业务口径、Schema、上一轮 SQL 与结果，供“做成柱状图”这类追问复用 | 进程退出即丢失 | 追问失去上下文，需要重新描述问题 |
+| 后端任务记录 | `workspace/state/agent_state.sqlite` 的 `tasks` / `task_events` | 状态机（`queued`/`running`/`success`/`empty_result`/`error`/`interrupted`）、请求参数、序列化结果与完整 SSE 事件序列 | 删除会话时级联删除；进程重启时把未完成任务改成 `interrupted` | 404，前端清理记录并提示重新提交 |
+| LangGraph 会话记忆 | 同一状态库中的 SQLite Checkpointer，thread ID = `conversation_id + database_id` | 消息历史、业务口径、Schema、上一轮 SQL 与结果，供“做成柱状图”和重启后追问复用 | 用户删除历史会话时同步删除对应 thread | 仅删除的会话会失去上下文 |
 
 因此三个边界必须讲清楚：
 
 1. **刷新不取消任务**。任务跑在服务端线程里，浏览器只是 SSE 订阅者。刷新后页面用原 `request_id` 查一次 `GET /api/query/{request_id}`，`queued`/`running` 就重连事件流，全程不会 `POST /api/chat`。
-2. **新标签页靠服务端接手，不靠本地存储**。`sessionStorage` 是标签页私有的，新页面天然读不到记录；如果让它在本地“猜”，只能退化成重新提交。因此本地没有记录时页面会问一次 `GET /api/query/active`：串行队列返回当前 `queued`/`running` 的任务，新标签页据此接管并沿用原 `conversation_id` 与数据源。这条路径也顺带堵住了“新开页面再问一次 → 队列里多一个重复任务”。任务已结束时该接口返回 `null`，新标签页正常显示欢迎页——跨标签页不追溯历史结果，那是会话中心的职责。
-3. **刷新能恢复结果，但重启不能恢复对话**。任务结果已落盘，所以刷新都能把图表、表格、SQL、耗时与 Token 回填；但 LangGraph 记忆只在内存，后端重启后即使结果还在，追问也不再拥有上一轮上下文。
+2. **新标签页靠服务端接手，不靠本地猜测**。`sessionStorage` 是标签页私有的，本地没有活动记录时页面先问 `GET /api/query/active` 接手正在执行的任务；已结束会话则通过 `GET /api/conversations` 从状态库读取。
+3. **刷新与重启都能恢复已完成会话**。任务结果、SSE 事件和 LangGraph Checkpoint 都写入独立状态库，服务重启后仍可打开历史会话并继续追问。
 4. **`interrupted` 不是失败**。它只表示“进程在任务执行期间退出，这个任务没有任何 worker 会再推进它”。前端据此停止重连、清掉活动任务、把问题文本填回输入框，而不是无限重试或自动重提。
 
 判定逻辑抽在 `app/web/static/recovery.js`（纯函数、不碰 DOM），由 `tests/js/recovery.test.mjs` 用 Node 断言；接口字段与静态资源由 `tests/test_demo_recovery.py` 覆盖。
 
 ## 当前限制
 
-- checkpointer 当前在内存中，同一数据库内支持多轮，但进程重启后对话上下文丢失。
+- SQLite Checkpointer 适用于本地单进程轻量应用；若改成多 worker 或公网服务，应迁移 PostgreSQL Saver 并增加鉴权。
 - 暂未加入写操作、人工审批或 HITL；所有数据库工具只读。
 - MCP Server 已支持 stdio/SSE/streamable-http 传输，但尚未提供生产鉴权配置。
 - 外部模型不可用时 Agent 会在 `agent_planning` 阶段明确失败，不使用规则结果冒充 LLM 决策。

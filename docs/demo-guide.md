@@ -104,12 +104,12 @@ uv run python -B runner/complete_value_index.py --database data/bird/dev/dev_dat
 
 1. 提交一个耗时较长的问题（如 Top10 商品排名），等进度条走到 **Few-shot** 或 **Schema Linking**。
 2. 按 F5 刷新页面。页面顶部显示“正在恢复上一次任务……”，问题气泡与进度卡片重新出现，随后变成“任务仍在后台执行，已恢复进度连接”。
-3. 证明“没有第二次提交”有两种方式，任选一种：打开浏览器 DevTools → Network 面板，整个刷新过程只会出现一条 `POST /api/chat`（刷新后是 `GET /api/query/{id}` 与 `GET /api/query/{id}/events`）；或看 `workspace/demo_tasks/` 目录，全程只新增一个 `<request_id>.json`。
+3. 证明“没有第二次提交”：打开浏览器 DevTools → Network 面板，整个刷新过程只会出现一条 `POST /api/chat`；刷新后只有 `GET /api/query/{id}` 与 `GET /api/query/{id}/events`。任务及事件保存在 `workspace/state/agent_state.sqlite`。
 4. 等任务结束，结果、图表、表格、SQL、耗时与 Token 全部照常出现——这些是刷新后从 `GET /api/query/{request_id}` 回填的，不是重新算的。
 5. 再刷新一次（此时任务已完成）：直接显示“上一次任务已经完成，结果已恢复”，不建立 SSE 连接。
 6. 紧接着输入“做成柱状图”：`conversation_id` 与刷新前一致，追问复用上一轮结果，不重新执行 SQL。
 7. **新开一个标签页**（Ctrl+T 输入 `http://127.0.0.1:8000`）：这个页面的 `sessionStorage` 是空的，但它会问一次 `GET /api/query/active`，发现服务端有任务在跑，于是直接接手同一条进度（沿用原 `conversation_id` 与数据源）。此时两个标签页都能看到进度，而队列里始终只有 **一个** 任务。
-8. 任务结束后再新开标签页：`active` 返回 `null`，页面显示普通欢迎页——跨标签页不追溯已结束的历史结果，避免变成会话中心。
+8. 任务结束后再新开标签页：`active` 返回 `null`，页面显示欢迎页；左侧“历史对话”会从 SQLite 状态库列出已完成会话，点击即可恢复结果并继续追问。
 9. 想看中断态：任务运行中按 Ctrl+C 停掉服务再重启，刷新页面会显示“后端在任务执行期间重启，本次任务未完成，请重新提交”，问题文本留在输入框里，不会无限加载也不会自动重提。
 
 恢复期间发送按钮、数据源下拉、新建对话与推荐问题都被禁用，避免在旧任务上再排一个新任务。`sessionStorage` 只保存 `request_id`、`conversation_id`、问题文本、`database_id`、创建时间与事件游标，不保存 SQL 结果、模型原始响应、密钥或绝对路径。
@@ -121,7 +121,7 @@ uv run python -B runner/complete_value_index.py --database data/bird/dev/dev_dat
 - 当前增量合并报告：14/14；最后一题切换到 `deepseek-v4.1-flash-1017` 后复测通过。该数字复用了首轮已通过结果，不表述为新模型整批 14 题成绩。
 - HR 第二业务域：6 个固定端到端问题 6/6；均自动选择 HR、命中正确指标并与可信 SQL 结果一致。增量合并记录平均 67.35 秒/题、总计 241,264 Token。
 - 销售域回归：自动选择销售库，2026 年有效订单数 453 与可信 SQL 一致，1/1。
-- 离线回归：80/80 通过（含刷新恢复的 13 项前后端契约测试）。
+- 离线回归：88/88 通过（含刷新恢复、SQLite Checkpoint、任务/SSE 持久化、历史会话和级联删除测试）。
 
 ## 排查
 
@@ -131,7 +131,7 @@ uv run python -B runner/complete_value_index.py --database data/bird/dev/dev_dat
 | 某阶段红色“失败” | 结果区会显示 `failed_stage`；先 `curl <base_url>/models` 确认模型服务在线，再换推荐问题重试 |
 | 刷新页面丢了进度 | 正常情况下不需要处理：页面会自动用原 `request_id` 查状态并重连。若显示“任务记录已失效”，说明后端已没有该任务（超过清理周期或换了机器），重新提交即可；也可手动访问 `GET /api/query/<request_id>` 核对 |
 | 新标签页没有接手正在跑的任务 | 先确认服务是新代码（`GET /api/query/active` 应返回 `{"task": {...}}`，旧进程会 404）。若返回 `{"task": null}`，说明任务其实已经结束——跨标签页只接手 `queued` / `running`，不追溯已完成的历史结果 |
-| 刷新后显示“后端在任务执行期间重启” | 这是 `interrupted`：进程重启时任务队列只在内存，未完成的 `queued` / `running` 记录会被标记为中断。问题文本已填回输入框，点发送重跑一次即可，不会自动重复提交 |
+| 刷新后显示“后端在任务执行期间重启” | 这是 `interrupted`：任务和事件虽然已持久化，但外部模型调用不能安全自动重放，因此未完成的 `queued` / `running` 会标记为中断。问题文本会保留，确认后手动重跑即可 |
 | 端口被占用 | `--port 8010` 换端口重启 |
 
 安全边界：数据库仅服务端白名单注册；SQLite 只读连接 + authorizer 拦截写操作；执行超时与最大行数在页面上可调但服务端有上限；页面不回显密钥、绝对路径与堆栈。

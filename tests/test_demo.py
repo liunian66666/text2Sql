@@ -13,6 +13,7 @@ from app.web.preflight import collect_preflight
 from app.web.registry import DatabaseRegistry
 from app.web.serializers import EvaluationRepository
 from app.web.task_manager import TaskManager
+from app.persistence import SQLiteStateStore
 from app.skills import SQLSkillResult
 
 
@@ -39,7 +40,8 @@ class DemoTaskManagerTest(unittest.TestCase):
     def test_serial_task_replays_events_and_returns_safe_result(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            manager = TaskManager(FakeSkill(root), root / "states")
+            state_db = root / "state.sqlite"
+            manager = TaskManager(FakeSkill(root), SQLiteStateStore(state_db))
             submitted = manager.submit({"question": "Count rows", "database_id": "demo"})
             task_id = submitted["id"]
             deadline = time.time() + 3
@@ -55,13 +57,15 @@ class DemoTaskManagerTest(unittest.TestCase):
             self.assertTrue(terminal)
             self.assertEqual([event["sequence"] for event in events], list(range(1, len(events) + 1)))
             self.assertEqual(events[-1]["status"], "success")
-            self.assertTrue((root / "states" / f"{task_id}.json").exists())
+            self.assertTrue(state_db.exists())
+            persisted = SQLiteStateStore(state_db).get_task(task_id)
+            self.assertEqual(persisted["status"], "success")
 
     def test_active_reports_the_queued_task_then_goes_empty(self):
         """新标签页靠 active() 判断要不要接手，所以它必须只报未完成的任务。"""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            manager = TaskManager(FakeSkill(root), root / "states")
+            manager = TaskManager(FakeSkill(root), SQLiteStateStore(root / "state.sqlite"))
             self.assertIsNone(manager.active())
             task_id = manager.submit({"question": "Count rows", "database_id": "demo"})["id"]
             active = manager.active()
@@ -79,25 +83,22 @@ class DemoTaskManagerTest(unittest.TestCase):
 class TaskManagerRecoveryTest(unittest.TestCase):
     """A restart must not leave a browser tab waiting on a task nothing owns."""
 
-    def _write(self, directory: Path, name: str, payload: dict | str) -> None:
-        (directory / f"{name}.json").write_text(
-            payload if isinstance(payload, str) else json.dumps(payload), encoding="utf-8")
-
     def test_unfinished_records_become_interrupted_and_replayable(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp) / "states"
-            root.mkdir()
-            self._write(root, "run001", {"id": "run001", "status": "running", "result": None,
-                                         "request": {"question": "q", "database_id": "demo"}})
-            self._write(root, "que001", {"id": "que001", "status": "queued", "result": None})
-            self._write(root, "ok0001", {"id": "ok0001", "status": "success",
-                                         "result": {"status": "success", "sql": "SELECT 1"}})
-            self._write(root, "broken", "{not json")
-            self._write(root, "foreign", {"id": "some-other-id"})
+            root = Path(tmp)
+            store = SQLiteStateStore(root / "state.sqlite")
+            for task_id, status in (("run001", "running"), ("que001", "queued"), ("ok0001", "queued")):
+                store.create_task({
+                    "id": task_id, "status": "queued", "created_at": "2026-10-30T00:00:00+00:00",
+                    "request": {"message": "q", "database_id": "demo", "conversation_id": f"c-{task_id}"},
+                })
+                if status != "queued":
+                    store.update_task(task_id, status=status, started_at="2026-10-30T00:00:01+00:00")
+            store.update_task("ok0001", status="success", finished_at="2026-10-30T00:00:02+00:00",
+                              result={"status": "success", "sql": "SELECT 1"})
 
-            manager = TaskManager(FakeSkill(root.parent), root)
+            manager = TaskManager(FakeSkill(root), store)
 
-            self.assertEqual({task_id for task_id in manager._tasks}, {"run001", "que001", "ok0001"})
             recovered = manager.get("run001")
             self.assertEqual(recovered["status"], "interrupted")
             self.assertEqual(recovered["result"]["status"], "interrupted")
@@ -109,10 +110,10 @@ class TaskManagerRecoveryTest(unittest.TestCase):
             self.assertTrue(terminal, "an interrupted task must close its event stream")
             self.assertEqual((events[-1]["stage"], events[-1]["status"]), ("request", "interrupted"))
 
-            persisted = json.loads((root / "run001.json").read_text(encoding="utf-8"))
+            persisted = SQLiteStateStore(root / "state.sqlite").get_task("run001")
             self.assertEqual(persisted["status"], "interrupted")
             self.assertNotIn("events", persisted)
-            untouched = json.loads((root / "ok0001.json").read_text(encoding="utf-8"))
+            untouched = manager.get("ok0001")
             self.assertNotIn("error", untouched["result"])
 
 
@@ -201,12 +202,28 @@ class DemoPreflightTest(unittest.TestCase):
 class DemoAPITest(unittest.TestCase):
     def test_static_page_and_read_only_endpoints(self):
         class Manager:
+            deleted = None
+
             def submit(self, request):
                 self.request = request
-                return {"id": "chat001", "status": "queued"}
+                return {"id": "chat001", "status": "queued",
+                        "request": {"conversation_id": request.conversation_id or "conv-created"}}
 
             def get(self, task_id):
                 raise KeyError(task_id)
+
+            def list_conversations(self, limit):
+                return [{"id": "conv-created", "title": "测试会话", "task_count": 1}]
+
+            def get_conversation(self, conversation_id):
+                if conversation_id != "conv-created":
+                    raise KeyError(conversation_id)
+                return {"id": conversation_id, "title": "测试会话", "tasks": []}
+
+            def delete_conversation(self, conversation_id):
+                if conversation_id != "conv-created":
+                    raise KeyError(conversation_id)
+                self.deleted = conversation_id
 
         manager = Manager()
         app = create_app(
@@ -224,10 +241,14 @@ class DemoAPITest(unittest.TestCase):
                 page = await client.get("/")
                 asset = await client.get("/static/chat.js")
                 created = await client.post("/api/chat", json={"question": "你好", "database_id": "enterprise_sales"})
+                conversations = await client.get("/api/conversations")
+                conversation = await client.get("/api/conversations/conv-created")
+                deleted = await client.delete("/api/conversations/conv-created")
                 missing = await client.get("/api/query/missing")
-            return health, databases, evaluations, page, asset, created, missing
+            return health, databases, evaluations, page, asset, created, conversations, conversation, deleted, missing
 
-        health, databases, evaluations, page, asset, created, missing = asyncio.run(exercise())
+        (health, databases, evaluations, page, asset, created,
+         conversations, conversation, deleted, missing) = asyncio.run(exercise())
         self.assertEqual(health.json(), {"status": "ok"})
         # 改完前端不用强制刷新也不会拿到旧脚本，否则排练时的真假回归分不开。
         self.assertEqual(asset.headers.get("cache-control"), "no-store")
@@ -240,7 +261,12 @@ class DemoAPITest(unittest.TestCase):
         self.assertIn("DeepEye-SQL", page.text)
         self.assertIn("对话分析", page.text)
         self.assertIn("企业数据分析助手", page.text)
-        self.assertEqual(created.json(), {"request_id": "chat001", "status": "queued"})
+        self.assertEqual(created.json(), {"request_id": "chat001", "status": "queued",
+                                          "conversation_id": "conv-created"})
+        self.assertEqual(conversations.json()["conversations"][0]["id"], "conv-created")
+        self.assertEqual(conversation.json()["title"], "测试会话")
+        self.assertEqual(deleted.status_code, 204)
+        self.assertEqual(manager.deleted, "conv-created")
         self.assertEqual(manager.request.message, "你好")
         self.assertEqual(missing.status_code, 404)
 

@@ -7,7 +7,7 @@
 三大依赖：
     DatabaseRegistry  扫描白名单 sqlite 库 + 读取示例题单（只读）
     DataAnalysisAgent ChatOpenAI + LangGraph 编排器，内部把 SQLSkill 作为工具
-    TaskManager       串行任务队列 + 事件回放，状态落盘 workspace/demo_tasks/
+    TaskManager       串行任务队列 + 事件回放，状态落盘 workspace/state/agent_state.sqlite
 
 两种启动方式：
     python runner/run_demo.py                                  # 带 --config/--host/--port 参数
@@ -19,6 +19,7 @@ import os
 from pathlib import Path
 
 from app.config import PROJECT_ROOT, get_config
+from app.persistence import SQLitePersistence
 
 from app.api import create_app
 from .registry import DatabaseRegistry
@@ -30,8 +31,8 @@ FALLBACK_CONFIG_PATH = Path("config/local/baseline-dashscope/config-bird-dev-50-
 
 # 演示产物根目录：每个请求一个子目录，浏览器刷新后仍可按请求 ID 查询。
 DEMO_REQUESTS_DIR = PROJECT_ROOT / "workspace/demo_requests"
-DEMO_TASKS_DIR = PROJECT_ROOT / "workspace/demo_tasks"
 AGENT_REQUESTS_DIR = PROJECT_ROOT / "workspace/agent_requests"
+STATE_DATABASE = PROJECT_ROOT / "workspace/state/agent_state.sqlite"
 
 
 def resolve_config_path(config_path: str | os.PathLike | None) -> Path:
@@ -55,6 +56,9 @@ def build_app(config_path: str | os.PathLike | None = None):
     if not registry.database_paths:
         raise RuntimeError("No registered demo databases were found")
 
+    persistence = SQLitePersistence(STATE_DATABASE)
+    persistence.state.import_legacy_tasks(PROJECT_ROOT / "workspace/demo_tasks")
+
     from app.skills import DEFAULT_REQUEST_SECONDS_CAP, DEFAULT_REQUEST_TOKEN_CAP, SQLSkill  # 延迟导入：SQLSkill 构造链较重，装配期才需要
 
     skill = SQLSkill(
@@ -75,13 +79,21 @@ def build_app(config_path: str | os.PathLike | None = None):
         databases=registry.database_paths,
         llm_config=get_config().sql_generation_config.llm,
         knowledge=create_enterprise_knowledge(app_config),
+        checkpointer=persistence.checkpointer,
     )
-    manager = TaskManager(agent, DEMO_TASKS_DIR)
-    return create_app(
+    manager = TaskManager(agent, persistence.state)
+    web_app = create_app(
         manager=manager,
         registry=registry,
         evaluations=EvaluationRepository(PROJECT_ROOT / "evals"),
     )
+    web_app.state.persistence = persistence
+
+    @web_app.on_event("shutdown")
+    def close_persistence() -> None:
+        persistence.close()
+
+    return web_app
 
 
 def create_app_from_env():

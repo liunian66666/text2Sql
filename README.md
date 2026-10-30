@@ -9,7 +9,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-SSE-009688?logo=fastapi)
 ![SQLite](https://img.shields.io/badge/SQLite-ReadOnly%20%2B%20Authorizer-6e40c9?logo=sqlite)
 ![LangGraph](https://img.shields.io/badge/LangGraph-Agent-1C3C3C)
-![Tests](https://img.shields.io/badge/Tests-80%20passed-success)
+![Tests](https://img.shields.io/badge/Tests-88%20passed-success)
 
 🖥️ **本地演示项目**：不依赖云端部署，`python runner/run_demo.py` 起服务后浏览器直接看效果
 
@@ -51,11 +51,11 @@
 | 延迟与成本熔断 | 每请求 token / 墙钟硬上限（默认 120k / 600s）；当一次响应的全部候选都被 `max_tokens` 截断（思考模型典型失控形态）时抛 `TruncatedResponseError` 立即失败，不再在 tenacity × extractor 两层重试里循环小时级。实测同一失控请求由 **75 次调用** 收敛为 **1 次** | `app/llm/budget.py`、`app/llm/llm.py`、`app/llm_extractor/extractor.py` |
 | 逐调用用量台账 | 基于 ContextVar 记录每次 LLM / embedding 调用的阶段、题目、耗时与 token，自定义 `ThreadPoolExecutor` 保证跨线程池传播；请求产物目录落 `usage.jsonl`，可精确回答"时间花在哪一阶段" | `app/llm/usage.py`、`app/vector_db/metered_embedding.py` |
 | 单问题 Skill 封装 | 把批量评测脚本改造成一次请求一个 Skill 调用：独立产物目录、七阶段进度回调、异常统一收敛为 `failed_stage` + 本地 `error.txt`（密钥脱敏），对外响应不含原始 provider 报错 | `app/skills/sql_skill.py` |
-| LangGraph 数据分析 Agent | `ChatOpenAI.bind_tools()` 在标准 ReAct 循环中选择业务口径、Schema、Text-to-SQL 和可视化工具；支持会话记忆和工具轨迹 | `app/agent/`、`runner/run_agent.py` |
+| LangGraph 数据分析 Agent | `ChatOpenAI.bind_tools()` 在标准 ReAct 循环中选择业务口径、Schema、Text-to-SQL 和可视化工具；SQLite Checkpointer 按 `conversation_id + database_id` 持久化会话状态 | `app/agent/`、`app/persistence/` |
 | MCP 工具服务 | 通过官方 MCP Python SDK 暴露数据库发现、业务口径、Schema 和只读 Text-to-SQL，供其他 Agent/MCP Client 复用 | `app/mcp_server.py`、`runner/run_mcp_server.py` |
 | 双业务域演示数据与指标 RAG | 固定随机种子生成销售 7 表与 HR 4 表；指标检索按业务域隔离，Agent 可自动选择 `enterprise_sales` / `enterprise_hr`，手动指定优先 | `app/enterprise/`、`runner/create_enterprise_demo.py` |
 | Web 应用 | FastAPI + 原生单页（零构建）：串行任务队列、SSE 进度流、断线重连、按请求 ID 回放；展示意图、业务口径、三版 SQL、阶段耗时、结果表与自动图表 | `app/web/`、`runner/run_demo.py` |
-| 重启不丢状态 | 任务状态落盘，进程重启后把上一次遗留的 `queued` / `running` 记录标记为 `interrupted` 并回放一条终结事件，避免前端对着已消失的请求 ID 无限等待 | `app/web/task_manager.py` |
+| 持久化会话与任务 | 独立状态库保存 LangGraph Checkpoint、会话目录、任务结果和 SSE 事件；重启后已完成会话可继续追问，遗留 `queued` / `running` 安全标记为 `interrupted`，不自动重复调用模型 | `app/persistence/`、`app/web/task_manager.py` |
 | 刷新不丢任务 | 页面刷新只重建前端，不取消也不重复提交后端任务：`sessionStorage` 只存 `request_id` / `conversation_id` / 问题文本等白名单字段，初始化时查 `GET /api/query/{id}`，按 `queued` / `running` / 终态分别重连 SSE、回填结果或提示失效；本地无记录时退化为问 `GET /api/query/active` 接手服务端正在跑的任务，新标签页因此不会提重复任务 | `app/web/static/recovery.js`、`app/web/static/chat.js`、`app/web/task_manager.py` |
 | 启动自检 | `--check-only` 输出数据库、值索引、few-shot 索引、离线报告的就绪状态 JSON，不泄漏任何凭据 | `app/web/preflight.py` |
 | 评测基础设施 | 固定种子分层抽样、三档消融报告（仅生成 / 生成＋修订 / 完整流程）、阶段实测计时、进度看板、基线报告与逐题明细落盘为可只读浏览的 `evals/` | `runner/report_ablation.py`、`runner/report_baseline.py`、`runner/select_bird_sample.py` |
@@ -78,6 +78,7 @@
 | 🧭 LLM Agent 决策 | 模型根据系统 Prompt、历史消息和工具描述自主选择动作，工具结果返回模型后再规划或形成最终回答 |
 | 📈 自动可视化 | 按意图和结果列自动选择指标卡、柱状图、折线图、饼图或表格；用户点名图表类型时可传 `chart_type`（白名单校验，数据不支持自动回退并说明）；前端使用本地 SVG/CSS，无 CDN 依赖 |
 | 🧠 业务口径检索 | 关键词基线 + 云向量语义召回 + 加权重排，覆盖销售额、客单价、退款率等定义和 SQL 约束；返回可解释分数，向量异常自动降级 |
+| 💾 持久化记忆 | LangGraph Checkpoint、会话目录、任务和 SSE 事件统一写入独立 SQLite 状态库；支持历史会话查看、删除和服务重启后继续追问 |
 
 ## 🏗️ 系统架构
 
@@ -86,7 +87,7 @@
    │  POST /api/chat                     ┌─────────────────────────────────┐
    ├─ 202 request_id ───────────────────►│ TaskManager  串行任务队列         │
    │  GET /api/query/{id}/events ◄─SSE───│  · 事件可回放（断线重连不丢进度） │
-   │  GET /api/query/{id}                │  · 状态落盘，重启标记 interrupted │
+   │  GET /api/query/{id}                │  · SQLite 状态与 SSE 事件持久化   │
    └─────────────────────────────────────└───────────────┬─────────────────┘
                                                          ▼
                       LangGraph：ChatOpenAI ◄───────────────┐
@@ -186,7 +187,9 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 
 **刷新页面不会取消后端任务**。任务跑在服务端线程里，浏览器只是订阅者；刷新后页面用 `sessionStorage` 里的 `request_id` 查一次 `GET /api/query/{request_id}`，再按状态决定动作：`queued` / `running` 用原 ID 重连 SSE（不重新提交、不重复消耗 Token），`success` / `empty_result` 直接回填回答、图表、表格、SQL 与耗时，`error` 恢复失败卡片，`interrupted` 提示后端重启并保留问题文本。记录里只存白名单字段，不落 SQL 结果、模型原始响应、密钥或绝对路径。
 
-**新开一个标签页也能接手正在跑的任务**。`sessionStorage` 是标签页私有的，新页面天然是空的，所以页面在本地没有记录时会问一次 `GET /api/query/active`：服务端串行队列返回当前 `queued` / `running` 的任务，新标签页据此直接接管（沿用原 `conversation_id` 与数据源），而不是再提一个重复任务把队列占满。任务已经结束时该接口返回 `null`，新标签页正常显示欢迎页——已结束的历史结果不做跨标签页追溯，那属于会话中心的范畴，不在本仓库范围内。
+**新开一个标签页也能接手正在跑的任务**。`sessionStorage` 是标签页私有的，新页面天然是空的，所以页面在本地没有记录时会问一次 `GET /api/query/active`：服务端串行队列返回当前 `queued` / `running` 的任务，新标签页据此直接接管（沿用原 `conversation_id` 与数据源），而不是再提一个重复任务把队列占满。任务结束后可以从左侧“历史对话”恢复结果和上下文。
+
+**服务重启后仍可继续历史会话**。Web 应用将 LangGraph Checkpoint、会话目录、任务结果和 SSE 事件写入 `workspace/state/agent_state.sqlite`；左侧“历史对话”可以恢复已完成轮次并继续追问。旧版 `workspace/demo_tasks/*.json` 会在首次启动时幂等导入。运行中任务不会自动重放外部模型调用，而会转成 `interrupted` 等待用户确认重试。
 
 ## ⚠️ 能力边界（未实现与未解决的部分）
 
@@ -196,8 +199,8 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 - **修订阶段当前测不出收益**：50 题三档消融中，仅生成与生成＋修订两档**完全同为 36/50**，Checker 修订造成 0 修复 / 0 退化。八个检查器都基于 SQL 正则错误模式（如 `ORDER BY` 内使用 `MIN/MAX`、`= (SELECT ... LIMIT n)`），演示实测中该阶段常以零次模型调用、0.07 秒通过，说明模式未命中生成的候选。这是已知薄弱环节，不能表述为"修订能力已验证"。
 - **评测口径不等于 BIRD 官方榜单**：集合式 EX 用 `set(pred_rows) == set(gold_rows)` 判定，未实现官方对列序/列数的容忍规则；实测同一份上游预测在随机 200 题上为 64.3%，而官方 README 声称全量 dev 为 74.5%，差值无法用截断或列投影解释。跨口径比较无效。
 - **准确率提升不显著**：完整流程 76.0% 对上游同题预测 72.0%，n=50 的 95% 置信区间约 ±12 个百分点，只能说"未退步"。
-- **会话记忆尚未持久化**：同一进程内通过 `conversation_id + database_id` 保留并隔离多轮上下文；服务重启后 LangGraph 内存 Checkpointer 会丢失。当前不支持写操作和人工修改数据。
-- **单进程、无并发、无鉴权**：任务状态在内存（磁盘仅用于重启后标记中断），不支持多 worker 部署，也不适合公网暴露。
+- **没有用户画像或跨会话长期记忆**：当前持久化的是 conversation thread 内的消息和工具状态，不会跨会话学习用户偏好，也不会把问答自动回灌 Few-shot。
+- **单进程、无并发、无鉴权**：SQLite Saver 和串行任务队列面向本地轻量应用，不支持多 worker 部署，也不适合公网暴露。
 - **示例题单为英文**（BIRD 原题），交互语言为中文；中文超纲问题目前只有熔断兜底，没有"该库无法回答"的前置判定。
 - **尾延迟受推理端点支配**：强制思考模型同一 prompt 实测 completion 为 435 / 1,726 / 8,192 token，端点不接受 `thinking_budget` 类参数（一律返回 500），无法从客户端约束思考长度。
 
@@ -205,7 +208,7 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 
 | 检查项 | 结果 | 命令 / 位置 |
 |---|---|---|
-| 自动化单元测试 | **80 项通过**（本地，不触网）；覆盖 `.env` 与 TOML 的优先级、双业务域路由与隔离、visualization 表格数据契约、多轮图表复用、Agent 状态隔离、工具轮数、RAG 降级、评测展示、API、MCP、只读执行、任务恢复、刷新恢复（含 Node 侧状态机断言）与用量台账 | `uv run python -m unittest discover -s tests -q` |
+| 自动化单元测试 | **88 项通过**（本地，不触网）；覆盖 `.env` 与 TOML 的优先级、双业务域路由与隔离、visualization、多轮图表复用、SQLite Checkpoint 重启恢复、任务/SSE 持久化、会话删除、RAG 降级、API、MCP、只读执行、刷新恢复与用量台账 | `uv run python -m unittest discover -s tests -q` |
 | Agent 与工具 | LLM 工具循环、会话记忆、工具轨迹以及指标卡/柱状/折线/饼图规则均有离线测试 | `tests/test_agent.py` |
 | Agent 专项评测 | 14 个查数、排名、趋势、占比、闲聊、安全和多轮案例；首轮 11/14，修复口径检索遗漏与意图边界后逐项回归至 **14/14**。这是增量失败题回归，非新模型整批重跑 | `evals/agent/report.md` |
 | HR 业务域端到端 | 6 个固定问题覆盖查数、排名、趋势、占比和复杂指标，自动选库、指标命中、SQL 真实结果及图表严格检查 **6/6**；最终为增量失败题合并报告，平均 67.35 秒/题、241,264 Token | `evals/hr/report.md` |
@@ -215,6 +218,7 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 | MCP | 4 个只读分析工具可被协议层发现 | `tests/test_mcp_server.py` |
 | 只读执行安全性 | 写操作 / 多语句 / `ATTACH` / `load_extension` 全部被拒；递归查询超时被中断 | `tests/test_sql_skill.py` |
 | 任务队列与重启 | 事件按序回放；遗留 `running` 记录被标记 `interrupted` 并可终结 SSE | `tests/test_demo.py` |
+| 持久化记忆 | 对话跨重启恢复、销售/HR thread 隔离、任务/事件重开可读、旧 JSON 幂等导入、级联删除与敏感信息隔离 | `tests/test_persistence.py` |
 | 启动自检与凭据隔离 | 缺失索引能报就绪状态；对外响应与报告不含 API Key | `tests/test_demo.py` |
 | 50 题三档消融 | 仅生成 72.0% / 生成＋修订 72.0% / 完整流程 **76.0%**，三组均 100% 可执行 | `evals/bird-dev-50/ablation/` |
 | 上游同题对照 | 上游发布预测在同一 50 题子集 72.0%（本仓库口径复算） | `results/bird-dev/qwen3.6-27b.json` |
@@ -233,9 +237,10 @@ DeepEye-SQL/
 │   ├── skills/               # 单问题 Skill：七阶段编排、只读执行、用量汇总
 │   ├── agent/                # ChatOpenAI、Prompt、LangGraph、标准工具、会话状态
 │   ├── api/                  # 对话、数据库和评测路由
+│   ├── persistence/          # LangGraph Checkpoint + 会话/任务/SSE SQLite 状态库
 │   ├── mcp_server.py         # 同一套分析工具的 MCP 协议入口
 │   ├── enterprise/           # 可复现企业示例库、指标知识与示例问题
-│   ├── demo/                 # 演示站：task_manager / registry / preflight / static
+│   ├── web/                  # Web 应用：task_manager / registry / preflight / static
 │   ├── llm/                  # LLM 封装 + 预算熔断(budget.py) + 用量台账(usage.py)
 │   ├── pipeline/             # 六个阶段（上游算法 + 本仓库可观测性改造）
 │   ├── few_shot/             # 动态少样本：掩码、索引、检索、初步 SQL
@@ -249,7 +254,7 @@ DeepEye-SQL/
 ├── evals/                    # 题单、逐题明细与汇总报告（演示站只读浏览）
 ├── results/                  # 上游发布的预测文件（用于同题对照）
 ├── docs/                     # 运行手册、评测报告、失败分析、交付清单、截图
-├── tests/                    # 80 项离线单元测试（tests/js/ 为 Node 侧恢复状态机测试）
+├── tests/                    # 88 项离线单元测试（tests/js/ 为 Node 侧恢复状态机测试）
 └── workspace/                # 运行产物与索引（不入库）
 ```
 
@@ -286,7 +291,7 @@ DeepEye-SQL/
 该请求累计 token 或墙钟触到硬上限（默认 120k / 600s），通常是问题超出所选数据库可回答范围，或思考模型在某个候选上无限展开。可临时用 `DEMO_MAX_TOTAL_TOKENS` 放宽，但更该换问题或换库。
 
 **Q：服务重启后旧请求查不到了？**
-任务队列在内存，重启后旧请求会被标记为 `interrupted` 并给出说明，而不是让前端无限等待。历史产物仍在 `workspace/demo_requests/<request_id>/` 下可按请求 ID 翻查。
+已完成请求和会话保存在 `workspace/state/agent_state.sqlite`，可以从左侧历史对话恢复。重启时仍在运行的请求会被标记为 `interrupted`，不会自动重复调用模型；历史 Skill 产物仍可在 `workspace/demo_requests/<request_id>/` 下翻查。
 
 **Q：为什么日志里出现"empty final content"警告？**
 思考模型把 `max_tokens` 全部花在推理上、没产出最终内容。现在这类响应会被判定为确定性失败并快速熔断，不再逐次重试；若只是部分候选为空，其余有效候选会被保留。
@@ -295,7 +300,7 @@ DeepEye-SQL/
 先 `curl <base_url>/models` 确认服务在线。该端点对 `enable_thinking`、`thinking_budget` 等参数一律返回 500，只能在配置里不传这些参数。
 
 **Q：能在公网部署吗？**
-不建议。当前是单进程串行队列、无鉴权、任务状态在内存；且执行的是模型生成的 SQL，虽有只读沙箱与超时/行数上限，仍应在受控环境使用。
+不建议。当前是单进程串行队列、SQLite 状态库且无鉴权；执行的又是模型生成 SQL，虽有只读沙箱与超时/行数上限，仍应在受控环境使用。
 
 ## 📄 开源协议与致谢
 
