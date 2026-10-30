@@ -1,0 +1,54 @@
+{
+  "evaluation": "enterprise-hr-agent-evaluation-v1",
+  "description": "HR第二业务域固定端到端评测；truth_sql直接查询同一SQLite，用于核对Agent结果。",
+  "cases": [
+    {
+      "id": "hr-active-headcount",
+      "question": "当前各部门在职人数是多少？请返回部门名称和在职人数，按在职人数降序。",
+      "database_id": "auto", "expected_database_id": "enterprise_hr", "expected_metric_id": "active_headcount", "expected_intent": "query", "expected_chart_type": "table",
+      "required_tools": ["select_data_source", "search_business_metrics", "inspect_database_schema", "run_text_to_sql", "build_visualization"],
+      "sql_must_contain": ["departments", "termination_date"],
+      "truth_sql": "SELECT d.department_name, COUNT(e.employee_id) AS active_headcount FROM departments d LEFT JOIN employees e ON e.department_id=d.department_id AND e.hire_date <= '2026-10-28' AND (e.termination_date IS NULL OR e.termination_date > '2026-10-28') GROUP BY d.department_id, d.department_name ORDER BY active_headcount DESC, d.department_name"
+    },
+    {
+      "id": "hr-new-hire-trend",
+      "question": "最近12个月每月新入职人数趋势如何？统计2025-11-01到2026-10-28，返回月份和新入职人数，按月份升序。",
+      "database_id": "auto", "expected_database_id": "enterprise_hr", "expected_metric_id": "new_hires", "expected_intent": "trend", "expected_chart_type": "line",
+      "required_tools": ["select_data_source", "search_business_metrics", "inspect_database_schema", "run_text_to_sql", "build_visualization"],
+      "sql_must_contain": ["hire_date", "strftime"],
+      "truth_sql": "SELECT strftime('%Y-%m', hire_date) AS month, COUNT(*) AS new_hires FROM employees WHERE hire_date BETWEEN '2025-11-01' AND '2026-10-28' GROUP BY month ORDER BY month"
+    },
+    {
+      "id": "hr-attrition-rate",
+      "question": "最近一年各部门离职率是多少？按2025-10-29到2026-10-28统计，离职率=期间离职人数/期初在职人数*100%，保留2位小数；返回部门、离职人数、期初在职人数、离职率，按离职率降序。",
+      "database_id": "auto", "expected_database_id": "enterprise_hr", "expected_metric_id": "attrition_rate", "expected_intent": "query", "expected_chart_type": "table",
+      "required_tools": ["select_data_source", "search_business_metrics", "inspect_database_schema", "run_text_to_sql", "build_visualization"],
+      "sql_must_contain": ["termination_date", "nullif"],
+      "truth_sql": "SELECT d.department_name, SUM(CASE WHEN e.termination_date BETWEEN '2025-10-29' AND '2026-10-28' THEN 1 ELSE 0 END) AS departures, SUM(CASE WHEN e.hire_date <= '2025-10-29' AND (e.termination_date IS NULL OR e.termination_date > '2025-10-29') THEN 1 ELSE 0 END) AS opening_headcount, ROUND(100.0 * SUM(CASE WHEN e.termination_date BETWEEN '2025-10-29' AND '2026-10-28' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN e.hire_date <= '2025-10-29' AND (e.termination_date IS NULL OR e.termination_date > '2025-10-29') THEN 1 ELSE 0 END), 0), 2) AS attrition_rate_pct FROM departments d LEFT JOIN employees e ON e.department_id=d.department_id GROUP BY d.department_id, d.department_name ORDER BY attrition_rate_pct DESC, d.department_name"
+    },
+    {
+      "id": "hr-performance-ranking",
+      "question": "哪些部门平均绩效最高？使用最新绩效周期，先按未四舍五入的平均绩效排名，再将展示的平均绩效保留2位小数；返回部门、平均绩效和排名，按平均绩效降序。",
+      "database_id": "auto", "expected_database_id": "enterprise_hr", "expected_metric_id": "average_performance", "expected_intent": "ranking", "expected_chart_type": "bar",
+      "required_tools": ["select_data_source", "search_business_metrics", "inspect_database_schema", "run_text_to_sql", "build_visualization"],
+      "sql_must_contain": ["performance_reviews", "avg"],
+      "truth_sql": "WITH scores AS (SELECT d.department_name, AVG(p.performance_score) AS raw_average_performance FROM performance_reviews p JOIN employees e ON e.employee_id=p.employee_id JOIN departments d ON d.department_id=e.department_id WHERE p.review_period=(SELECT MAX(review_period) FROM performance_reviews) GROUP BY d.department_id,d.department_name) SELECT department_name, ROUND(raw_average_performance,2) AS average_performance, RANK() OVER (ORDER BY raw_average_performance DESC) AS performance_rank FROM scores ORDER BY raw_average_performance DESC, department_name"
+    },
+    {
+      "id": "hr-headcount-share",
+      "question": "截至2026-10-28，各部门在职员工人数占公司总在职人数的比例是多少？返回部门、在职人数、占比百分数（保留2位小数），按占比降序。",
+      "database_id": "auto", "expected_database_id": "enterprise_hr", "expected_metric_id": "department_headcount_share", "expected_intent": "proportion", "expected_chart_type": "pie",
+      "required_tools": ["select_data_source", "search_business_metrics", "inspect_database_schema", "run_text_to_sql", "build_visualization"],
+      "sql_must_contain": ["termination_date", "nullif"],
+      "truth_sql": "WITH active AS (SELECT department_id, COUNT(*) AS headcount FROM employees WHERE hire_date <= '2026-10-28' AND (termination_date IS NULL OR termination_date > '2026-10-28') GROUP BY department_id), total AS (SELECT SUM(headcount) AS total_headcount FROM active) SELECT d.department_name, COALESCE(a.headcount,0) AS active_headcount, ROUND(100.0*COALESCE(a.headcount,0)/NULLIF(t.total_headcount,0),2) AS share_pct FROM departments d LEFT JOIN active a ON a.department_id=d.department_id CROSS JOIN total t ORDER BY share_pct DESC, d.department_name"
+    },
+    {
+      "id": "hr-attendance-rate",
+      "question": "最近一个月各部门出勤率是多少？使用出勤表最新月份，出勤率=实际出勤天数/应出勤天数*100%，保留2位小数；返回部门、实际出勤天数、应出勤天数和出勤率，按出勤率降序。",
+      "database_id": "auto", "expected_database_id": "enterprise_hr", "expected_metric_id": "attendance_rate", "expected_intent": "query", "expected_chart_type": "table",
+      "required_tools": ["select_data_source", "search_business_metrics", "inspect_database_schema", "run_text_to_sql", "build_visualization"],
+      "sql_must_contain": ["attendance_month", "nullif"],
+      "truth_sql": "SELECT d.department_name, SUM(a.attended_days) AS attended_days, SUM(a.scheduled_days) AS scheduled_days, ROUND(100.0*SUM(a.attended_days)/NULLIF(SUM(a.scheduled_days),0),2) AS attendance_rate_pct FROM attendance a JOIN employees e ON e.employee_id=a.employee_id JOIN departments d ON d.department_id=e.department_id WHERE a.attendance_month=(SELECT MAX(attendance_month) FROM attendance) GROUP BY d.department_id,d.department_name ORDER BY attendance_rate_pct DESC,d.department_name"
+    }
+  ]
+}

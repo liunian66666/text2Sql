@@ -6,7 +6,7 @@
 
 三大依赖：
     DatabaseRegistry  扫描白名单 sqlite 库 + 读取示例题单（只读）
-    DataAnalysisAgent LangGraph 编排器，内部复用 SQLSkill
+    DataAnalysisAgent ChatOpenAI + LangGraph 编排器，内部把 SQLSkill 作为工具
     TaskManager       串行任务队列 + 事件回放，状态落盘 workspace/demo_tasks/
 
 两种启动方式：
@@ -20,7 +20,7 @@ from pathlib import Path
 
 from app.config import PROJECT_ROOT, get_config
 
-from .api import create_app
+from app.api import create_app
 from .registry import DatabaseRegistry
 from .serializers import EvaluationRepository
 from .task_manager import TaskManager
@@ -67,11 +67,14 @@ def build_app(config_path: str | os.PathLike | None = None):
         max_seconds=int(os.environ.get("DEMO_MAX_SECONDS", str(DEFAULT_REQUEST_SECONDS_CAP))),
     )
     from app.agent import DataAnalysisAgent
+    from app.enterprise import create_enterprise_knowledge
+    app_config = get_config().app_config
     agent = DataAnalysisAgent(
         skill,
         workspace=AGENT_REQUESTS_DIR,
         databases=registry.database_paths,
         llm_config=get_config().sql_generation_config.llm,
+        knowledge=create_enterprise_knowledge(app_config),
     )
     manager = TaskManager(agent, DEMO_TASKS_DIR)
     return create_app(

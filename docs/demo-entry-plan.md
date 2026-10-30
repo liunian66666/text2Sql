@@ -2,7 +2,7 @@
 
 ## 当前实现
 
-演示入口已实现为 **FastAPI + 单页静态前端 + SSE阶段进度**。后端复用 `app.skills.SQLSkill`，在线请求与批量评测目录彼此独立；评测页只读取 `evals/` 下已生成的报告。
+演示入口已实现为 **FastAPI + 单页静态前端 + SSE阶段进度**。后端先进入 `DataAnalysisAgent`，再由标准工具复用 `app.skills.SQLSkill`；在线请求与批量评测目录彼此独立，评测页只读取 `evals/` 下已生成的报告。
 
 启动命令：
 
@@ -20,7 +20,7 @@
 
 ## 推荐方案
 
-采用 **FastAPI + 单页静态前端 + SSE阶段进度**。后端直接复用 `app.skills.SQLSkill`，不复制Text-to-SQL逻辑；前端只负责提交问题、展示阶段进度、SQL、结果表、耗时和token。
+采用 **FastAPI + 单页静态前端 + SSE阶段进度**。后端通过 LangGraph Agent 的 `run_text_to_sql` 工具复用 `app.skills.SQLSkill`，不复制 Text-to-SQL 逻辑；前端只负责提交对话、展示工具进度、SQL、结果表、耗时和 token。
 
 这个方案适合作为实习项目演示：依赖少、可本地启动、能清楚展示系统过程，也方便后续替换成React或接入企业内部页面。
 
@@ -40,7 +40,7 @@
 | 接口 | 作用 |
 |---|---|
 | `GET /api/databases` | 返回已注册数据库及示例问题 |
-| `POST /api/query` | 创建单问题任务，返回 `request_id` |
+| `POST /api/chat` | 创建一轮对话任务，返回 `request_id`；`POST /api/query` 作为旧前端兼容别名 |
 | `GET /api/query/{request_id}/events` | SSE推送阶段开始、完成、失败事件 |
 | `GET /api/query/{request_id}` | 返回最终SQL、结果、耗时和token |
 | `GET /api/evaluations` | 返回10题与50题评测摘要 |
@@ -58,12 +58,14 @@
 ## 建议技术结构
 
 ```text
-app/demo/api.py              FastAPI路由与SSE
+app/api/routes/chat.py       对话提交、状态查询与SSE
+app/api/routes/database.py   数据库发现
+app/api/routes/evaluation.py 评测报告查询
 app/demo/registry.py         数据库和示例问题注册
 app/demo/task_manager.py     单任务队列、状态与事件
-app/demo/static/index.html   单页界面
-app/demo/static/app.js       请求、SSE与结果渲染
-app/demo/static/style.css    页面样式
+app/demo/static/chat.html    对话式单页界面
+app/demo/static/chat.js      请求、SSE与结果渲染
+app/demo/static/chat.css     页面样式
 runner/run_demo.py           本地启动入口
 config/local/demo.toml       本地数据库注册与模型配置
 ```

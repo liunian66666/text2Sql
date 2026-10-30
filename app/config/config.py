@@ -6,12 +6,22 @@ from typing import Dict, List, Optional, Literal, Any
 from pathlib import Path
 from pydantic import BaseModel, Field, model_validator
 
+from loguru import logger
+
+from .env import load_env_file
+
 
 def get_project_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent
 
 
 PROJECT_ROOT = get_project_root()
+
+# Optional repo-root .env. Loaded at import so CONFIG_PATH and every provider
+# variable resolve identically for the API server, runners and tests.
+# Precedence: shell environment > .env > TOML. Missing file is a no-op.
+ENV_FILE = load_env_file(PROJECT_ROOT / ".env")
+
 WORKSPACE_ROOT = PROJECT_ROOT / "workspace"
 
 if not Path(WORKSPACE_ROOT).exists():
@@ -255,6 +265,19 @@ class SchemaLinkingConfig(BaseModel):
     direct_linking_sampling_budget: int = Field(default=5, description="The sampling budget of the direct linking")
     reversed_linking_sampling_budget: int = Field(default=5, description="The sampling budget of the reversed linking")
     value_distance_threshold: float = Field(default=0.05, description="The threshold of the value distance in value linking")
+
+
+class BusinessMetricRetrievalConfig(BaseModel):
+    mode: Literal["keyword", "hybrid"] = Field(default="hybrid", description="Metric retrieval strategy")
+    lexical_weight: float = Field(default=0.6, ge=0.0)
+    semantic_weight: float = Field(default=0.4, ge=0.0)
+    semantic_min_score: float = Field(default=0.25, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def validate_weights(self):
+        if self.lexical_weight + self.semantic_weight <= 0:
+            raise ValueError("business metric retrieval weights cannot both be 0")
+        return self
     
 
 class SQLGenerationConfig(BaseModel):
@@ -309,6 +332,8 @@ class AppConfig(BaseModel):
     value_retrieval: ValueRetrievalConfig = Field(default_factory=ValueRetrievalConfig, description="The config of the value retrieval")
     few_shot_index: FewShotIndexConfig = Field(default_factory=FewShotIndexConfig, description="The config of the few-shot training index")
     schema_linking: SchemaLinkingConfig = Field(default_factory=SchemaLinkingConfig, description="The config of the schema linking")
+    business_metric_retrieval: BusinessMetricRetrievalConfig = Field(
+        default_factory=BusinessMetricRetrievalConfig, description="Enterprise metric RAG configuration")
     sql_generation: SQLGenerationConfig = Field(default_factory=SQLGenerationConfig, description="The config of the sql generation")
     sql_revision: SQLRevisionConfig = Field(default_factory=SQLRevisionConfig, description="The config of the sql revision")
     sql_selection: SQLSelectionConfig = Field(default_factory=SQLSelectionConfig, description="The config of the sql selection")
@@ -364,16 +389,24 @@ class Config:
             profile = config.setdefault("llm", {})
         if llm_key:
             profile["api_key"] = llm_key
+        declared_base = str(profile.get("base_url") or "").rstrip("/")
         if llm_base:
             profile["base_url"] = llm_base.rstrip("/")
         if llm_model:
             if llm_model != profile.get("model"):
-                # A real model swap: drop endpoint-specific request bodies (e.g.
-                # the self-hosted chat_template_kwargs) that other providers
-                # reject. Re-stating the same model must not clear a declared
-                # body such as {"enable_thinking": false}, which is what keeps
-                # demo latency bounded on DashScope.
-                profile["extra_body"] = {}
+                # Same endpoint, different model: keep the declared body. Dropping
+                # {"enable_thinking": false} silently turns a ~60s demo run into a
+                # 600s timeout on DashScope, because the swap only changes the model
+                # name, not the provider that understands that field.
+                # Only a provider switch invalidates it: self-hosted
+                # chat_template_kwargs are rejected elsewhere with HTTP 500.
+                if llm_base and llm_base.rstrip("/") != declared_base:
+                    if profile.get("extra_body"):
+                        logger.warning(
+                            "Switching to {} on a different endpoint; dropping the "
+                            "declared extra_body {} because it is provider-specific",
+                            llm_model, sorted(profile["extra_body"]))
+                        profile["extra_body"] = {}
             profile["model"] = llm_model
         if embedding_model:
             embedding = config.setdefault("embedding", {})
@@ -598,6 +631,14 @@ class Config:
             "reversed_linking_sampling_budget": schema_linking_config.get("reversed_linking_sampling_budget", 5),
             "value_distance_threshold": schema_linking_config.get("value_distance_threshold", 0.05),
         }
+
+        metric_retrieval_config = config.get("business_metric_retrieval", {})
+        metric_retrieval_settings = {
+            "mode": metric_retrieval_config.get("mode", "hybrid"),
+            "lexical_weight": metric_retrieval_config.get("lexical_weight", 0.6),
+            "semantic_weight": metric_retrieval_config.get("semantic_weight", 0.4),
+            "semantic_min_score": metric_retrieval_config.get("semantic_min_score", 0.25),
+        }
         
         # sql generation config
         sql_generation_config = config.get("sql_generation", {})
@@ -690,6 +731,7 @@ class Config:
             value_retrieval=ValueRetrievalConfig(**value_retrieval_settings),
             few_shot_index=FewShotIndexConfig(**few_shot_index_settings),
             schema_linking=SchemaLinkingConfig(**schema_linking_settings),
+            business_metric_retrieval=BusinessMetricRetrievalConfig(**metric_retrieval_settings),
             sql_generation=SQLGenerationConfig(**sql_generation_settings),
             sql_revision=SQLRevisionConfig(**sql_revision_settings),
             sql_selection=SQLSelectionConfig(**sql_selection_settings),

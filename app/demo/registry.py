@@ -8,11 +8,27 @@ from typing import Any
 
 DISPLAY_NAMES = {
     "enterprise_sales": "企业电商销售分析",
+    "enterprise_hr": "企业人力资源分析",
     "california_schools": "California Schools",
     "superhero": "Superhero",
     "student_club": "Student Club",
     "toxicology": "Toxicology",
     "thrombosis_prediction": "Thrombosis Prediction",
+}
+
+DATABASE_METADATA = {
+    "enterprise_sales": {
+        "domain": "sales",
+        "domain_name": "销售域",
+        "description": "订单、商品、客户、支付与退款分析",
+        "table_count": 7,
+    },
+    "enterprise_hr": {
+        "domain": "hr",
+        "domain_name": "HR 域",
+        "description": "员工、部门、出勤与绩效分析",
+        "table_count": 4,
+    },
 }
 
 # Databases whose value index has been rebuilt for the embedding model that the
@@ -21,7 +37,7 @@ DISPLAY_NAMES = {
 # value_retrieval with "Prepare the database value index" -- showing it in the
 # picker only turns a known gap into a live demo error. Rebuild with
 # `runner/complete_value_index.py --database <path>`, then add the ID back here.
-DEMO_READY_DATABASES = ("enterprise_sales",)
+DEMO_READY_DATABASES = ("enterprise_sales", "enterprise_hr")
 
 
 class DatabaseRegistry:
@@ -37,9 +53,10 @@ class DatabaseRegistry:
         database_root = self.project_root / "data/bird/dev/dev_databases"
         allowed = set(DEMO_READY_DATABASES)
         databases: dict[str, Path] = {}
-        from app.enterprise import ensure_enterprise_demo_database
+        from app.enterprise import ensure_enterprise_demo_database, ensure_enterprise_hr_database
         enterprise = ensure_enterprise_demo_database(self.project_root)
         databases["enterprise_sales"] = enterprise
+        databases["enterprise_hr"] = ensure_enterprise_hr_database(self.project_root)
         for database_id in sorted(allowed):
             candidate = database_root / database_id / f"{database_id}.sqlite"
             if candidate.is_file():
@@ -51,6 +68,9 @@ class DatabaseRegistry:
         enterprise_examples = Path(__file__).parents[1] / "enterprise" / "examples.json"
         if enterprise_examples.is_file():
             grouped["enterprise_sales"] = json.loads(enterprise_examples.read_text(encoding="utf-8"))
+        hr_examples = Path(__file__).parents[1] / "enterprise" / "hr_examples.json"
+        if hr_examples.is_file():
+            grouped["enterprise_hr"] = json.loads(hr_examples.read_text(encoding="utf-8"))
         if not self.sample_path.exists():
             return grouped
         sample = json.loads(self.sample_path.read_text(encoding="utf-8"))
@@ -78,12 +98,16 @@ class DatabaseRegistry:
         return dict(self._databases)
 
     def public_entries(self) -> list[dict[str, Any]]:
-        order = {"enterprise_sales": 0}
+        order = {"enterprise_sales": 0, "enterprise_hr": 1}
         return [
             {
                 "id": database_id,
                 "name": DISPLAY_NAMES.get(database_id, database_id.replace("_", " ").title()),
                 "examples": self._examples.get(database_id, []),
+                **DATABASE_METADATA.get(database_id, {
+                    "domain": "other", "domain_name": "其他数据",
+                    "description": "已注册只读分析数据源", "table_count": None,
+                }),
             }
             for database_id in sorted(self._databases, key=lambda item: (order.get(item, 1), item))
         ]

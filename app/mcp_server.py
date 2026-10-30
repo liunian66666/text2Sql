@@ -6,13 +6,11 @@ from typing import Any
 
 from mcp.server.mcpserver import MCPServer
 
-from app.agent.tools import AgentToolbox
-from app.enterprise import EnterpriseKnowledgeBase
+from app.agent.tools import ToolRegistry
 
 
-def create_mcp_server(*, sql_skill, databases: dict[str, Path]) -> MCPServer:
-    knowledge = EnterpriseKnowledgeBase()
-    toolbox = AgentToolbox(sql_skill, databases, knowledge)
+def create_mcp_server(*, sql_skill, databases: dict[str, Path], knowledge=None) -> MCPServer:
+    registry = ToolRegistry(sql_skill, databases, knowledge)
     server = MCPServer(
         name="deepeye-sql",
         title="DeepEye SQL Analysis Tools",
@@ -26,19 +24,21 @@ def create_mcp_server(*, sql_skill, databases: dict[str, Path]) -> MCPServer:
 
     @server.tool(description="Retrieve enterprise metric definitions and SQL calculation rules.")
     def search_business_metrics(query: str, limit: int = 4) -> list[dict[str, Any]]:
-        return knowledge.retrieve(query, limit=max(1, min(limit, 8)))
+        return registry.retrieve_business_metrics(query, limit=limit)
 
     @server.tool(description="Inspect real tables, columns, primary keys and foreign keys in a registered database.")
     def inspect_database_schema(database_id: str, table_names: list[str] | None = None) -> dict[str, Any]:
-        return toolbox.inspect_database_schema(database_id, table_names)
+        return registry.inspect_database_schema(database_id, table_names)
 
     @server.tool(description="Run DeepEye's RAG-enhanced Text-to-SQL pipeline and execute the selected SQL read-only.")
-    def run_text_to_sql(question: str, database_id: str, evidence: str = "", max_rows: int = 100,
+    def run_text_to_sql(question: str, database_id: str, user_hint: str = "", max_rows: int = 100,
                         sql_timeout_seconds: int = 30) -> dict[str, Any]:
-        result = sql_skill.run({
+        evidence = (f"[用户补充说明，未经系统验证]\n{user_hint.strip()}"
+                    if user_hint.strip() else "")
+        result = registry.run_text_to_sql_request({
             "question": question, "database_id": database_id, "evidence": evidence,
             "max_rows": max_rows, "sql_timeout_seconds": sql_timeout_seconds,
-        }).model_dump()
+        })
         result.pop("artifacts_dir", None)
         return result
 

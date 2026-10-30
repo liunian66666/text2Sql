@@ -1,21 +1,34 @@
 <div align="center">
 
-# Text-to-SQL 引擎应用化改造（DeepEye-SQL 二次开发）
+# 企业数据分析 Agent
 
-**LangGraph 数据分析 Agent + RAG 增强 Text-to-SQL + 只读执行 + 自动可视化**
+**FastAPI · LangGraph · RAG · Text-to-SQL · SQLite · SSE**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-SSE-009688?logo=fastapi)
 ![SQLite](https://img.shields.io/badge/SQLite-ReadOnly%20%2B%20Authorizer-6e40c9?logo=sqlite)
 ![LangGraph](https://img.shields.io/badge/LangGraph-Agent-1C3C3C)
-![Tests](https://img.shields.io/badge/Tests-23%20passed-success)
+![Tests](https://img.shields.io/badge/Tests-80%20passed-success)
 
 🖥️ **本地演示项目**：不依赖云端部署，`python runner/run_demo.py` 起服务后浏览器直接看效果
 
 </div>
 
-> 自然语言问数系统：**LangGraph Agent + 业务口径 RAG + 七阶段 Text-to-SQL 流水线 + 自动表格/图表 + SQLite 只读执行沙箱**，覆盖查数、排名、趋势、占比和兜底闲聊五类企业分析场景。
+> 基于开源 DeepEye-SQL 引擎构建的对话式企业数据分析系统，覆盖销售与人力资源场景，支持自然语言查数、排名、趋势、占比、多轮追问及结果自动可视化。
+
+---
+
+## 项目概述
+
+本项目面向企业自然语言问数场景，将 DeepEye-SQL 的 Text-to-SQL 能力封装为可由 LangGraph Agent 调用的分析工具，并补齐业务口径检索、安全执行、过程可观测、多轮交互与 Web 演示能力。
+
+- **业务口径 RAG**：针对用户问法多样、企业指标口径难以仅靠关键词匹配的问题，构建关键词与向量混合检索，加入加权重排、向量缓存和故障降级。在自建的 15 题指标问法开发集上，Recall@3 和 MRR 均由 **0.567 提升至 1.000**。
+- **Agent 化 Text-to-SQL**：将值检索、Few-shot、Schema Linking、SQL 生成、修订和选择封装为单问题调用能力，由 LangGraph Agent 按需调用业务口径、Schema、SQL 和图表工具。在 BIRD-dev 五库固定分层抽样的 50 题评测中，完整流程集合式执行准确率为 **76%**，仅生成方案为 **72%**。该结果仅代表本仓库固定样本与评测口径，不等同于 BIRD 官方榜单成绩。
+- **只读执行与资源保护**：针对模型生成 SQL 的执行风险，设计 SQLite 只读执行沙箱，组合只读连接、`query_only` 与执行权限白名单，仅允许查询和必要的元数据读取，阻止写入、附加数据库及扩展加载；同时设置 SQL 超时、结果行数和请求 Token／时间上限。
+- **可演示交互闭环**：FastAPI Web 页面通过 SSE 展示阶段进度与用量，支持断线重连、页面刷新后的任务状态恢复，以及表格、指标卡和常用图表自动呈现。
+
+一句话概括：**这是一个以 RAG 增强业务口径、以 LangGraph 编排 Text-to-SQL、并具备安全执行与可观测 Web 交互的企业数据分析 Agent。**
 
 ---
 
@@ -29,7 +42,7 @@
 
 ## 🧭 本仓库做了什么
 
-本仓库以 [HKUSTDial/DeepEye-SQL](https://github.com/HKUSTDial/DeepEye-SQL)（*Proc. ACM Manag. Data* 2026，MIT）为 base 二次开发。**DC / Skeleton / ICL 生成策略、八个 Checker 判定逻辑、一致性过滤 + LLM 投票选择、渐进式 schema 裁剪等推理算法均沿用上游，未作修改**；下表只列本仓库的改动，逐提交可核对于 `git diff 252ab45..HEAD`。
+本仓库是独立的企业数据分析 Agent 应用。[HKUSTDial/DeepEye-SQL](https://github.com/HKUSTDial/DeepEye-SQL) 仅作为底层 **Text-to-SQL 引擎**：DC / Skeleton / ICL 生成策略、八个 Checker 判定逻辑、一致性过滤 + LLM 投票选择、渐进式 schema 裁剪等推理算法沿用上游。Agent 架构并不来源于 DeepEye-SQL，而是采用 ChatOpenAI、LangGraph 标准消息、ToolNode 和 MCP 工具边界。
 
 | 改动 | 说明 | 位置 |
 |---|---|---|
@@ -38,14 +51,16 @@
 | 延迟与成本熔断 | 每请求 token / 墙钟硬上限（默认 120k / 600s）；当一次响应的全部候选都被 `max_tokens` 截断（思考模型典型失控形态）时抛 `TruncatedResponseError` 立即失败，不再在 tenacity × extractor 两层重试里循环小时级。实测同一失控请求由 **75 次调用** 收敛为 **1 次** | `app/llm/budget.py`、`app/llm/llm.py`、`app/llm_extractor/extractor.py` |
 | 逐调用用量台账 | 基于 ContextVar 记录每次 LLM / embedding 调用的阶段、题目、耗时与 token，自定义 `ThreadPoolExecutor` 保证跨线程池传播；请求产物目录落 `usage.jsonl`，可精确回答"时间花在哪一阶段" | `app/llm/usage.py`、`app/vector_db/metered_embedding.py` |
 | 单问题 Skill 封装 | 把批量评测脚本改造成一次请求一个 Skill 调用：独立产物目录、七阶段进度回调、异常统一收敛为 `failed_stage` + 本地 `error.txt`（密钥脱敏），对外响应不含原始 provider 报错 | `app/skills/sql_skill.py` |
-| LangGraph 数据分析 Agent | LLM Planner 在 ReAct 循环中选择业务口径、Schema、Text-to-SQL 和可视化工具；支持原生 tool calling 与 JSON 工具协议降级、会话记忆和工具轨迹 | `app/agent/`、`runner/run_agent.py` |
+| LangGraph 数据分析 Agent | `ChatOpenAI.bind_tools()` 在标准 ReAct 循环中选择业务口径、Schema、Text-to-SQL 和可视化工具；支持会话记忆和工具轨迹 | `app/agent/`、`runner/run_agent.py` |
 | MCP 工具服务 | 通过官方 MCP Python SDK 暴露数据库发现、业务口径、Schema 和只读 Text-to-SQL，供其他 Agent/MCP Client 复用 | `app/mcp_server.py`、`runner/run_mcp_server.py` |
-| 企业演示数据与指标 RAG | 固定随机种子生成订单、商品、客户、支付、退款等 7 张表；内置销售额、净销售额、客单价、退款率、新客等业务口径与企业问题示例 | `app/enterprise/`、`runner/create_enterprise_demo.py` |
+| 双业务域演示数据与指标 RAG | 固定随机种子生成销售 7 表与 HR 4 表；指标检索按业务域隔离，Agent 可自动选择 `enterprise_sales` / `enterprise_hr`，手动指定优先 | `app/enterprise/`、`runner/create_enterprise_demo.py` |
 | Web 演示站 | FastAPI + 原生单页（零构建）：串行任务队列、SSE 进度流、断线重连、按请求 ID 回放；展示意图、业务口径、三版 SQL、阶段耗时、结果表与自动图表 | `app/demo/`、`runner/run_demo.py` |
 | 重启不丢状态 | 任务状态落盘，进程重启后把上一次遗留的 `queued` / `running` 记录标记为 `interrupted` 并回放一条终结事件，避免前端对着已消失的请求 ID 无限等待 | `app/demo/task_manager.py` |
+| 刷新不丢任务 | 页面刷新只重建前端，不取消也不重复提交后端任务：`sessionStorage` 只存 `request_id` / `conversation_id` / 问题文本等白名单字段，初始化时查 `GET /api/query/{id}`，按 `queued` / `running` / 终态分别重连 SSE、回填结果或提示失效；本地无记录时退化为问 `GET /api/query/active` 接手服务端正在跑的任务，新标签页因此不会提重复任务 | `app/demo/static/recovery.js`、`app/demo/static/chat.js`、`app/demo/task_manager.py` |
 | 启动自检 | `--check-only` 输出数据库、值索引、few-shot 索引、离线报告的就绪状态 JSON，不泄漏任何凭据 | `app/demo/preflight.py` |
 | 评测基础设施 | 固定种子分层抽样、三档消融报告（仅生成 / 生成＋修订 / 完整流程）、阶段实测计时、进度看板、基线报告与逐题明细落盘为可只读浏览的 `evals/` | `runner/report_ablation.py`、`runner/report_baseline.py`、`runner/select_bird_sample.py` |
-| 配置分层 | 按模型组织模板；`demo-fast` 用低延迟档（采样预算 4→1、few-shot 7→5）与评测口径配置分离；本地实验配置与被忽略的密钥统一放在 `config/local/` | `config/template/`、`app/config/config.py` |
+| 配置分层 | 按模型组织模板；`demo-fast` 用低延迟档（采样预算 4→1、few-shot 7→5）与评测口径配置分离；本地实验配置与被忽略的密钥统一放在 `config/local/`；端点与密钥可用 `.env` 覆盖（shell > .env > TOML） | `config/template/`、`app/config/config.py`、`app/config/env.py` |
+| 业务口径混合 RAG | 关键词基线 + 向量语义召回 + 加权重排，支持命中分数解释、查询/语料向量缓存和向量故障自动降级 | `app/enterprise/knowledge.py`、`runner/evaluate_metric_rag.py` |
 
 ## ✨ 核心能力
 
@@ -59,22 +74,22 @@
 | 📡 实时进度 | SSE 推送阶段起止与每次模型调用的累计用量；断线自动重连并回退到轮询 |
 | 📊 可复现评测 | 固定种子抽样、三档消融、集合式与严格多重集双指标、逐题 SQL 与结果预览留档 |
 | 🧾 成本可观测 | 阶段耗时条、token 归因、模型响应数、候选数在同一页面呈现，可定位瓶颈 |
-| 🗄️ 数据库白名单 | 只暴露值索引已就绪的库（当前为企业电商演示库）；5 个 BIRD-dev 库待用新向量模型重建后回到白名单 |
+| 🗄️ 数据库白名单 | 当前同时暴露企业销售与 HR 两个已就绪业务库；Agent 自动路由，且不允许跨数据库取表或串用指标 |
 | 🧭 LLM Agent 决策 | 模型根据系统 Prompt、历史消息和工具描述自主选择动作，工具结果返回模型后再规划或形成最终回答 |
 | 📈 自动可视化 | 按意图和结果列自动选择指标卡、柱状图、折线图、饼图或表格；用户点名图表类型时可传 `chart_type`（白名单校验，数据不支持自动回退并说明）；前端使用本地 SVG/CSS，无 CDN 依赖 |
-| 🧠 业务口径 RAG | 将销售额、客单价、退款率等定义和 SQL 约束注入 Text-to-SQL 证据，降低企业术语歧义 |
+| 🧠 业务口径检索 | 关键词基线 + 云向量语义召回 + 加权重排，覆盖销售额、客单价、退款率等定义和 SQL 约束；返回可解释分数，向量异常自动降级 |
 
 ## 🏗️ 系统架构
 
 ```
 浏览器（原生单页，零构建）
-   │  POST /api/query                    ┌─────────────────────────────────┐
+   │  POST /api/chat                     ┌─────────────────────────────────┐
    ├─ 202 request_id ───────────────────►│ TaskManager  串行任务队列         │
    │  GET /api/query/{id}/events ◄─SSE───│  · 事件可回放（断线重连不丢进度） │
    │  GET /api/query/{id}                │  · 状态落盘，重启标记 interrupted │
    └─────────────────────────────────────└───────────────┬─────────────────┘
                                                          ▼
-                      LangGraph：LLM Planner ◄──────────────┐
+                      LangGraph：ChatOpenAI ◄───────────────┐
                                │ tool_calls                │ tool results
                                ▼                           │
              业务口径 / Schema / Text-to-SQL / 可视化工具 ──┘
@@ -95,7 +110,7 @@
               每次模型/向量调用 → usage.jsonl（阶段、题目、耗时、token）
               每请求产物 → workspace/demo_requests/<request_id>/（快照 + result.json + error.txt）
 
-外部依赖：DashScope OpenAI 兼容端点 deepseek-v4-pro-0813（可关思考） · qwen3.7-text-embedding-flash 向量 · 本地 SQLite
+外部依赖：DashScope OpenAI 兼容端点 deepseek-v4.1-flash-1017（可关思考） · qwen3.7-text-embedding-flash 向量 · 本地 SQLite
 ```
 
 ## 🚀 快速开始
@@ -106,14 +121,18 @@ uv sync                       # 或 pip install -e .
 
 # 2. 准备配置（config/local/ 被 git 忽略，需自备模型服务地址与密钥）
 #    模板见 config/template/<模型>/，本地实验配置放 config/local/<实验>/
-#    密钥写在本地 TOML 的 profile 里即可，不需要导环境变量——换终端也不会 401
+#    密钥两种放法，任选其一：
+#      a) 直接写本地 TOML 的 profile（默认方式，换终端也不会 401）
+#      b) cp .env.example .env 后填 OPENAI_API_KEY（适合 CI / 多环境切换）
+#    优先级固定为：shell 环境变量 > .env > TOML；三者都不填则无法调用模型服务
 
 # 3. 生成可复现企业示例库（首次运行）
 uv run python -B runner/create_enterprise_demo.py
 
-# 4. 为企业库建立值索引（首次运行，CONFIG_PATH 使用自己的本地配置）
+# 4. 为两个企业库建立值索引（首次运行，CONFIG_PATH 使用自己的本地配置）
 $env:CONFIG_PATH="config/local/demo-fast/config-bird-demo.toml"
 uv run python -B runner/complete_value_index.py --database data/enterprise_sales/enterprise_sales.sqlite
+uv run python -B runner/complete_value_index.py --database data/enterprise_hr/enterprise_hr.sqlite
 
 # 5. 启动前自检：数据库、值索引、few-shot 索引、离线报告是否就绪
 uv run python -B runner/run_demo.py --check-only
@@ -122,8 +141,20 @@ uv run python -B runner/run_demo.py --check-only
 uv run python -B runner/run_demo.py --config config/local/demo-fast/config-bird-demo.toml
 #    等价：uvicorn app.demo.server:create_app_from_env --factory --port 8000
 
-# 5. 打开 http://127.0.0.1:8000
+# 7. 打开 http://127.0.0.1:8000
 ```
+
+**配置从哪来（优先级由高到低）**：
+
+| 来源 | 位置 | 用途 |
+|---|---|---|
+| shell 环境变量 | 当前终端 | 临时覆盖，优先级最高 |
+| `.env` | 仓库根目录，`cp .env.example .env` 后填写 | 本地与 CI 的统一入口，不入库 |
+| TOML | `config/local/<实验>/config.toml` | 完整配置与默认值 |
+
+支持的变量只有这几个，其余字段一律走 TOML：`CONFIG_PATH`、`OPENAI_API_KEY`、`OPENAI_BASE_URL`、`DEFAULT_LLM_MODEL`、`EMBEDDING_MODEL`、`DEMO_MAX_TOTAL_TOKENS`、`DEMO_MAX_SECONDS`。`.env` 在 `app.config` 导入时读取，文件缺失或解析失败都不会阻断启动；`--check-only` 会报告是否命中 `.env`（只报变量个数，不回显变量名和值）。
+
+用 `DEFAULT_LLM_MODEL` 换模型时只改模型名：同一端点下 TOML 声明的 `extra_body`（如 `enable_thinking=false`）会保留，只有同时换 `OPENAI_BASE_URL` 才会清空它——否则关思考开关会被静默丢掉，单题从 60 秒级退化到 600 秒超时。
 
 **单题命令行入口**（不启服务，直接看 JSON 结果与产物目录）：
 
@@ -153,6 +184,10 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 
 > ⚠️ **启动前确认模型服务可达**：`curl <base_url>/models` 自检。演示站是**单进程串行队列**，同一时刻只处理一个请求，后提交的会排队。
 
+**刷新页面不会取消后端任务**。任务跑在服务端线程里，浏览器只是订阅者；刷新后页面用 `sessionStorage` 里的 `request_id` 查一次 `GET /api/query/{request_id}`，再按状态决定动作：`queued` / `running` 用原 ID 重连 SSE（不重新提交、不重复消耗 Token），`success` / `empty_result` 直接回填回答、图表、表格、SQL 与耗时，`error` 恢复失败卡片，`interrupted` 提示后端重启并保留问题文本。记录里只存白名单字段，不落 SQL 结果、模型原始响应、密钥或绝对路径。
+
+**新开一个标签页也能接手正在跑的任务**。`sessionStorage` 是标签页私有的，新页面天然是空的，所以页面在本地没有记录时会问一次 `GET /api/query/active`：服务端串行队列返回当前 `queued` / `running` 的任务，新标签页据此直接接管（沿用原 `conversation_id` 与数据源），而不是再提一个重复任务把队列占满。任务已经结束时该接口返回 `null`，新标签页正常显示欢迎页——已结束的历史结果不做跨标签页追溯，那属于会话中心的范畴，不在本仓库范围内。
+
 ## ⚠️ 能力边界（未实现与未解决的部分）
 
 写在这里是为了避免被当成"什么都能做"的演示：
@@ -161,7 +196,7 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 - **修订阶段当前测不出收益**：50 题三档消融中，仅生成与生成＋修订两档**完全同为 36/50**，Checker 修订造成 0 修复 / 0 退化。八个检查器都基于 SQL 正则错误模式（如 `ORDER BY` 内使用 `MIN/MAX`、`= (SELECT ... LIMIT n)`），演示实测中该阶段常以零次模型调用、0.07 秒通过，说明模式未命中生成的候选。这是已知薄弱环节，不能表述为"修订能力已验证"。
 - **评测口径不等于 BIRD 官方榜单**：集合式 EX 用 `set(pred_rows) == set(gold_rows)` 判定，未实现官方对列序/列数的容忍规则；实测同一份上游预测在随机 200 题上为 64.3%，而官方 README 声称全量 dev 为 74.5%，差值无法用截断或列投影解释。跨口径比较无效。
 - **准确率提升不显著**：完整流程 76.0% 对上游同题预测 72.0%，n=50 的 95% 置信区间约 ±12 个百分点，只能说"未退步"。
-- **无多轮记忆、无写操作、无结果修正**：Agent 当前一次提问一条 SQL；闲聊是轻量兜底，不保存跨轮上下文。
+- **会话记忆尚未持久化**：同一进程内通过 `conversation_id + database_id` 保留并隔离多轮上下文；服务重启后 LangGraph 内存 Checkpointer 会丢失。当前不支持写操作和人工修改数据。
 - **单进程、无并发、无鉴权**：任务状态在内存（磁盘仅用于重启后标记中断），不支持多 worker 部署，也不适合公网暴露。
 - **示例题单为英文**（BIRD 原题），交互语言为中文；中文超纲问题目前只有熔断兜底，没有"该库无法回答"的前置判定。
 - **尾延迟受推理端点支配**：强制思考模型同一 prompt 实测 completion 为 435 / 1,726 / 8,192 token，端点不接受 `thinking_budget` 类参数（一律返回 500），无法从客户端约束思考长度。
@@ -170,8 +205,13 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 
 | 检查项 | 结果 | 命令 / 位置 |
 |---|---|---|
-| 自动化单元测试 | **29 项通过**（本地，不触网，约 4 秒）；干净检出下 28 项通过 + 1 项跳过（BIRD 原始数据被 git 忽略） | `uv run python -m unittest discover -s tests -q` |
+| 自动化单元测试 | **80 项通过**（本地，不触网）；覆盖 `.env` 与 TOML 的优先级、双业务域路由与隔离、visualization 表格数据契约、多轮图表复用、Agent 状态隔离、工具轮数、RAG 降级、评测展示、API、MCP、只读执行、任务恢复、刷新恢复（含 Node 侧状态机断言）与用量台账 | `uv run python -m unittest discover -s tests -q` |
 | Agent 与工具 | LLM 工具循环、会话记忆、工具轨迹以及指标卡/柱状/折线/饼图规则均有离线测试 | `tests/test_agent.py` |
+| Agent 专项评测 | 14 个查数、排名、趋势、占比、闲聊、安全和多轮案例；首轮 11/14，修复口径检索遗漏与意图边界后逐项回归至 **14/14**。这是增量失败题回归，非新模型整批重跑 | `evals/agent/report.md` |
+| HR 业务域端到端 | 6 个固定问题覆盖查数、排名、趋势、占比和复杂指标，自动选库、指标命中、SQL 真实结果及图表严格检查 **6/6**；最终为增量失败题合并报告，平均 67.35 秒/题、241,264 Token | `evals/hr/report.md` |
+| 销售域回归 | 新增 HR 后，销售问题仍自动选择 `enterprise_sales`；有效订单数 453 与可信 SQL 一致，1/1 通过 | `evals/hr/sales-regression-summary.json` |
+| 业务口径混合 RAG | 15 题开发集：关键词 Recall@3/MRR 0.567/0.567，混合检索 **1.000/1.000**；655 embedding token，平均 0.180 秒/题 | `evals/metric-rag/report.md` |
+| 真实 Agent 冒烟 | DashScope 完整跑通指标检索 → Schema → Text-to-SQL → 图表：结果 2,513,691.692，Agent 44.842 秒，SQL Skill 34.157 秒，总计 32,516 tokens | `runner/run_agent.py` |
 | MCP | 4 个只读分析工具可被协议层发现 | `tests/test_mcp_server.py` |
 | 只读执行安全性 | 写操作 / 多语句 / `ATTACH` / `load_extension` 全部被拒；递归查询超时被中断 | `tests/test_sql_skill.py` |
 | 任务队列与重启 | 事件按序回放；遗留 `running` 记录被标记 `interrupted` 并可终结 SSE | `tests/test_demo.py` |
@@ -183,7 +223,7 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 | 失控请求收敛 | 全候选被截断时 1 次调用即熔断（修复前 15 × 5 = 75 次） | `app/llm/llm.py` 截断判定 |
 | 错误分层与账本完整性 | 硬预算熔断逐层上抛（不再伪装成字段缺失）、无响应尝试也计入 `failed_responses/failed_seconds`、Agent 墙钟独立于 SQL Skill 计时 | `tests/test_few_shot_masker.py`、`tests/test_sql_skill.py`、`tests/test_agent.py` |
 
-**尚未覆盖**：真实模型端点的连通性与端到端结果没有自动化测试（受服务可用性影响，目前靠 `--check-only` 预检加手工三题实测）；图表像素级回归。
+**尚未覆盖**：14 题 Agent 专项评测主要检查工具策略；HR 6 题与销售回归增加了数据库可信 SQL 逐行比对，但仍是小规模合成业务库评测。图表尚无像素级回归。
 
 ## 📁 目录结构
 
@@ -191,10 +231,11 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 DeepEye-SQL/
 ├── app/
 │   ├── skills/               # 单问题 Skill：七阶段编排、只读执行、用量汇总
-│   ├── agent/                # LLM Brain、Prompt、LangGraph ReAct、工具、会话状态
+│   ├── agent/                # ChatOpenAI、Prompt、LangGraph、标准工具、会话状态
+│   ├── api/                  # 对话、数据库和评测路由
 │   ├── mcp_server.py         # 同一套分析工具的 MCP 协议入口
 │   ├── enterprise/           # 可复现企业示例库、指标知识与示例问题
-│   ├── demo/                 # 演示站：api / task_manager / registry / preflight / static
+│   ├── demo/                 # 演示站：task_manager / registry / preflight / static
 │   ├── llm/                  # LLM 封装 + 预算熔断(budget.py) + 用量台账(usage.py)
 │   ├── pipeline/             # 六个阶段（上游算法 + 本仓库可观测性改造）
 │   ├── few_shot/             # 动态少样本：掩码、索引、检索、初步 SQL
@@ -208,7 +249,7 @@ DeepEye-SQL/
 ├── evals/                    # 题单、逐题明细与汇总报告（演示站只读浏览）
 ├── results/                  # 上游发布的预测文件（用于同题对照）
 ├── docs/                     # 运行手册、评测报告、失败分析、交付清单、截图
-├── tests/                    # 23 项离线单元测试
+├── tests/                    # 80 项离线单元测试（tests/js/ 为 Node 侧恢复状态机测试）
 └── workspace/                # 运行产物与索引（不入库）
 ```
 
@@ -224,11 +265,13 @@ DeepEye-SQL/
 | [🧪 10 题工程基线](./docs/baseline-10.md) | 逐题耗时、token 与有效性说明 | 开发 |
 | [🧩 单问题 Skill](./docs/sql-skill.md) | `SQLSkill` 输入输出、阶段产物、异常约定 | 开发者 |
 | [🤖 企业数据分析 Agent](./docs/enterprise-agent.md) | 五类场景、节点流程、企业库与演示方式 | 面试/开发者 |
+| [👥 HR 第二数据源](./docs/hr-data-source.md) | 可复现造数、表结构、指标口径、路由和验收结果 | 面试/开发者 |
 | [🧠 Agent 架构决策](./docs/agent-architecture.md) | 开源基线、LLM 工具循环、MCP 与混合 Agent 取舍 | 面试/开发者 |
 | [🚀 BIRD 复现手册](./docs/bird.md) | 数据准备、索引构建、分阶段执行与导出 | 开发者 |
 | [🕷️ Spider 运行手册](./docs/spider.md) | Spider test 的数据准备与分阶段执行 | 开发者 |
 | [❄️ Spider2 运行手册](./docs/spider2.md) | Spider2-Lite / Snow 的云端执行与跳过值检索说明 | 开发者 |
 | [📋 交付清单](./docs/internship-release-checklist.md) | 项目定位、已完成项与发布前检查 | 自己/面试官 |
+| [🎤 面试讲解稿](./docs/interview-pitch.md) | 30 秒/3 分钟介绍、简历描述与高频追问 | 面试/答辩 |
 | [📐 项目设计文档](./docs/项目设计文档.md) | 需求背景与整体设计 | 产品/架构 |
 
 ## ❓ 常见问题

@@ -1,0 +1,688 @@
+{
+  "evaluation": "enterprise-metric-rag-v1",
+  "created_at": "2026-10-28T04:03:09.611369+00:00",
+  "top_k": 3,
+  "variants": {
+    "keyword": {
+      "case_count": 15,
+      "recall_at_k": 0.5666666666666667,
+      "mrr": 0.5666666666666667,
+      "mean_seconds": 1.3333333333333333e-05,
+      "cases": [
+        {
+          "id": "m01",
+          "question": "今年销售额是多少",
+          "expected": [
+            "revenue"
+          ],
+          "predicted": [
+            "revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0001,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0001
+          }
+        },
+        {
+          "id": "m02",
+          "question": "统计有效订单的商品成交金额",
+          "expected": [
+            "revenue"
+          ],
+          "predicted": [],
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m03",
+          "question": "看一下 GMV 趋势",
+          "expected": [
+            "revenue"
+          ],
+          "predicted": [
+            "revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0001,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0001
+          }
+        },
+        {
+          "id": "m04",
+          "question": "扣掉退款以后实际留下的收入",
+          "expected": [
+            "net_revenue"
+          ],
+          "predicted": [],
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m05",
+          "question": "查询净销售额",
+          "expected": [
+            "net_revenue"
+          ],
+          "predicted": [
+            "revenue",
+            "net_revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 0.5,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m06",
+          "question": "平均每笔有效订单贡献多少钱",
+          "expected": [
+            "average_order_value"
+          ],
+          "predicted": [],
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m07",
+          "question": "各渠道 AOV 排名",
+          "expected": [
+            "average_order_value"
+          ],
+          "predicted": [
+            "average_order_value"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m08",
+          "question": "退款金额占成交金额的比重",
+          "expected": [
+            "refund_rate"
+          ],
+          "predicted": [],
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m09",
+          "question": "统计退款率",
+          "expected": [
+            "refund_rate"
+          ],
+          "predicted": [
+            "refund_rate"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m10",
+          "question": "第一次完成购买的客户有多少",
+          "expected": [
+            "new_customer"
+          ],
+          "predicted": [],
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m11",
+          "question": "本月新客户数",
+          "expected": [
+            "new_customer"
+          ],
+          "predicted": [
+            "new_customer"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m12",
+          "question": "首购用户按地区分布",
+          "expected": [
+            "new_customer"
+          ],
+          "predicted": [
+            "new_customer"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m13",
+          "question": "对比销售收入和扣除退款后的收入",
+          "expected": [
+            "net_revenue",
+            "revenue"
+          ],
+          "predicted": [
+            "revenue"
+          ],
+          "recall_at_k": 0.5,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m14",
+          "question": "成交额与每单平均金额一起看",
+          "expected": [
+            "average_order_value",
+            "revenue"
+          ],
+          "predicted": [],
+          "recall_at_k": 0.0,
+          "reciprocal_rank": 0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        },
+        {
+          "id": "m15",
+          "question": "比较退款比例与新增客户变化",
+          "expected": [
+            "new_customer",
+            "refund_rate"
+          ],
+          "predicted": [
+            "new_customer",
+            "refund_rate"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.0,
+          "retrieval": {
+            "requested_mode": "keyword",
+            "mode_used": "keyword",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.0
+          }
+        }
+      ]
+    },
+    "hybrid": {
+      "case_count": 15,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "mean_seconds": 0.23132,
+      "cases": [
+        {
+          "id": "m01",
+          "question": "今年销售额是多少",
+          "expected": [
+            "revenue"
+          ],
+          "predicted": [
+            "revenue",
+            "net_revenue",
+            "refund_rate"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.6438,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.6438
+          }
+        },
+        {
+          "id": "m02",
+          "question": "统计有效订单的商品成交金额",
+          "expected": [
+            "revenue"
+          ],
+          "predicted": [
+            "revenue",
+            "average_order_value",
+            "new_customer"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1406,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1405
+          }
+        },
+        {
+          "id": "m03",
+          "question": "看一下 GMV 趋势",
+          "expected": [
+            "revenue"
+          ],
+          "predicted": [
+            "revenue",
+            "new_customer",
+            "average_order_value"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.5339,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.5339
+          }
+        },
+        {
+          "id": "m04",
+          "question": "扣掉退款以后实际留下的收入",
+          "expected": [
+            "net_revenue"
+          ],
+          "predicted": [
+            "net_revenue",
+            "refund_rate",
+            "revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1543,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1543
+          }
+        },
+        {
+          "id": "m05",
+          "question": "查询净销售额",
+          "expected": [
+            "net_revenue"
+          ],
+          "predicted": [
+            "net_revenue",
+            "revenue",
+            "refund_rate"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1411,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1411
+          }
+        },
+        {
+          "id": "m06",
+          "question": "平均每笔有效订单贡献多少钱",
+          "expected": [
+            "average_order_value"
+          ],
+          "predicted": [
+            "average_order_value",
+            "revenue",
+            "new_customer"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.4238,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.4238
+          }
+        },
+        {
+          "id": "m07",
+          "question": "各渠道 AOV 排名",
+          "expected": [
+            "average_order_value"
+          ],
+          "predicted": [
+            "average_order_value",
+            "revenue",
+            "refund_rate"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1708,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1708
+          }
+        },
+        {
+          "id": "m08",
+          "question": "退款金额占成交金额的比重",
+          "expected": [
+            "refund_rate"
+          ],
+          "predicted": [
+            "refund_rate",
+            "net_revenue",
+            "revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1746,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1746
+          }
+        },
+        {
+          "id": "m09",
+          "question": "统计退款率",
+          "expected": [
+            "refund_rate"
+          ],
+          "predicted": [
+            "refund_rate",
+            "net_revenue",
+            "revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1663,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1663
+          }
+        },
+        {
+          "id": "m10",
+          "question": "第一次完成购买的客户有多少",
+          "expected": [
+            "new_customer"
+          ],
+          "predicted": [
+            "new_customer",
+            "revenue",
+            "average_order_value"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1445,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1445
+          }
+        },
+        {
+          "id": "m11",
+          "question": "本月新客户数",
+          "expected": [
+            "new_customer"
+          ],
+          "predicted": [
+            "new_customer",
+            "average_order_value",
+            "revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1564,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1564
+          }
+        },
+        {
+          "id": "m12",
+          "question": "首购用户按地区分布",
+          "expected": [
+            "new_customer"
+          ],
+          "predicted": [
+            "new_customer",
+            "revenue",
+            "average_order_value"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1415,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1415
+          }
+        },
+        {
+          "id": "m13",
+          "question": "对比销售收入和扣除退款后的收入",
+          "expected": [
+            "net_revenue",
+            "revenue"
+          ],
+          "predicted": [
+            "revenue",
+            "net_revenue",
+            "refund_rate"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1673,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1672
+          }
+        },
+        {
+          "id": "m14",
+          "question": "成交额与每单平均金额一起看",
+          "expected": [
+            "average_order_value",
+            "revenue"
+          ],
+          "predicted": [
+            "average_order_value",
+            "revenue",
+            "net_revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.1549,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1549
+          }
+        },
+        {
+          "id": "m15",
+          "question": "比较退款比例与新增客户变化",
+          "expected": [
+            "new_customer",
+            "refund_rate"
+          ],
+          "predicted": [
+            "new_customer",
+            "refund_rate",
+            "net_revenue"
+          ],
+          "recall_at_k": 1.0,
+          "reciprocal_rank": 1.0,
+          "elapsed_seconds": 0.156,
+          "retrieval": {
+            "requested_mode": "hybrid",
+            "mode_used": "hybrid",
+            "fallback_reason": null,
+            "query_cache_hit": false,
+            "candidate_count": 5,
+            "elapsed_seconds": 0.1559
+          }
+        }
+      ]
+    }
+  },
+  "hybrid_embedding_usage": {
+    "responses": 16,
+    "total_tokens": 655,
+    "elapsed_seconds": 3.4295
+  },
+  "delta": {
+    "recall_at_k": 0.43333333333333335,
+    "mrr": 0.43333333333333335
+  }
+}

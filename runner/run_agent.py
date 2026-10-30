@@ -26,6 +26,7 @@ def main():
     os.environ["CONFIG_PATH"] = str(config)
 
     from app.agent import DataAnalysisAgent
+    from app.enterprise import create_enterprise_knowledge
     from app.skills import SQLSkill
     registry = DatabaseRegistry(PROJECT_ROOT)
     skill = SQLSkill(get_config(), registry.database_paths, workspace=PROJECT_ROOT / "workspace/skill_requests",
@@ -35,6 +36,7 @@ def main():
         workspace=PROJECT_ROOT / "workspace/agent_requests",
         databases=registry.database_paths,
         llm_config=get_config().sql_generation_config.llm,
+        knowledge=create_enterprise_knowledge(get_config().app_config),
     )
     result = agent.run({"question": args.question, "database_id": args.database, "evidence": args.evidence})
     payload = result.model_dump(exclude={"artifacts_dir"})

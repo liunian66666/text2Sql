@@ -1,4 +1,4 @@
-# 实习演示配置模板：DashScope OpenAI 兼容 deepseek-v4-pro-0813 + qwen3.7-text-embedding-flash
+# 实习演示配置模板：DashScope OpenAI 兼容 deepseek-v4.1-flash-1017 + qwen3.7-text-embedding-flash
 # 目标是保留完整六阶段流程，同时把单题等待和 Token 控制在可演示范围。
 # 复制到 config/local/demo-fast/ 后填入自己的密钥；config/local/ 已被 git 忽略。
 
@@ -16,7 +16,7 @@ checkpoint_interval = 1
 default_llm_profile = "deepseek_dashscope"
 
 [llm_profiles.deepseek_dashscope]
-model = "deepseek-v4-pro-0813"
+model = "deepseek-v4.1-flash-1017"
 base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 api_key = "YOUR_DASHSCOPE_API_KEY"
 max_tokens = 4096
@@ -53,6 +53,12 @@ api_type = "openai"
 embedding_model_name_or_path = "qwen3.7-text-embedding-flash"
 base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 api_key = "YOUR_DASHSCOPE_API_KEY"
+
+[business_metric_retrieval]
+mode = "hybrid"
+lexical_weight = 0.6
+semantic_weight = 0.4
+semantic_min_score = 0.25
 
 [dataset]
 type = "bird"

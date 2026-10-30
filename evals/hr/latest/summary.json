@@ -1,0 +1,631 @@
+{
+  "evaluation": "enterprise-agent-evaluation-v1",
+  "evaluation_mode": "incremental_failure_rerun",
+  "model": "mixed incremental report; latest rerun=deepseek-v4.1-flash-1017",
+  "created_at": "2026-10-29T06:48:05.909027+00:00",
+  "case_count": 6,
+  "passed_count": 6,
+  "pass_rate": 1.0,
+  "mean_seconds": 67.34683333333334,
+  "total_tokens": 241264,
+  "cases": [
+    {
+      "id": "hr-active-headcount",
+      "question": "当前各部门在职人数是多少？请返回部门名称和在职人数，按在职人数降序。",
+      "passed": true,
+      "checks": {
+        "required_tools": true,
+        "forbidden_tools": true,
+        "intent": true,
+        "chart": true,
+        "database": true,
+        "result_matches_database_truth": true,
+        "sql_status": true,
+        "sql_present": true,
+        "sql_semantics": true
+      },
+      "tools": [
+        "select_data_source",
+        "search_business_metrics",
+        "inspect_database_schema",
+        "run_text_to_sql",
+        "build_visualization"
+      ],
+      "intent": "query",
+      "status": "success",
+      "database_id": "enterprise_hr",
+      "chart_type": "table",
+      "sql": "SELECT d.department_name, COUNT(DISTINCT e.employee_id) AS active_count\nFROM employees e\nINNER JOIN departments d ON e.department_id = d.department_id\nWHERE e.hire_date <= '2026-10-28'\n  AND (e.termination_date IS NULL OR e.termination_date > '2026-10-28')\nGROUP BY d.department_name\nORDER BY active_count DESC;",
+      "elapsed_seconds": 129.876,
+      "expected_rows": [
+        [
+          "研发部",
+          45
+        ],
+        [
+          "销售部",
+          44
+        ],
+        [
+          "市场部",
+          20
+        ],
+        [
+          "人力资源部",
+          18
+        ],
+        [
+          "客户成功部",
+          17
+        ],
+        [
+          "财务部",
+          12
+        ]
+      ],
+      "actual_rows": [
+        [
+          "研发部",
+          45
+        ],
+        [
+          "销售部",
+          44
+        ],
+        [
+          "市场部",
+          20
+        ],
+        [
+          "人力资源部",
+          18
+        ],
+        [
+          "客户成功部",
+          17
+        ],
+        [
+          "财务部",
+          12
+        ]
+      ],
+      "tokens": 36534,
+      "error": null
+    },
+    {
+      "id": "hr-new-hire-trend",
+      "question": "最近12个月每月新入职人数趋势如何？统计2025-11-01到2026-10-28，返回月份和新入职人数，按月份升序。",
+      "passed": true,
+      "checks": {
+        "required_tools": true,
+        "forbidden_tools": true,
+        "intent": true,
+        "chart": true,
+        "database": true,
+        "result_matches_database_truth": true,
+        "sql_status": true,
+        "sql_present": true,
+        "sql_semantics": true
+      },
+      "tools": [
+        "select_data_source",
+        "search_business_metrics",
+        "inspect_database_schema",
+        "run_text_to_sql",
+        "build_visualization"
+      ],
+      "intent": "trend",
+      "status": "success",
+      "database_id": "enterprise_hr",
+      "chart_type": "line",
+      "sql": "SELECT STRFTIME('%Y-%m', hire_date) AS month, COUNT(DISTINCT employee_id) AS new_hires\nFROM employees\nWHERE hire_date BETWEEN '2025-11-01' AND '2026-10-28'\nGROUP BY STRFTIME('%Y-%m', hire_date)\nORDER BY month ASC;",
+      "elapsed_seconds": 24.403,
+      "expected_rows": [
+        [
+          "2025-11",
+          3
+        ],
+        [
+          "2025-12",
+          3
+        ],
+        [
+          "2026-01",
+          5
+        ],
+        [
+          "2026-02",
+          2
+        ],
+        [
+          "2026-03",
+          5
+        ],
+        [
+          "2026-04",
+          1
+        ],
+        [
+          "2026-05",
+          5
+        ],
+        [
+          "2026-06",
+          2
+        ],
+        [
+          "2026-07",
+          5
+        ],
+        [
+          "2026-08",
+          4
+        ],
+        [
+          "2026-09",
+          4
+        ],
+        [
+          "2026-10",
+          2
+        ]
+      ],
+      "actual_rows": [
+        [
+          "2025-11",
+          3
+        ],
+        [
+          "2025-12",
+          3
+        ],
+        [
+          "2026-01",
+          5
+        ],
+        [
+          "2026-02",
+          2
+        ],
+        [
+          "2026-03",
+          5
+        ],
+        [
+          "2026-04",
+          1
+        ],
+        [
+          "2026-05",
+          5
+        ],
+        [
+          "2026-06",
+          2
+        ],
+        [
+          "2026-07",
+          5
+        ],
+        [
+          "2026-08",
+          4
+        ],
+        [
+          "2026-09",
+          4
+        ],
+        [
+          "2026-10",
+          2
+        ]
+      ],
+      "tokens": 33714,
+      "error": null
+    },
+    {
+      "id": "hr-attrition-rate",
+      "question": "最近一年各部门离职率是多少？按2025-10-29到2026-10-28统计，离职率=期间离职人数/期初在职人数*100%，保留2位小数；返回部门、离职人数、期初在职人数、离职率，按离职率降序。",
+      "passed": true,
+      "checks": {
+        "required_tools": true,
+        "forbidden_tools": true,
+        "intent": true,
+        "chart": true,
+        "database": true,
+        "result_matches_database_truth": true,
+        "sql_status": true,
+        "sql_present": true,
+        "sql_semantics": true
+      },
+      "tools": [
+        "select_data_source",
+        "search_business_metrics",
+        "inspect_database_schema",
+        "run_text_to_sql",
+        "build_visualization"
+      ],
+      "intent": "query",
+      "status": "success",
+      "database_id": "enterprise_hr",
+      "chart_type": "table",
+      "sql": "SELECT\n    d.department_name,\n    e.term_count AS 离职人数,\n    e.begin_count AS 期初在职人数,\n    ROUND(e.term_count * 100.0 / NULLIF(e.begin_count, 0), 2) AS 离职率\nFROM departments d\nINNER JOIN (\n    SELECT\n        department_id,\n        SUM(CASE WHEN termination_date >= '2025-10-29' AND termination_date <= '2026-10-28' THEN 1 ELSE 0 END) AS term_count,\n        SUM(CASE WHEN hire_date <= '2025-10-29' AND (termination_date IS NULL OR termination_date > '2025-10-29') THEN 1 ELSE 0 END) AS begin_count\n    FROM employees\n    GROUP BY department_id\n) e ON d.department_id = e.department_id\nORDER BY 离职率 DESC;",
+      "elapsed_seconds": 115.47,
+      "expected_rows": [
+        [
+          "研发部",
+          8,
+          41,
+          19.51
+        ],
+        [
+          "市场部",
+          2,
+          16,
+          12.5
+        ],
+        [
+          "财务部",
+          1,
+          10,
+          10.0
+        ],
+        [
+          "人力资源部",
+          1,
+          12,
+          8.33
+        ],
+        [
+          "客户成功部",
+          1,
+          15,
+          6.67
+        ],
+        [
+          "销售部",
+          1,
+          35,
+          2.86
+        ]
+      ],
+      "actual_rows": [
+        [
+          "研发部",
+          8,
+          41,
+          19.51
+        ],
+        [
+          "市场部",
+          2,
+          16,
+          12.5
+        ],
+        [
+          "财务部",
+          1,
+          10,
+          10.0
+        ],
+        [
+          "人力资源部",
+          1,
+          12,
+          8.33
+        ],
+        [
+          "客户成功部",
+          1,
+          15,
+          6.67
+        ],
+        [
+          "销售部",
+          1,
+          35,
+          2.86
+        ]
+      ],
+      "tokens": 39419,
+      "error": null
+    },
+    {
+      "id": "hr-performance-ranking",
+      "question": "哪些部门平均绩效最高？使用最新绩效周期，先按未四舍五入的平均绩效排名，再将展示的平均绩效保留2位小数；返回部门、平均绩效和排名，按平均绩效降序。",
+      "passed": true,
+      "checks": {
+        "required_tools": true,
+        "forbidden_tools": true,
+        "intent": true,
+        "chart": true,
+        "database": true,
+        "result_matches_database_truth": true,
+        "sql_status": true,
+        "sql_present": true,
+        "sql_semantics": true
+      },
+      "tools": [
+        "select_data_source",
+        "search_business_metrics",
+        "inspect_database_schema",
+        "run_text_to_sql",
+        "build_visualization"
+      ],
+      "intent": "ranking",
+      "status": "success",
+      "database_id": "enterprise_hr",
+      "chart_type": "bar",
+      "sql": "SELECT d.department_name,\n       ROUND(AVG(pr.performance_score), 2) AS avg_performance,\n       RANK() OVER (ORDER BY AVG(pr.performance_score) DESC) AS ranking\nFROM performance_reviews pr\nINNER JOIN employees e ON pr.employee_id = e.employee_id\nINNER JOIN departments d ON e.department_id = d.department_id\nWHERE pr.review_period = (SELECT review_period FROM performance_reviews ORDER BY review_period DESC LIMIT 1)\nGROUP BY d.department_id, d.department_name\nORDER BY AVG(pr.performance_score) DESC;",
+      "elapsed_seconds": 39.966,
+      "expected_rows": [
+        [
+          "研发部",
+          3.72,
+          1
+        ],
+        [
+          "销售部",
+          3.58,
+          2
+        ],
+        [
+          "市场部",
+          3.58,
+          3
+        ],
+        [
+          "人力资源部",
+          3.48,
+          4
+        ],
+        [
+          "客户成功部",
+          3.32,
+          5
+        ],
+        [
+          "财务部",
+          3.32,
+          6
+        ]
+      ],
+      "actual_rows": [
+        [
+          "研发部",
+          3.72,
+          1
+        ],
+        [
+          "销售部",
+          3.58,
+          2
+        ],
+        [
+          "市场部",
+          3.58,
+          3
+        ],
+        [
+          "人力资源部",
+          3.48,
+          4
+        ],
+        [
+          "客户成功部",
+          3.32,
+          5
+        ],
+        [
+          "财务部",
+          3.32,
+          6
+        ]
+      ],
+      "tokens": 43543,
+      "error": null
+    },
+    {
+      "id": "hr-headcount-share",
+      "question": "截至2026-10-28，各部门在职员工人数占公司总在职人数的比例是多少？返回部门、在职人数、占比百分数（保留2位小数），按占比降序。",
+      "passed": true,
+      "checks": {
+        "required_tools": true,
+        "forbidden_tools": true,
+        "intent": true,
+        "chart": true,
+        "database": true,
+        "result_matches_database_truth": true,
+        "sql_status": true,
+        "sql_present": true,
+        "sql_semantics": true
+      },
+      "tools": [
+        "select_data_source",
+        "search_business_metrics",
+        "inspect_database_schema",
+        "run_text_to_sql",
+        "build_visualization"
+      ],
+      "intent": "proportion",
+      "status": "success",
+      "database_id": "enterprise_hr",
+      "chart_type": "pie",
+      "sql": "SELECT\n    d.department_name,\n    COUNT(DISTINCT e.employee_id) AS active_count,\n    ROUND(\n        COUNT(DISTINCT e.employee_id) * 100.0 /\n        NULLIF(\n            (SELECT COUNT(DISTINCT e2.employee_id)\n             FROM employees e2\n             WHERE e2.hire_date <= '2026-10-28'\n               AND (e2.termination_date IS NULL OR e2.termination_date > '2026-10-28')),\n            0\n        ),\n        2\n    ) AS percentage\nFROM employees e\nINNER JOIN departments d ON e.department_id = d.department_id\nWHERE e.hire_date <= '2026-10-28'\n  AND (e.termination_date IS NULL OR e.termination_date > '2026-10-28')\nGROUP BY d.department_id, d.department_name\nORDER BY percentage DESC;",
+      "elapsed_seconds": 37.896,
+      "expected_rows": [
+        [
+          "研发部",
+          45,
+          28.85
+        ],
+        [
+          "销售部",
+          44,
+          28.21
+        ],
+        [
+          "市场部",
+          20,
+          12.82
+        ],
+        [
+          "人力资源部",
+          18,
+          11.54
+        ],
+        [
+          "客户成功部",
+          17,
+          10.9
+        ],
+        [
+          "财务部",
+          12,
+          7.69
+        ]
+      ],
+      "actual_rows": [
+        [
+          "研发部",
+          45,
+          28.85
+        ],
+        [
+          "销售部",
+          44,
+          28.21
+        ],
+        [
+          "市场部",
+          20,
+          12.82
+        ],
+        [
+          "人力资源部",
+          18,
+          11.54
+        ],
+        [
+          "客户成功部",
+          17,
+          10.9
+        ],
+        [
+          "财务部",
+          12,
+          7.69
+        ]
+      ],
+      "tokens": 40047,
+      "error": null
+    },
+    {
+      "id": "hr-attendance-rate",
+      "question": "最近一个月各部门出勤率是多少？使用出勤表最新月份，出勤率=实际出勤天数/应出勤天数*100%，保留2位小数；返回部门、实际出勤天数、应出勤天数和出勤率，按出勤率降序。",
+      "passed": true,
+      "checks": {
+        "required_tools": true,
+        "forbidden_tools": true,
+        "intent": true,
+        "chart": true,
+        "database": true,
+        "result_matches_database_truth": true,
+        "sql_status": true,
+        "sql_present": true,
+        "sql_semantics": true
+      },
+      "tools": [
+        "select_data_source",
+        "search_business_metrics",
+        "inspect_database_schema",
+        "run_text_to_sql",
+        "build_visualization"
+      ],
+      "intent": "query",
+      "status": "success",
+      "database_id": "enterprise_hr",
+      "chart_type": "table",
+      "sql": "SELECT d.department_name,\n       SUM(a.attended_days) AS total_attended_days,\n       SUM(a.scheduled_days) AS total_scheduled_days,\n       ROUND(SUM(a.attended_days) * 100.0 / NULLIF(SUM(a.scheduled_days), 0), 2) AS attendance_rate\nFROM attendance a\nINNER JOIN employees e ON a.employee_id = e.employee_id\nINNER JOIN departments d ON e.department_id = d.department_id\nWHERE a.attendance_month = (SELECT attendance_month FROM attendance ORDER BY attendance_month DESC LIMIT 1)\nGROUP BY d.department_name\nORDER BY attendance_rate DESC;",
+      "elapsed_seconds": 56.47,
+      "expected_rows": [
+        [
+          "研发部",
+          937.0,
+          973.0,
+          96.3
+        ],
+        [
+          "销售部",
+          910.0,
+          945.0,
+          96.3
+        ],
+        [
+          "人力资源部",
+          367.0,
+          383.0,
+          95.82
+        ],
+        [
+          "客户成功部",
+          341.0,
+          357.0,
+          95.52
+        ],
+        [
+          "市场部",
+          423.0,
+          448.0,
+          94.42
+        ],
+        [
+          "财务部",
+          240.0,
+          257.0,
+          93.39
+        ]
+      ],
+      "actual_rows": [
+        [
+          "销售部",
+          910.0,
+          945.0,
+          96.3
+        ],
+        [
+          "研发部",
+          937.0,
+          973.0,
+          96.3
+        ],
+        [
+          "人力资源部",
+          367.0,
+          383.0,
+          95.82
+        ],
+        [
+          "客户成功部",
+          341.0,
+          357.0,
+          95.52
+        ],
+        [
+          "市场部",
+          423.0,
+          448.0,
+          94.42
+        ],
+        [
+          "财务部",
+          240.0,
+          257.0,
+          93.39
+        ]
+      ],
+      "tokens": 48007,
+      "error": null
+    }
+  ]
+}

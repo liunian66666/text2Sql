@@ -2,6 +2,8 @@
   "metrics": [
     {
       "id": "revenue",
+      "domain": "sales",
+      "database_id": "enterprise_sales",
       "name": "销售额",
       "keywords": ["销售额", "销售收入", "GMV", "营收"],
       "definition": "有效订单的商品成交金额之和，计算公式为 quantity * unit_price * (1 - discount_rate)。",
@@ -9,6 +11,8 @@
     },
     {
       "id": "net_revenue",
+      "domain": "sales",
+      "database_id": "enterprise_sales",
       "name": "净销售额",
       "keywords": ["净销售额", "净收入"],
       "definition": "销售额减去退款金额；没有退款的订单退款金额按0处理。",
@@ -16,6 +20,8 @@
     },
     {
       "id": "average_order_value",
+      "domain": "sales",
+      "database_id": "enterprise_sales",
       "name": "平均客单价",
       "keywords": ["客单价", "平均订单金额", "AOV"],
       "definition": "有效订单销售额除以有效订单去重数量。",
@@ -23,6 +29,8 @@
     },
     {
       "id": "refund_rate",
+      "domain": "sales",
+      "database_id": "enterprise_sales",
       "name": "退款率",
       "keywords": ["退款率", "退款比例"],
       "definition": "退款金额除以销售额，结果通常乘100表示百分比。",
@@ -30,10 +38,116 @@
     },
     {
       "id": "new_customer",
+      "domain": "sales",
+      "database_id": "enterprise_sales",
       "name": "新增客户",
       "keywords": ["新增客户", "新客户", "首购"],
       "definition": "首次有效订单日期位于统计周期内的客户。",
       "sql_rule": "先按 customer_id 计算 MIN(order_date)，且订单状态必须有效。"
+    },
+    {
+      "id": "active_headcount",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "在职人数",
+      "keywords": ["在职人数", "在岗人数", "员工人数", "人员数量", "人头数"],
+      "definition": "截至统计日已经入职且尚未离职的员工人数。",
+      "formula": "COUNT(DISTINCT employee_id)",
+      "tables": ["employees", "departments"],
+      "fields": ["employees.employee_id", "employees.hire_date", "employees.termination_date", "employees.department_id"],
+      "time_grain": "未指定日期时以数据截止日2026-10-28为统计日。",
+      "sql_rule": "筛选 hire_date <= 统计日 AND (termination_date IS NULL OR termination_date > 统计日)。"
+    },
+    {
+      "id": "new_hires",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "新入职人数",
+      "keywords": ["新入职", "入职人数", "新增员工", "招聘入职"],
+      "definition": "入职日期落在统计周期内的员工人数。",
+      "formula": "COUNT(DISTINCT employee_id WHERE hire_date in period)",
+      "tables": ["employees", "departments"],
+      "fields": ["employees.employee_id", "employees.hire_date", "employees.department_id"],
+      "time_grain": "按employees.hire_date归属日、月或年。",
+      "sql_rule": "使用hire_date过滤周期；月度趋势用strftime('%Y-%m', hire_date)分组，并补充明确的起止日期。"
+    },
+    {
+      "id": "departures",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "离职人数",
+      "keywords": ["离职人数", "离职员工", "离开公司"],
+      "definition": "离职日期落在统计周期内的员工人数。",
+      "formula": "COUNT(DISTINCT employee_id WHERE termination_date in period)",
+      "tables": ["employees", "departments"],
+      "fields": ["employees.employee_id", "employees.termination_date", "employees.department_id"],
+      "time_grain": "按employees.termination_date归属统计周期。",
+      "sql_rule": "termination_date非空且位于周期起止日期之间。"
+    },
+    {
+      "id": "attrition_rate",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "员工流失率",
+      "keywords": ["员工流失率", "离职率", "人员流失", "流失比例"],
+      "definition": "统计周期内离职人数除以期初在职人数。",
+      "formula": "周期内离职人数 / 期初在职人数 * 100%",
+      "tables": ["employees", "departments"],
+      "fields": ["employees.hire_date", "employees.termination_date", "employees.department_id"],
+      "time_grain": "最近一年默认指2025-10-29至2026-10-28，期初日为2025-10-29。",
+      "sql_rule": "分子统计termination_date在周期内的员工；分母统计期初已入职且期初尚未离职的员工；使用NULLIF防止除零。"
+    },
+    {
+      "id": "average_performance",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "平均绩效",
+      "keywords": ["平均绩效", "绩效得分", "绩效最高", "绩效排名"],
+      "definition": "统计范围内绩效记录的平均得分。",
+      "formula": "AVG(performance_score)",
+      "tables": ["performance_reviews", "employees", "departments"],
+      "fields": ["performance_reviews.performance_score", "performance_reviews.review_date", "employees.department_id"],
+      "time_grain": "未指定周期时使用最新绩效周期，即MAX(review_period)。",
+      "sql_rule": "按部门分析时连接employees和departments；默认先筛选最新review_period再计算AVG。"
+    },
+    {
+      "id": "department_headcount_share",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "部门人员占比",
+      "keywords": ["部门人员占比", "员工人数占比", "人员构成", "部门人数比例", "各部门", "占公司总在职人数"],
+      "definition": "某部门在职人数占公司总在职人数的比例。",
+      "formula": "部门在职人数 / 公司在职总人数 * 100%",
+      "tables": ["employees", "departments"],
+      "fields": ["employees.employee_id", "employees.department_id", "employees.hire_date", "employees.termination_date"],
+      "time_grain": "未指定日期时以数据截止日2026-10-28为统计日。",
+      "sql_rule": "分子和分母必须使用同一统计日的在职条件；使用NULLIF防止除零。"
+    },
+    {
+      "id": "attendance_rate",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "出勤率",
+      "keywords": ["出勤率", "到岗率", "出勤情况"],
+      "definition": "实际出勤天数除以应出勤天数。",
+      "formula": "SUM(attended_days) / SUM(scheduled_days) * 100%",
+      "tables": ["attendance", "employees", "departments"],
+      "fields": ["attendance.attendance_month", "attendance.attended_days", "attendance.scheduled_days", "employees.department_id"],
+      "time_grain": "最近一个月默认使用attendance表中的MAX(attendance_month)。",
+      "sql_rule": "先筛选MAX(attendance_month)，按部门汇总天数后相除；必须使用100.0乘分子或CAST(... AS REAL)，并用NULLIF防止SQLite整数除法和除零。"
+    },
+    {
+      "id": "late_rate",
+      "domain": "hr",
+      "database_id": "enterprise_hr",
+      "name": "迟到率",
+      "keywords": ["迟到率", "迟到比例", "迟到情况"],
+      "definition": "迟到天数除以实际出勤天数。",
+      "formula": "SUM(late_days) / SUM(attended_days) * 100%",
+      "tables": ["attendance", "employees", "departments"],
+      "fields": ["attendance.late_days", "attendance.attended_days", "attendance.attendance_month"],
+      "time_grain": "未指定周期时使用attendance表中的最新月份。",
+      "sql_rule": "按部门分析时连接employees和departments，使用NULLIF(SUM(attended_days), 0)防止除零。"
     }
   ]
 }

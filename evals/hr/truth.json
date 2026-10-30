@@ -1,0 +1,318 @@
+{
+  "evaluation": "enterprise-hr-database-truth-v1",
+  "created_at": "2026-10-29T06:55:17.554016+00:00",
+  "database_id": "enterprise_hr",
+  "as_of_date": "2026-10-28",
+  "integrity": "ok",
+  "foreign_key_error_count": 0,
+  "table_counts": {
+    "departments": 6,
+    "employees": 180,
+    "attendance": 916,
+    "performance_reviews": 262
+  },
+  "record_count": 1364,
+  "metric_hit_count": 6,
+  "case_count": 6,
+  "cases": [
+    {
+      "id": "hr-active-headcount",
+      "columns": [
+        "department_name",
+        "active_headcount"
+      ],
+      "rows": [
+        [
+          "研发部",
+          45
+        ],
+        [
+          "销售部",
+          44
+        ],
+        [
+          "市场部",
+          20
+        ],
+        [
+          "人力资源部",
+          18
+        ],
+        [
+          "客户成功部",
+          17
+        ],
+        [
+          "财务部",
+          12
+        ]
+      ],
+      "expected_metric_id": "active_headcount",
+      "retrieved_metric_ids": [
+        "active_headcount",
+        "department_headcount_share"
+      ],
+      "metric_hit": true
+    },
+    {
+      "id": "hr-new-hire-trend",
+      "columns": [
+        "month",
+        "new_hires"
+      ],
+      "rows": [
+        [
+          "2025-11",
+          3
+        ],
+        [
+          "2025-12",
+          3
+        ],
+        [
+          "2026-01",
+          5
+        ],
+        [
+          "2026-02",
+          2
+        ],
+        [
+          "2026-03",
+          5
+        ],
+        [
+          "2026-04",
+          1
+        ],
+        [
+          "2026-05",
+          5
+        ],
+        [
+          "2026-06",
+          2
+        ],
+        [
+          "2026-07",
+          5
+        ],
+        [
+          "2026-08",
+          4
+        ],
+        [
+          "2026-09",
+          4
+        ],
+        [
+          "2026-10",
+          2
+        ]
+      ],
+      "expected_metric_id": "new_hires",
+      "retrieved_metric_ids": [
+        "new_hires"
+      ],
+      "metric_hit": true
+    },
+    {
+      "id": "hr-attrition-rate",
+      "columns": [
+        "department_name",
+        "departures",
+        "opening_headcount",
+        "attrition_rate_pct"
+      ],
+      "rows": [
+        [
+          "研发部",
+          8,
+          41,
+          19.51
+        ],
+        [
+          "市场部",
+          2,
+          16,
+          12.5
+        ],
+        [
+          "财务部",
+          1,
+          10,
+          10.0
+        ],
+        [
+          "人力资源部",
+          1,
+          12,
+          8.33
+        ],
+        [
+          "客户成功部",
+          1,
+          15,
+          6.67
+        ],
+        [
+          "销售部",
+          1,
+          35,
+          2.86
+        ]
+      ],
+      "expected_metric_id": "attrition_rate",
+      "retrieved_metric_ids": [
+        "active_headcount",
+        "departures",
+        "attrition_rate"
+      ],
+      "metric_hit": true
+    },
+    {
+      "id": "hr-performance-ranking",
+      "columns": [
+        "department_name",
+        "average_performance",
+        "performance_rank"
+      ],
+      "rows": [
+        [
+          "研发部",
+          3.72,
+          1
+        ],
+        [
+          "销售部",
+          3.58,
+          2
+        ],
+        [
+          "市场部",
+          3.58,
+          3
+        ],
+        [
+          "人力资源部",
+          3.48,
+          4
+        ],
+        [
+          "客户成功部",
+          3.32,
+          5
+        ],
+        [
+          "财务部",
+          3.32,
+          6
+        ]
+      ],
+      "expected_metric_id": "average_performance",
+      "retrieved_metric_ids": [
+        "average_performance"
+      ],
+      "metric_hit": true
+    },
+    {
+      "id": "hr-headcount-share",
+      "columns": [
+        "department_name",
+        "active_headcount",
+        "share_pct"
+      ],
+      "rows": [
+        [
+          "研发部",
+          45,
+          28.85
+        ],
+        [
+          "销售部",
+          44,
+          28.21
+        ],
+        [
+          "市场部",
+          20,
+          12.82
+        ],
+        [
+          "人力资源部",
+          18,
+          11.54
+        ],
+        [
+          "客户成功部",
+          17,
+          10.9
+        ],
+        [
+          "财务部",
+          12,
+          7.69
+        ]
+      ],
+      "expected_metric_id": "department_headcount_share",
+      "retrieved_metric_ids": [
+        "active_headcount",
+        "department_headcount_share"
+      ],
+      "metric_hit": true
+    },
+    {
+      "id": "hr-attendance-rate",
+      "columns": [
+        "department_name",
+        "attended_days",
+        "scheduled_days",
+        "attendance_rate_pct"
+      ],
+      "rows": [
+        [
+          "研发部",
+          937.0,
+          973.0,
+          96.3
+        ],
+        [
+          "销售部",
+          910.0,
+          945.0,
+          96.3
+        ],
+        [
+          "人力资源部",
+          367.0,
+          383.0,
+          95.82
+        ],
+        [
+          "客户成功部",
+          341.0,
+          357.0,
+          95.52
+        ],
+        [
+          "市场部",
+          423.0,
+          448.0,
+          94.42
+        ],
+        [
+          "财务部",
+          240.0,
+          257.0,
+          93.39
+        ]
+      ],
+      "expected_metric_id": "attendance_rate",
+      "retrieved_metric_ids": [
+        "attendance_rate",
+        "department_headcount_share"
+      ],
+      "metric_hit": true
+    }
+  ]
+}

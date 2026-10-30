@@ -1,0 +1,8 @@
+[
+  {"difficulty": "查数", "intent": "query", "question": "当前各部门在职人数是多少？"},
+  {"difficulty": "趋势", "intent": "trend", "question": "最近12个月每月新入职人数趋势如何？"},
+  {"difficulty": "复杂指标", "intent": "query", "question": "最近一年各部门离职率是多少？"},
+  {"difficulty": "排名", "intent": "ranking", "question": "哪些部门平均绩效最高？"},
+  {"difficulty": "占比", "intent": "proportion", "question": "各部门员工人数占公司总人数的比例是多少？"},
+  {"difficulty": "复杂指标", "intent": "query", "question": "最近一个月各部门出勤率是多少？"}
+]

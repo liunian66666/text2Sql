@@ -1,7 +1,7 @@
 [project]
-name = "deepeye-sql"
+name = "enterprise-data-analyst-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "Conversational enterprise data-analysis Agent with RAG-enhanced Text-to-SQL"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -12,6 +12,7 @@ dependencies = [
     "gdown>=5.2.0",
     "google-cloud-bigquery>=3.40.0",
     "google-cloud-bigquery-storage>=2.36.0",
+    "langchain-openai>=1.7.3",
     "langgraph>=1.2.18",
     "loguru>=0.7.3",
     "matplotlib>=3.10.6",
@@ -21,6 +22,7 @@ dependencies = [
     "openai>=1.107.2",
     "pandas>=2.3.2",
     "pyarrow>=23.0.0",
+    "python-dotenv>=1.1.0",
     "seaborn>=0.13.2",
     "sentence-transformers>=5.1.0",
     "snowflake-connector-python>=4.2.0",

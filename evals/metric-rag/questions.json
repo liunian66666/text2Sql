@@ -1,0 +1,19 @@
+{
+  "cases": [
+    {"id": "m01", "question": "今年销售额是多少", "expected_metric_ids": ["revenue"]},
+    {"id": "m02", "question": "统计有效订单的商品成交金额", "expected_metric_ids": ["revenue"]},
+    {"id": "m03", "question": "看一下 GMV 趋势", "expected_metric_ids": ["revenue"]},
+    {"id": "m04", "question": "扣掉退款以后实际留下的收入", "expected_metric_ids": ["net_revenue"]},
+    {"id": "m05", "question": "查询净销售额", "expected_metric_ids": ["net_revenue"]},
+    {"id": "m06", "question": "平均每笔有效订单贡献多少钱", "expected_metric_ids": ["average_order_value"]},
+    {"id": "m07", "question": "各渠道 AOV 排名", "expected_metric_ids": ["average_order_value"]},
+    {"id": "m08", "question": "退款金额占成交金额的比重", "expected_metric_ids": ["refund_rate"]},
+    {"id": "m09", "question": "统计退款率", "expected_metric_ids": ["refund_rate"]},
+    {"id": "m10", "question": "第一次完成购买的客户有多少", "expected_metric_ids": ["new_customer"]},
+    {"id": "m11", "question": "本月新客户数", "expected_metric_ids": ["new_customer"]},
+    {"id": "m12", "question": "首购用户按地区分布", "expected_metric_ids": ["new_customer"]},
+    {"id": "m13", "question": "对比销售收入和扣除退款后的收入", "expected_metric_ids": ["revenue", "net_revenue"]},
+    {"id": "m14", "question": "成交额与每单平均金额一起看", "expected_metric_ids": ["revenue", "average_order_value"]},
+    {"id": "m15", "question": "比较退款比例与新增客户变化", "expected_metric_ids": ["refund_rate", "new_customer"]}
+  ]
+}

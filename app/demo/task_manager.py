@@ -9,9 +9,9 @@ import threading
 from typing import Any
 from uuid import uuid4
 
-from app.skills import SQLSkillRequest
+from app.agent import ChatRequest
 
-from .serializers import serialize_skill_result
+from .serializers import serialize_agent_result
 
 
 INTERRUPTED_STATUS = "interrupted"
@@ -23,17 +23,17 @@ def _now() -> str:
 
 
 class TaskManager:
-    """Run one SQLSkill request at a time and retain replayable progress events."""
+    """Run one conversational Agent turn at a time and retain replayable progress events."""
 
-    def __init__(self, skill, state_dir: Path):
-        self.skill = skill
+    def __init__(self, agent, state_dir: Path):
+        self.agent = agent
         self.state_dir = state_dir.resolve()
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self._tasks: dict[str, dict[str, Any]] = {}
         self._restore_records()
         self._queue: Queue[str | None] = Queue()
         self._condition = threading.Condition()
-        self._worker = threading.Thread(target=self._run_worker, name="demo-sql-worker", daemon=True)
+        self._worker = threading.Thread(target=self._run_worker, name="demo-agent-worker", daemon=True)
         self._worker.start()
 
     def _restore_records(self) -> None:
@@ -71,8 +71,8 @@ class TaskManager:
             if changed:
                 self._persist_locked(task)
 
-    def submit(self, request: SQLSkillRequest | dict[str, Any]) -> dict[str, Any]:
-        validated = SQLSkillRequest.model_validate(request)
+    def submit(self, request: ChatRequest | dict[str, Any]) -> dict[str, Any]:
+        validated = ChatRequest.model_validate(request)
         task_id = uuid4().hex[:12]
         task = {
             "id": task_id,
@@ -123,8 +123,8 @@ class TaskManager:
                 self._persist_locked(task)
                 self._condition.notify_all()
             try:
-                result = self.skill.run(task["request"], on_stage=lambda event: self._on_stage(task_id, event))
-                serialized = serialize_skill_result(result)
+                result = self.agent.run(task["request"], on_stage=lambda event: self._on_stage(task_id, event))
+                serialized = serialize_agent_result(result)
                 status = result.status
             except Exception as exc:
                 status = "error"
@@ -148,6 +148,25 @@ class TaskManager:
             if task_id not in self._tasks:
                 raise KeyError(task_id)
             task = deepcopy(self._tasks[task_id])
+        task.pop("events", None)
+        return task
+
+    def active(self) -> dict[str, Any] | None:
+        """Return the oldest task the worker queue still owns, or ``None``.
+
+        The demo runs one serial queue per process, so this is the server-side
+        truth for "is anything running right now". A freshly opened tab has an
+        empty sessionStorage and cannot know the request ID; asking this instead
+        of re-submitting is what keeps a second tab from burning tokens on a
+        duplicate task.
+        """
+        with self._condition:
+            pending = [task for task in self._tasks.values()
+                       if task["status"] not in TERMINAL_STATUSES]
+            if not pending:
+                return None
+            oldest = min(pending, key=lambda task: (task.get("created_at") or "", task["id"]))
+            task = deepcopy(oldest)
         task.pop("events", None)
         return task
 

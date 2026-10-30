@@ -8,7 +8,7 @@ import asyncio
 import httpx
 
 from app.config import PROJECT_ROOT
-from app.demo.api import create_app
+from app.api import create_app
 from app.demo.preflight import collect_preflight
 from app.demo.registry import DatabaseRegistry
 from app.demo.serializers import EvaluationRepository
@@ -57,6 +57,24 @@ class DemoTaskManagerTest(unittest.TestCase):
             self.assertEqual(events[-1]["status"], "success")
             self.assertTrue((root / "states" / f"{task_id}.json").exists())
 
+    def test_active_reports_the_queued_task_then_goes_empty(self):
+        """新标签页靠 active() 判断要不要接手，所以它必须只报未完成的任务。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manager = TaskManager(FakeSkill(root), root / "states")
+            self.assertIsNone(manager.active())
+            task_id = manager.submit({"question": "Count rows", "database_id": "demo"})["id"]
+            active = manager.active()
+            self.assertIsNotNone(active)
+            self.assertEqual(active["id"], task_id)
+            self.assertIn(active["status"], {"queued", "running"})
+            self.assertEqual(active["request"]["message"], "Count rows")
+            self.assertNotIn("events", active)
+            deadline = time.time() + 3
+            while time.time() < deadline and manager.active() is not None:
+                time.sleep(0.01)
+            self.assertIsNone(manager.active(), "任务结束后不能再被当成活动任务")
+
 
 class TaskManagerRecoveryTest(unittest.TestCase):
     """A restart must not leave a browser tab waiting on a task nothing owns."""
@@ -99,6 +117,29 @@ class TaskManagerRecoveryTest(unittest.TestCase):
 
 
 class EvaluationRepositoryTest(unittest.TestCase):
+    def test_normalizes_agent_and_metric_rag_reports(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            agent = root / "agent"
+            metric = root / "metric"
+            agent.mkdir()
+            metric.mkdir()
+            (agent / "summary.json").write_text(json.dumps({
+                "evaluation": "enterprise-agent-evaluation-v1", "case_count": 14,
+                "passed_count": 13, "pass_rate": 13 / 14, "mean_seconds": 40,
+                "total_tokens": 100, "cases": [{"id": "x", "passed": False}],
+            }), encoding="utf-8")
+            (metric / "summary.json").write_text(json.dumps({
+                "evaluation": "enterprise-metric-rag-v1",
+                "variants": {"keyword": {"case_count": 15, "recall_at_k": 0.5, "mrr": 0.5},
+                             "hybrid": {"case_count": 15, "recall_at_k": 1.0, "mrr": 1.0}},
+            }), encoding="utf-8")
+            repository = EvaluationRepository(root)
+            reports = {item["kind"]: item for item in repository.list()}
+            self.assertEqual(reports["agent"]["passed_count"], 13)
+            self.assertEqual(reports["retrieval"]["variants"]["hybrid"]["recall_at_k"], 1.0)
+            self.assertEqual(repository.get("agent")["cases"][0]["id"], "x")
+
     def test_normalizes_ablation_without_exposing_raw_config(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -160,11 +201,16 @@ class DemoPreflightTest(unittest.TestCase):
 class DemoAPITest(unittest.TestCase):
     def test_static_page_and_read_only_endpoints(self):
         class Manager:
+            def submit(self, request):
+                self.request = request
+                return {"id": "chat001", "status": "queued"}
+
             def get(self, task_id):
                 raise KeyError(task_id)
 
+        manager = Manager()
         app = create_app(
-            manager=Manager(),
+            manager=manager,
             registry=DatabaseRegistry(PROJECT_ROOT),
             evaluations=EvaluationRepository(PROJECT_ROOT / "evals"),
         )
@@ -177,22 +223,25 @@ class DemoAPITest(unittest.TestCase):
                 evaluations = await client.get("/api/evaluations")
                 page = await client.get("/")
                 asset = await client.get("/static/chat.js")
+                created = await client.post("/api/chat", json={"question": "你好", "database_id": "enterprise_sales"})
                 missing = await client.get("/api/query/missing")
-            return health, databases, evaluations, page, asset, missing
+            return health, databases, evaluations, page, asset, created, missing
 
-        health, databases, evaluations, page, asset, missing = asyncio.run(exercise())
+        health, databases, evaluations, page, asset, created, missing = asyncio.run(exercise())
         self.assertEqual(health.json(), {"status": "ok"})
         # 改完前端不用强制刷新也不会拿到旧脚本，否则排练时的真假回归分不开。
         self.assertEqual(asset.headers.get("cache-control"), "no-store")
         # Only databases with a value index for the active embedding model are
         # listed; see DEMO_READY_DATABASES in app/demo/registry.py.
         entries = databases.json()["databases"]
-        self.assertEqual([entry["id"] for entry in entries], ["enterprise_sales"])
-        self.assertGreaterEqual(len(entries[0]["examples"]), 3)
+        self.assertEqual([entry["id"] for entry in entries], ["enterprise_sales", "enterprise_hr"])
+        self.assertTrue(all(len(entry["examples"]) >= 3 for entry in entries))
         self.assertGreaterEqual(len(evaluations.json()["evaluations"]), 1)
         self.assertIn("DeepEye-SQL", page.text)
         self.assertIn("对话分析", page.text)
         self.assertIn("企业数据分析助手", page.text)
+        self.assertEqual(created.json(), {"request_id": "chat001", "status": "queued"})
+        self.assertEqual(manager.request.message, "你好")
         self.assertEqual(missing.status_code, 404)
 
 

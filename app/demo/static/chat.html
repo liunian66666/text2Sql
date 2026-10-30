@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DeepEye 数据分析助手</title>
-  <link rel="stylesheet" href="/static/chat.css">
+  <link rel="stylesheet" href="/static/chat.css?v=20261029-hr">
 </head>
 <body>
   <header class="app-header">
@@ -24,8 +24,9 @@
       <aside class="chat-sidebar">
         <button id="new-chat" class="new-chat" type="button"><span>＋</span> 新建对话</button>
         <div class="sidebar-section">
-          <label for="database">当前数据源</label>
+          <label for="database">业务数据源</label>
           <select id="database" name="database_id" required></select>
+          <div id="source-summary" class="source-summary" aria-live="polite"></div>
         </div>
         <div class="sidebar-section grow">
           <div class="sidebar-title"><span>推荐问题</span><small>点击直接提问</small></div>
@@ -33,8 +34,8 @@
         </div>
         <details class="analysis-settings">
           <summary>高级设置</summary>
-          <label for="evidence">补充业务口径</label>
-          <textarea id="evidence" rows="3" placeholder="可选：字段含义或计算规则"></textarea>
+          <label for="evidence">用户补充说明（未经系统验证）</label>
+          <textarea id="evidence" rows="3" placeholder="可选：你对字段含义或计算范围的补充说明"></textarea>
           <div class="setting-grid">
             <div><label for="max-rows">最大行数</label><input id="max-rows" type="number" min="1" max="1000" value="100"></div>
             <div><label for="timeout">SQL 超时</label><input id="timeout" type="number" min="1" max="600" value="30"></div>
@@ -45,13 +46,13 @@
 
       <section class="chat-main">
         <div class="chat-topbar">
-          <div><h1 id="conversation-title">企业经营分析</h1><p id="database-description">连接到企业电商销售分析</p></div>
+          <div><h1 id="conversation-title">跨业务域数据分析</h1><p id="database-description">Agent 将自动识别销售或 HR 数据源</p></div>
           <span class="agent-state"><i></i> Agent 在线</span>
         </div>
         <div id="messages" class="messages" aria-live="polite"></div>
         <form id="query-form" class="composer">
           <div class="composer-box">
-            <textarea id="question" name="question" rows="1" required placeholder="向数据提问，例如：按月统计 2026 年销售额趋势"></textarea>
+            <textarea id="question" name="question" rows="1" required placeholder="可提问销售或 HR 数据，例如：各部门在职人数是多少？"></textarea>
             <button id="run-button" type="submit" aria-label="发送问题">↑</button>
           </div>
           <p>Enter 发送 · Shift + Enter 换行 · 生成结果仅用于分析参考</p>
@@ -64,13 +65,14 @@
         <div><span class="section-kicker">EVALUATION</span><h2>离线评测结果</h2></div>
         <button id="refresh-evals" class="secondary">刷新结果</button>
       </div>
-      <p class="section-intro">这里只读取已经生成的报告，不会重新启动评测任务。可查看 50 题三组对照的正确率、耗时和 Token。</p>
+      <p class="section-intro">这里只读取已经生成的报告，不会重新启动评测任务。可查看 Text-to-SQL 消融、Agent 专项、指标 RAG 与 HR 端到端评测。</p>
       <div id="evaluation-list" class="evaluation-list"></div>
       <section id="evaluation-detail" class="hidden"></section>
     </section>
   </main>
 
   <footer>DeepEye-SQL · LangGraph + RAG + Text-to-SQL · 本地只读演示</footer>
-  <script src="/static/chat.js" defer></script>
+  <script src="/static/recovery.js?v=20261029-adopt" defer></script>
+  <script src="/static/chat.js?v=20261029-adopt" defer></script>
 </body>
 </html>

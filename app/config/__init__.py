@@ -1,6 +1,7 @@
 from .config import (
     PROJECT_ROOT,
     WORKSPACE_ROOT,
+    ENV_FILE,
     config,
     get_config,
     LLMConfig,
@@ -18,6 +19,7 @@ from .config import (
 __all__ = [
     "PROJECT_ROOT",
     "WORKSPACE_ROOT",
+    "ENV_FILE",
     "config",
     "get_config",
     "LLMConfig",

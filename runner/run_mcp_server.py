@@ -23,10 +23,14 @@ def main():
     os.environ["CONFIG_PATH"] = str(config_path.resolve())
 
     from app.mcp_server import create_mcp_server
+    from app.enterprise import create_enterprise_knowledge
     from app.skills import SQLSkill
     registry = DatabaseRegistry(PROJECT_ROOT)
     skill = SQLSkill(get_config(), registry.database_paths, workspace=PROJECT_ROOT / "workspace/mcp_requests")
-    server = create_mcp_server(sql_skill=skill, databases=registry.database_paths)
+    server = create_mcp_server(
+        sql_skill=skill, databases=registry.database_paths,
+        knowledge=create_enterprise_knowledge(get_config().app_config),
+    )
     server.run(transport=args.transport)
 
 

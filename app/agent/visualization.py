@@ -18,6 +18,24 @@ MAX_BARS = 20
 MAX_POINTS = 60
 
 
+def _table(columns: list[str], rows: list[list[Any]]) -> dict[str, Any]:
+    """Return a self-contained table spec for UI/MCP consumers.
+
+    Chart specs already carry their labels and values.  Table specs used to
+    contain only a title and therefore rendered empty in clients that consume
+    the visualization tool output without also reading the top-level SQL
+    result.  Keep the same contract for every visualization type: the payload
+    itself contains the data required to render it.
+    """
+    return {
+        "type": "table",
+        "title": "查询结果",
+        "columns": list(columns),
+        "rows": [list(row) for row in rows],
+        "row_count": len(rows),
+    }
+
+
 def _layout(columns: list[str], rows: list[list[Any]]) -> tuple[list[int], int, int | None]:
     numeric = _numeric_indexes(columns, rows)
     label_index = next((index for index in range(len(columns)) if index not in numeric), 0)
@@ -37,7 +55,7 @@ def _auto_chart(intent: str, columns: list[str], rows: list[list[Any]]) -> dict[
         return None
     numeric, label_index, value_index = _layout(columns, rows)
     if not numeric:
-        return {"type": "table", "title": "查询结果"}
+        return _table(columns, rows)
     if len(rows) == 1 and len(numeric) <= 4:
         return {
             "type": "metric",
@@ -60,7 +78,7 @@ def _auto_chart(intent: str, columns: list[str], rows: list[list[Any]]) -> dict[
             "type": "bar", "title": "排名分析", "labels": labels,
             "series": [{"name": columns[value_index], "values": [row[value_index] for row in rows]}],
         }
-    return {"type": "table", "title": "查询结果"}
+    return _table(columns, rows)
 
 
 def _explicit_chart(kind: str, columns: list[str], rows: list[list[Any]]) -> dict[str, Any] | None:
@@ -69,7 +87,7 @@ def _explicit_chart(kind: str, columns: list[str], rows: list[list[Any]]) -> dic
         return None
     numeric, label_index, value_index = _layout(columns, rows)
     if kind == "table":
-        return {"type": "table", "title": "查询结果"}
+        return _table(columns, rows)
     if kind == "metric":
         if len(rows) != 1 or not 1 <= len(numeric) <= 4:
             return None

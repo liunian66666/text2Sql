@@ -1,3 +1,3 @@
-from .service import DataAnalysisAgent, AgentResult
+from .service import AgentResult, ChatRequest, DataAnalysisAgent
 
-__all__ = ["DataAnalysisAgent", "AgentResult"]
+__all__ = ["DataAnalysisAgent", "AgentResult", "ChatRequest"]

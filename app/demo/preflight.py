@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from app.config import PROJECT_ROOT, get_config
+from app.config import PROJECT_ROOT, ENV_FILE, get_config
 
 from .registry import DatabaseRegistry
 from .server import resolve_config_path
@@ -45,6 +45,12 @@ def collect_preflight(
         "database_count": len(databases),
         "databases": databases,
         "few_shot_index_ready": (few_shot_root / "manifest.json").is_file(),
+        # Names and values stay out of the report; only presence is public.
+        "env_file": {
+            "present": bool(ENV_FILE.get("present")),
+            "variable_count": len(ENV_FILE.get("loaded") or []),
+            "error": ENV_FILE.get("error"),
+        },
         "evaluation_reports": reports,
         "evaluation_report_count": len(reports),
     }

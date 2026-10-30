@@ -1,0 +1,17 @@
+{
+  "evaluation": "enterprise-sales-regression-v1",
+  "description": "接入 HR 后的销售域自动路由与真实结果回归。",
+  "cases": [
+    {
+      "id": "sales-valid-order-count",
+      "question": "2026年有效销售订单一共有多少笔？只返回有效订单数。",
+      "database_id": "auto",
+      "expected_database_id": "enterprise_sales",
+      "expected_intent": "query",
+      "expected_chart_type": "metric",
+      "required_tools": ["select_data_source", "inspect_database_schema", "run_text_to_sql"],
+      "sql_must_contain": ["orders", "status"],
+      "truth_sql": "SELECT COUNT(*) AS valid_order_count FROM orders WHERE order_date BETWEEN '2026-01-01' AND '2026-12-31' AND status IN ('paid','shipped','completed')"
+    }
+  ]
+}

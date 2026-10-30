@@ -1,5 +1,1 @@
-"""Local demonstration web application for the single-question SQL skill."""
-
-from .api import create_app
-
-__all__ = ["create_app"]
+"""Local frontend, task queue, registry and preflight helpers."""

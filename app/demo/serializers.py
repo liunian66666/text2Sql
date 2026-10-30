@@ -11,7 +11,7 @@ def _json_safe(value: Any) -> Any:
     return json.loads(json.dumps(value, ensure_ascii=False, default=str))
 
 
-def serialize_skill_result(result) -> dict[str, Any]:
+def serialize_agent_result(result) -> dict[str, Any]:
     payload = result.model_dump()
     payload["artifacts"] = {}
     snapshot = Path(result.artifacts_dir) / "sql_selection.snapshot"
@@ -75,6 +75,38 @@ class EvaluationRepository:
 
     def _summary(self, evaluation_id: str, path: Path) -> dict[str, Any]:
         data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("evaluation") == "enterprise-agent-evaluation-v1":
+            return {
+                "id": evaluation_id,
+                "kind": "agent",
+                "title": "企业分析 Agent 专项评测",
+                "sample_count": data.get("case_count"),
+                "passed_count": data.get("passed_count"),
+                "pass_rate": data.get("pass_rate"),
+                "mean_item_seconds": data.get("mean_seconds"),
+                "total_tokens": data.get("total_tokens"),
+                "evaluation_mode": data.get("evaluation_mode", "full"),
+                "model": data.get("model"),
+            }
+        if data.get("evaluation") == "enterprise-metric-rag-v1":
+            variants = {
+                name: {
+                    "case_count": row.get("case_count"),
+                    "recall_at_k": row.get("recall_at_k"),
+                    "mrr": row.get("mrr"),
+                    "mean_seconds": row.get("mean_seconds"),
+                }
+                for name, row in data.get("variants", {}).items()
+            }
+            return {
+                "id": evaluation_id,
+                "kind": "retrieval",
+                "title": "业务口径混合 RAG 对照",
+                "sample_count": next((row.get("case_count") for row in variants.values()), 0),
+                "variants": variants,
+                "embedding_usage": data.get("hybrid_embedding_usage", {}),
+                "delta": data.get("delta", {}),
+            }
         if "variants" in data:
             variants = {name: self._variant_metrics(metrics) for name, metrics in data["variants"].items()}
             sample_count = next((v.get("sample_count") for v in variants.values()), None)
@@ -111,6 +143,17 @@ class EvaluationRepository:
         if evaluation_id not in entries:
             raise KeyError(evaluation_id)
         summary = self._summary(evaluation_id, entries[evaluation_id])
+        raw_summary = json.loads(entries[evaluation_id].read_text(encoding="utf-8"))
+        if summary["kind"] == "agent":
+            return {**summary, "cases": raw_summary.get("cases", [])}
+        if summary["kind"] == "retrieval":
+            return {
+                **summary,
+                "variant_cases": {
+                    name: row.get("cases", [])
+                    for name, row in raw_summary.get("variants", {}).items()
+                },
+            }
         questions_path = entries[evaluation_id].with_name("questions.json")
         questions = []
         if questions_path.exists():

@@ -1,0 +1,53 @@
+{
+  "evaluation": "enterprise-agent-evaluation-v1",
+  "evaluation_mode": "full",
+  "model": "deepseek-v4.1-flash-1017",
+  "created_at": "2026-10-29T06:51:14.143015+00:00",
+  "case_count": 1,
+  "passed_count": 1,
+  "pass_rate": 1.0,
+  "mean_seconds": 37.445,
+  "total_tokens": 32907,
+  "cases": [
+    {
+      "id": "sales-valid-order-count",
+      "question": "2026年有效销售订单一共有多少笔？只返回有效订单数。",
+      "passed": true,
+      "checks": {
+        "required_tools": true,
+        "forbidden_tools": true,
+        "intent": true,
+        "chart": true,
+        "database": true,
+        "result_matches_database_truth": true,
+        "sql_status": true,
+        "sql_present": true,
+        "sql_semantics": true
+      },
+      "tools": [
+        "select_data_source",
+        "search_business_metrics",
+        "inspect_database_schema",
+        "run_text_to_sql"
+      ],
+      "intent": "query",
+      "status": "success",
+      "database_id": "enterprise_sales",
+      "chart_type": "metric",
+      "sql": "SELECT COUNT(DISTINCT order_id) FROM orders WHERE status IN ('paid', 'shipped', 'completed') AND order_date BETWEEN '2026-01-01' AND '2026-12-31';",
+      "elapsed_seconds": 37.445,
+      "expected_rows": [
+        [
+          453
+        ]
+      ],
+      "actual_rows": [
+        [
+          453
+        ]
+      ],
+      "tokens": 32907,
+      "error": null
+    }
+  ]
+}
