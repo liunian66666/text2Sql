@@ -9,7 +9,7 @@
 运行以下命令会用固定随机种子生成销售库和 HR 库，并同步生成字段描述：
 
 ```powershell
-uv run python -B runner/create_enterprise_demo.py
+uv run enterprise-agent generate-data
 ```
 
 HR 数据截止日固定为 `2026-10-28`。当前数据包含 6 个部门、180 名员工、916 条月度出勤记录和 262 条绩效记录，共 1,364 条业务记录。生成器会校验外键、入离职日期、出勤数值范围和绩效范围；重复运行结果一致。
@@ -51,13 +51,13 @@ HR 数据截止日固定为 `2026-10-28`。当前数据包含 6 个部门、180 
 
 ```powershell
 # 数据完整性、6 个可信 SQL 和指标召回
-uv run python -B runner/verify_hr_demo.py
+uv run python -B runner/verify_hr_data.py
 
 # 6 个 HR Agent 端到端问题
-uv run python runner/evaluate_agent.py --cases evals/hr/questions.json --output evals/hr/latest/summary.json
+uv run enterprise-agent evaluate --cases evals/hr/questions.json --output evals/hr/latest/summary.json
 
 # 接入 HR 后的销售域回归
-uv run python runner/evaluate_agent.py --cases evals/hr/sales-regression.json --output evals/hr/sales-regression-summary.json
+uv run enterprise-agent evaluate --cases evals/hr/sales-regression.json --output evals/hr/sales-regression-summary.json
 ```
 
 最终结果：HR 6/6，销售回归 1/1，全量自动化测试 80/80（含后续新增的 `.env` 配置与刷新恢复测试）。详细耗时和 Token 见 [HR 评测报告](../evals/hr/report.md)。

@@ -7,16 +7,16 @@
 启动命令：
 
 ```powershell
-.venv/Scripts/python.exe -B runner/run_demo.py
+uv run enterprise-agent
 ```
 
 浏览器访问 `http://127.0.0.1:8000`。默认读取 `config/local/baseline-dashscope/config-bird-dev-50-ablation.toml`，也可指定其他已完成索引准备的配置：
 
 ```powershell
-.venv/Scripts/python.exe -B runner/run_demo.py --config config/local/baseline-dashscope/config-bird-dev-50-ablation.toml --port 8000
+uv run enterprise-agent --config config/local/baseline-dashscope/config-bird-dev-50-ablation.toml --port 8000
 ```
 
-页面提供在线对话分析和离线评测结果两个入口。请求串行运行，LangGraph Checkpoint、会话目录、任务和 SSE 事件统一保存在 `workspace/state/agent_state.sqlite`，Skill 产物保存在 `workspace/demo_requests/`；旧版 `workspace/demo_tasks/*.json` 首次启动时自动导入。
+页面提供在线对话分析和离线评测结果两个入口。请求串行运行，LangGraph Checkpoint、会话目录、任务和 SSE 事件统一保存在 `workspace/state/agent_state.sqlite`，Skill 产物保存在 `workspace/sql_requests/`（旧版产物仍留在 `workspace/demo_requests/` 只读保留）；旧版 `workspace/demo_tasks/*.json` 首次启动时幂等导入。
 
 ## 推荐方案
 
@@ -52,7 +52,7 @@
 - 数据库在服务端配置文件中注册；浏览器只能提交数据库标识，不能提交任意文件路径。
 - 最终SQL继续使用只读连接、SQLite authorizer、超时和最大返回行数限制。
 - API响应不返回模型密钥、数据库绝对路径或内部异常堆栈。
-- 运行产物保存在 `workspace/demo_requests/<request_id>/`，页面仅显示请求ID。
+- 运行产物保存在 `workspace/sql_requests/<request_id>/`，页面仅显示请求ID。
 - 服务默认监听 `127.0.0.1`，演示需要局域网访问时再显式修改监听地址。
 
 ## 建议技术结构
@@ -66,7 +66,7 @@ app/web/task_manager.py      单任务队列、状态与事件
 app/web/static/chat.html     对话式单页界面
 app/web/static/chat.js       请求、SSE与结果渲染
 app/web/static/chat.css      页面样式
-runner/run_demo.py           本地启动入口
+app/commands/serve.py        本地启动入口
 config/local/demo.toml       本地数据库注册与模型配置
 ```
 
@@ -78,7 +78,7 @@ config/local/demo.toml       本地数据库注册与模型配置
 - SQL和结果表可查看，空结果与错误结果明确区分。
 - 耗时与token和Skill产物一致。
 - 刷新页面后仍可用请求ID查看最近结果。
-- 至少准备三个固定演示问题，其中一个能展示SQL修订带来的纠错。
+- 至少准备三个固定示例问题，其中一个能展示SQL修订带来的纠错。
 
 ## 实施顺序
 

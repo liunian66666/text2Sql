@@ -1,8 +1,10 @@
 import json
+import os
 from pathlib import Path
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 import asyncio
 import httpx
@@ -36,9 +38,9 @@ class FakeSkill:
         )
 
 
-class DemoTaskManagerTest(unittest.TestCase):
+class WebTaskManagerTest(unittest.TestCase):
     def test_serial_task_replays_events_and_returns_safe_result(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             state_db = root / "state.sqlite"
             manager = TaskManager(FakeSkill(root), SQLiteStateStore(state_db))
@@ -58,12 +60,15 @@ class DemoTaskManagerTest(unittest.TestCase):
             self.assertEqual([event["sequence"] for event in events], list(range(1, len(events) + 1)))
             self.assertEqual(events[-1]["status"], "success")
             self.assertTrue(state_db.exists())
-            persisted = SQLiteStateStore(state_db).get_task(task_id)
+            verifier = SQLiteStateStore(state_db)
+            persisted = verifier.get_task(task_id)
             self.assertEqual(persisted["status"], "success")
+            verifier.close()
+            manager.close()
 
     def test_active_reports_the_queued_task_then_goes_empty(self):
         """新标签页靠 active() 判断要不要接手，所以它必须只报未完成的任务。"""
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             manager = TaskManager(FakeSkill(root), SQLiteStateStore(root / "state.sqlite"))
             self.assertIsNone(manager.active())
@@ -78,13 +83,26 @@ class DemoTaskManagerTest(unittest.TestCase):
             while time.time() < deadline and manager.active() is not None:
                 time.sleep(0.01)
             self.assertIsNone(manager.active(), "任务结束后不能再被当成活动任务")
+            manager.close()
+
+
+    def test_close_stops_the_worker_and_releases_the_database(self):
+        """worker 不停，store 的长连接就不会释放；Windows 上文件也删不掉。"""
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            root = Path(tmp)
+            manager = TaskManager(FakeSkill(root), SQLiteStateStore(root / "state.sqlite"))
+            manager.close()
+            manager.close()
+            self.assertFalse(manager._worker.is_alive())
+            with self.assertRaises(RuntimeError):
+                manager.submit({"question": "Count rows", "database_id": "demo"})
 
 
 class TaskManagerRecoveryTest(unittest.TestCase):
     """A restart must not leave a browser tab waiting on a task nothing owns."""
 
     def test_unfinished_records_become_interrupted_and_replayable(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             store = SQLiteStateStore(root / "state.sqlite")
             for task_id, status in (("run001", "running"), ("que001", "queued"), ("ok0001", "queued")):
@@ -110,16 +128,19 @@ class TaskManagerRecoveryTest(unittest.TestCase):
             self.assertTrue(terminal, "an interrupted task must close its event stream")
             self.assertEqual((events[-1]["stage"], events[-1]["status"]), ("request", "interrupted"))
 
-            persisted = SQLiteStateStore(root / "state.sqlite").get_task("run001")
+            verifier = SQLiteStateStore(root / "state.sqlite")
+            persisted = verifier.get_task("run001")
             self.assertEqual(persisted["status"], "interrupted")
             self.assertNotIn("events", persisted)
             untouched = manager.get("ok0001")
             self.assertNotIn("error", untouched["result"])
+            verifier.close()
+            manager.close()
 
 
 class EvaluationRepositoryTest(unittest.TestCase):
     def test_normalizes_agent_and_metric_rag_reports(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             agent = root / "agent"
             metric = root / "metric"
@@ -142,7 +163,7 @@ class EvaluationRepositoryTest(unittest.TestCase):
             self.assertEqual(repository.get("agent")["cases"][0]["id"], "x")
 
     def test_normalizes_ablation_without_exposing_raw_config(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             report = root / "bird-dev-50" / "ablation"
             report.mkdir(parents=True)
@@ -168,9 +189,50 @@ class EvaluationRepositoryTest(unittest.TestCase):
             self.assertNotIn("must-not-leak", json.dumps(summaries))
 
 
-class DemoPreflightTest(unittest.TestCase):
+class CapEnvCompatTest(unittest.TestCase):
+    """熔断阈值改过名：新变量优先，旧变量在过渡期内仍然生效。"""
+
+    def test_new_variable_wins_over_legacy(self):
+        from app.web.server import _cap_from_env
+
+        with patch.dict("os.environ",
+                        {"AGENT_MAX_SECONDS": "120", "DEMO_MAX_SECONDS": "999"}, clear=False):
+            self.assertEqual(_cap_from_env("AGENT_MAX_SECONDS", "DEMO_MAX_SECONDS", 600), 120)
+
+    def test_legacy_variable_still_works(self):
+        from app.web.server import _cap_from_env
+
+        with patch.dict("os.environ", {"DEMO_MAX_SECONDS": "999"}, clear=False):
+            os.environ.pop("AGENT_MAX_SECONDS", None)
+            self.assertEqual(_cap_from_env("AGENT_MAX_SECONDS", "DEMO_MAX_SECONDS", 600), 999)
+
+    def test_default_when_neither_is_set(self):
+        from app.web.server import _cap_from_env
+
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertEqual(_cap_from_env("AGENT_MAX_SECONDS", "DEMO_MAX_SECONDS", 600), 600)
+
+
+class ConfigResolutionTest(unittest.TestCase):
+    def test_default_prefers_the_new_config_path(self):
+        from app.web.server import DEFAULT_CONFIG_PATH, PROJECT_ROOT, resolve_config_path
+
+        resolved = resolve_config_path(None)
+        self.assertTrue(resolved.is_file())
+        preferred = (PROJECT_ROOT / DEFAULT_CONFIG_PATH).resolve()
+        if preferred.is_file():
+            self.assertEqual(resolved, preferred)
+
+    def test_explicit_missing_config_is_an_error(self):
+        from app.web.server import resolve_config_path
+
+        with self.assertRaises(FileNotFoundError):
+            resolve_config_path("config/local/nope.toml")
+
+
+class WebPreflightTest(unittest.TestCase):
     def test_reports_missing_and_ready_indexes_without_credentials(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             database = root / "demo.sqlite"
             database.write_bytes(b"sqlite")
@@ -199,7 +261,7 @@ class DemoPreflightTest(unittest.TestCase):
             self.assertNotIn("api", json.dumps(report).lower())
 
 
-class DemoAPITest(unittest.TestCase):
+class WebAPITest(unittest.TestCase):
     def test_static_page_and_read_only_endpoints(self):
         class Manager:
             deleted = None
@@ -253,7 +315,7 @@ class DemoAPITest(unittest.TestCase):
         # 改完前端不用强制刷新也不会拿到旧脚本，否则排练时的真假回归分不开。
         self.assertEqual(asset.headers.get("cache-control"), "no-store")
         # Only databases with a value index for the active embedding model are
-        # listed; see DEMO_READY_DATABASES in app/web/registry.py.
+        # listed; see READY_DATABASES in app/web/registry.py.
         entries = databases.json()["databases"]
         self.assertEqual([entry["id"] for entry in entries], ["enterprise_sales", "enterprise_hr"])
         self.assertTrue(all(len(entry["examples"]) >= 3 for entry in entries))

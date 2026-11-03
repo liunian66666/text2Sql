@@ -18,7 +18,7 @@ $env:CONFIG_PATH="config/local/baseline-dashscope/config-bird-dev-cloud.toml"
 
 全流程依次完成值索引、训练 few-shot 索引、值检索、目标 few-shot 准备、schema linking、生成、修复和选择。原有阶段快照可断点续跑；失败会停止后续阶段。`measurement/stage_runs.jsonl` 追加每次尝试的时间和状态，`measurement/llm_usage.jsonl` 逐次记录响应 usage，训练索引与在线查询分开统计。
 
-`complete_value_index.py` 会核对已完成列的文档后复用向量，并在同次构建中复用重复文本。更换向量模型须使用新目录。旧版没有模型来源记录的部分索引，必须先确认模型一致，再显式使用 `--reuse-legacy-columns`；本次云端运行没有复用本地模型向量。
+`enterprise-agent build-index` 会核对已完成列的文档后复用向量，并在同次构建中复用重复文本。更换向量模型须使用新目录。旧版没有模型来源记录的部分索引，必须先确认模型一致，再显式使用 `--reuse-legacy-columns`；本次云端运行没有复用本地模型向量。
 
 ## 导出报告
 

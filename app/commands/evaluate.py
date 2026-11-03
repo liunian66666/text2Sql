@@ -1,17 +1,15 @@
-"""Run and score the dedicated Text-to-SQL Agent evaluation set."""
+"""``enterprise-agent evaluate`` — 跑并评分 Agent 专项评测集。"""
 from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
 import json
-import os
 from pathlib import Path
 import statistics
 import sqlite3
-import sys
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from .common import resolve_config
 
 ALLOWED_INTENTS = {"chat", "query", "ranking", "trend", "proportion"}
 
@@ -71,19 +69,19 @@ def _total_tokens(result: dict[str, Any]) -> int:
     return total
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="config/local/demo-fast/config-bird-demo.toml")
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--config", default=None)
     parser.add_argument("--cases", default="evals/agent/questions.json")
     parser.add_argument("--output", default="evals/agent/latest/summary.json")
     parser.add_argument("--max-cases", type=int, default=None)
     parser.add_argument("--validate-only", action="store_true",
-                        help="Validate the case file without loading models or calling providers")
+                        help="只校验题单，不加载模型、不调用 provider")
     parser.add_argument("--rerun-failures", action="store_true",
-                        help="Reuse passed rows in the output report and rerun only failed case IDs")
-    args = parser.parse_args()
+                        help="复用报告里已通过的用例，只重跑失败用例")
 
-    from app.config import PROJECT_ROOT, get_config
+
+def run(args: argparse.Namespace) -> int:
+    from app.config import PROJECT_ROOT
 
     cases_path = Path(args.cases)
     if not cases_path.is_absolute():
@@ -93,7 +91,7 @@ def main() -> None:
     if args.validate_only:
         print(json.dumps({"valid": True, "case_count": len(cases), "path": str(cases_path)},
                          ensure_ascii=False, indent=2))
-        return
+        return 0
     output = Path(args.output)
     if not output.is_absolute():
         output = PROJECT_ROOT / output
@@ -105,12 +103,10 @@ def main() -> None:
     if args.max_cases is not None:
         cases = cases[:max(0, args.max_cases)]
 
-    config_path = Path(args.config)
-    if not config_path.is_absolute():
-        config_path = PROJECT_ROOT / config_path
-    os.environ["CONFIG_PATH"] = str(config_path)
+    resolve_config(args.config)
 
     from app.agent import DataAnalysisAgent
+    from app.config import get_config
     from app.enterprise import create_enterprise_knowledge
     from app.web.registry import DatabaseRegistry
     from app.skills import SQLSkill
@@ -179,7 +175,4 @@ def main() -> None:
     output.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({key: value for key, value in summary.items() if key != "cases"},
                      ensure_ascii=False, indent=2))
-
-
-if __name__ == "__main__":
-    main()
+    return 0 if summary["passed_count"] == summary["case_count"] else 1

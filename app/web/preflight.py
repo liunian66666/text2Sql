@@ -1,4 +1,4 @@
-"""Local, credential-safe readiness checks for the internship demo."""
+"""Local, credential-safe readiness checks for the web application."""
 from __future__ import annotations
 
 import os

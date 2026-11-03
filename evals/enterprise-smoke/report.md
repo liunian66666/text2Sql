@@ -1,6 +1,6 @@
 # 快速演示配置实测
 
-2026-10-26 使用 `config/template/demo-fast/config-bird-demo.toml` 对 3 个预设演示问题做端到端实测。预测 SQL 与 BIRD 标准 SQL 分别执行后比较结果，而非按 SQL 文本匹配。
+2026-10-26 使用 `config/template/app-fast/config.toml` 对 3 个预设演示问题做端到端实测。预测 SQL 与 BIRD 标准 SQL 分别执行后比较结果，而非按 SQL 文本匹配。
 
 | 题号 | 演示内容 | 集合式 EX | 严格 EX | 耗时 | 在线 Token |
 | ---: | --- | ---: | ---: | ---: | ---: |

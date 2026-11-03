@@ -1,4 +1,4 @@
-"""Compare keyword and hybrid enterprise-metric retrieval."""
+"""``enterprise-agent evaluate-rag`` — 关键词 vs 混合检索的业务口径召回对照。"""
 from __future__ import annotations
 
 import argparse
@@ -7,10 +7,9 @@ import json
 import os
 from pathlib import Path
 import statistics
-import sys
 import time
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from .common import resolve_config
 
 
 def validate_cases(cases: list[dict]) -> None:
@@ -48,15 +47,15 @@ def score(knowledge, cases: list[dict], *, top_k: int) -> dict:
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="config/local/demo-fast/config-bird-demo.toml")
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--config", default=None)
     parser.add_argument("--cases", default="evals/metric-rag/questions.json")
     parser.add_argument("--output", default="evals/metric-rag/latest/summary.json")
     parser.add_argument("--top-k", type=int, default=3)
     parser.add_argument("--validate-only", action="store_true")
-    args = parser.parse_args()
 
+
+def run(args: argparse.Namespace) -> int:
     from app.config import PROJECT_ROOT
 
     cases_path = Path(args.cases)
@@ -66,12 +65,9 @@ def main() -> None:
     validate_cases(cases)
     if args.validate_only:
         print(json.dumps({"valid": True, "case_count": len(cases)}, ensure_ascii=False, indent=2))
-        return
+        return 0
 
-    config_path = Path(args.config)
-    if not config_path.is_absolute():
-        config_path = PROJECT_ROOT / config_path
-    os.environ["CONFIG_PATH"] = str(config_path.resolve())
+    resolve_config(args.config)
     output = Path(args.output)
     if not output.is_absolute():
         output = PROJECT_ROOT / output
@@ -108,7 +104,4 @@ def main() -> None:
     print(json.dumps({**{key: value for key, value in summary.items() if key != "variants"},
                       "variants": {name: {k: v for k, v in data.items() if k != "cases"}
                                    for name, data in variants.items()}}, ensure_ascii=False, indent=2))
-
-
-if __name__ == "__main__":
-    main()
+    return 0

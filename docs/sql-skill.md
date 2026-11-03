@@ -7,7 +7,7 @@
 - 在仓库根目录完成依赖安装，配置生成模型及向量模型。
 - 数据库由应用预先注册，用户请求只提供数据库标识。
 - 提前建立对应数据库的值向量索引及训练 few-shot 索引。索引文件夹名称应与注册数据库标识一致。
-- 向量模型跟着配置走：DashScope 演示配置使用 `qwen3.7-text-embedding-flash`，旧 `text-embedding-v4` 索引与它**不在同一相似度空间，不能混用**。索引目录按向量模型名分开；切换模型后要用 `runner/complete_value_index.py --database <路径>` 重建，未重建的库不会进入演示白名单（`app/web/registry.py` 的 `DEMO_READY_DATABASES`），Skill 也会直接报"Prepare the database value index"。
+- 向量模型跟着配置走：DashScope 演示配置使用 `qwen3.7-text-embedding-flash`，旧 `text-embedding-v4` 索引与它**不在同一相似度空间，不能混用**。索引目录按向量模型名分开；切换模型后要用 `uv run enterprise-agent build-index --database <路径>` 重建，未重建的库不会进入演示白名单（`app/web/registry.py` 的 `READY_DATABASES`），Skill 也会直接报"Prepare the database value index"。
 
 ## Python 调用
 
@@ -35,7 +35,7 @@ print(result.model_dump())
 
 返回字段包括 `status`、`sql`、`columns`、`rows`、`truncated`、`elapsed_seconds`、`stage_seconds`、`usage`、`artifacts_dir`。失败时返回 `failed_stage` 和经过简化的错误说明。空表使用 `empty_result`，不会直接认定为 SQL 错误。
 
-输入验证失败和未知数据库标识会抛出 `ValueError`；运行期间的阶段失败返回结构化错误结果。`on_stage` 接收每个阶段的开始/完成事件，现已由 `app/agent/` 的 LangGraph 编排和演示站 SSE 直接复用。
+输入验证失败和未知数据库标识会抛出 `ValueError`；运行期间的阶段失败返回结构化错误结果。`on_stage` 接收每个阶段的开始/完成事件，现已由 `app/agent/` 的 LangGraph 编排和Web 应用 SSE 直接复用。
 
 ## 命令行调用
 

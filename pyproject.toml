@@ -1,3 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[project.scripts]
+enterprise-agent = "app.cli:main"
+
 [project]
 name = "enterprise-data-analyst-agent"
 version = "0.1.0"

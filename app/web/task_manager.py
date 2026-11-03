@@ -6,6 +6,8 @@ import threading
 from typing import Any
 from uuid import uuid4
 
+from loguru import logger
+
 from app.agent import ChatRequest
 from app.persistence import SQLiteStateStore
 from app.persistence.sqlite import TERMINAL_STATUSES, utc_now
@@ -24,8 +26,31 @@ class TaskManager:
         self.store.interrupt_incomplete_tasks()
         self._queue: Queue[str | None] = Queue()
         self._condition = threading.Condition()
+        self._closed = False
         self._worker = threading.Thread(target=self._run_worker, name="web-agent-worker", daemon=True)
         self._worker.start()
+
+    def close(self) -> None:
+        """Stop the worker, then release the store's SQLite handle.
+
+        The store keeps one connection open for its whole lifetime (see
+        app/persistence/sqlite.py); on Windows an open handle blocks deleting
+        the file, so tests and shutdown paths must close explicitly.
+
+        A long-running turn outlives the 5s grace period. Closing the connection
+        underneath it would turn the final ``finish_task`` into a crash, so in
+        that case the handle is left to process exit — the task is marked
+        ``interrupted`` on the next start either way.
+        """
+        if self._closed:
+            return
+        self._closed = True
+        self._queue.put(None)
+        self._worker.join(timeout=5.0)
+        if self._worker.is_alive():
+            logger.warning("worker still busy at shutdown; leaving the state database open")
+            return
+        self.store.close()
 
     def submit(self, request: ChatRequest | dict[str, Any]) -> dict[str, Any]:
         validated = ChatRequest.model_validate(request)

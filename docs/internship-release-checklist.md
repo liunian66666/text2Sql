@@ -11,7 +11,7 @@
 - 六阶段 Text-to-SQL 流水线和只读 SQL 执行。
 - OpenAI 兼容推理接入：当前演示配置使用 DashScope `deepseek-v4.1-flash-1017`（原生 tool calling，可关思考）+ 云端 `qwen3.7-text-embedding-flash` 向量；旧评测保留原模型标注。
 - 单问题 `SQLSkill`，每次请求有独立产物目录。
-- FastAPI + 静态单页演示站，支持 SSE 阶段进度。
+- FastAPI + 静态单页Web 应用，支持 SSE 阶段进度。
 - LangGraph ReAct 主图：LLM Planner ↔ Tool Executor，模型自主选择业务口径、Schema、SQL Skill 和可视化工具。
 - 会话 ID、上下文记忆、系统 Prompt、结构化工具描述、工具调用轨迹，以及原生/JSON 两种工具调用协议。
 - MCP Server 暴露数据库发现、业务口径、Schema 和只读 Text-to-SQL 工具。
@@ -22,13 +22,13 @@
 - Token、耗时、阶段日志、失败阶段和中断恢复记录。
 - 只读连接、SQLite authorizer、SQL 超时、返回行数上限、请求 Token/时间熔断。
 - 失控请求收敛：全候选被 `max_tokens` 截断时由 15 × 5 = 75 次重试改为 1 次调用即熔断。
-- 88 项核心自动化测试通过；覆盖双业务域路由与隔离、可复现 HR 数据、visualization、多轮图表复用、`.env` 优先级、页面刷新恢复、SQLite Checkpoint 跨重启恢复、任务/SSE 持久化、旧 JSON 导入和会话级联删除。
+- 100 项核心自动化测试通过；覆盖双业务域路由与隔离、可复现 HR 数据、visualization、多轮图表复用、`.env` 优先级、页面刷新恢复、SQLite Checkpoint 跨重启恢复、任务/SSE 持久化、旧 JSON 导入和会话级联删除。
 - 业务口径混合 RAG 15 题对照完成：Recall@3 / MRR 从 0.567 / 0.567 提升至 1.000 / 1.000。
 - Agent 14 题专项在线评测完成首轮与失败题增量复测；首轮 11/14，修复后合并回归 14/14。最终一题由当前 `deepseek-v4.1-flash-1017` 跑通，尚未用新模型整批重跑。
 - 50 题、5 数据库三组对照已完成：仅生成 72%、生成＋修订 72%、完整流程 76%，三组均 100% 可执行。
-- 企业库三题端到端实测（2026-10-27，DashScope deepseek-v4-pro + qwen3.7 向量，已关思考）：3/3 成功，平均 60.0 秒 Agent 墙钟、48.5 秒 SQL Skill、36,010 token 每题，0 次失败调用；结果用两种 SQL 写法独立复算一致（企业库是合成数据、无金标 SQL，因此不声称 EX）。旧自建端点下的 BIRD 三题 41.62 秒记录保留在 `evals/demo-fast/`，仅作历史对照。
+- 企业库三题端到端实测（2026-10-27，DashScope deepseek-v4-pro + qwen3.7 向量，已关思考）：3/3 成功，平均 60.0 秒 Agent 墙钟、48.5 秒 SQL Skill、36,010 token 每题，0 次失败调用；结果用两种 SQL 写法独立复算一致（企业库是合成数据、无金标 SQL，因此不声称 EX）。旧自建端点下的 BIRD 三题 41.62 秒记录保留在 `evals/enterprise-smoke/`，仅作历史对照。
 - HR 端到端固定评测 6/6：覆盖查数、排名、趋势、占比和 2 个复杂指标，全部自动选择 `enterprise_hr`、命中正确指标并与数据库可信 SQL 一致；增量合并记录平均 67.35 秒/题、241,264 Token。接入后销售自动路由回归 1/1，结果 453 单与可信 SQL 一致。
-- 启动自检 `--check-only`、重启后遗留任务标记 `interrupted`、演示站默认配置已切到 `demo-fast` 档。
+- 启动自检 `--check-only`、重启后遗留任务标记 `interrupted`、Web 应用默认配置已切到 `app-fast` 档。
 - 独立 `workspace/state/agent_state.sqlite` 保存会话、Checkpoint、任务和 SSE 事件；销售/HR 业务库继续只读隔离，左侧可查看、恢复和删除历史会话。
 
 ## 发布前必须完成（P0，已完成）
@@ -50,7 +50,7 @@
 
 ### 2. 增加“快速演示配置”
 
-状态：**已完成**。配置模板位于 `config/template/demo-fast/`。旧自建端点下三个预设问题实测 32.71 至 47.31 秒；切换到 DashScope 后由企业库三题取代，实测 44.9–49.9 秒（SQL Skill 口径）。
+状态：**已完成**。配置模板位于 `config/template/app-fast/`。旧自建端点下三个预设问题实测 32.71 至 47.31 秒；切换到 DashScope 后由企业库三题取代，实测 44.9–49.9 秒（SQL Skill 口径）。
 
 当前 10 题正式配置平均每题约 151 秒、在线约 12.9 万 Token，不适合把成功寄托在现场网络和模型负载上。演示配置通过减少采样预算（4→1）与 few-shot 条数（7→5）压延迟；正式评测配置继续保留。
 
@@ -69,7 +69,7 @@
 根 README 当前仍以原论文仓库为主，容易让面试官无法判断哪些工作是本人完成的。首页前部应增加：
 
 - “基于开源 DeepEye-SQL 的应用化二次开发”说明和上游链接。
-- 本人新增模块清单：模型/向量接入、计量、SQL Skill、只读安全、演示站、50 题评测。
+- 本人新增模块清单：模型/向量接入、计量、SQL Skill、只读安全、Web 应用、50 题评测。
 - 一张应用架构图或流程图。
 - 30 秒启动命令、页面截图、当前实测结果。
 - 已知限制：本地单用户、串行队列、只支持已注册数据库。

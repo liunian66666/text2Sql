@@ -52,7 +52,7 @@ def task(task_id: str, conversation_id: str, status: str = "queued",
 
 class SQLiteCheckpointTest(unittest.TestCase):
     def test_messages_survive_process_style_reopen_and_threads_are_isolated(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             path = Path(tmp) / "state.sqlite"
             first = SQLitePersistence(path)
             graph = compile_graph(first.checkpointer)
@@ -92,7 +92,7 @@ class SQLiteCheckpointTest(unittest.TestCase):
             def run(self, *_args, **_kwargs):
                 raise AssertionError("chat-only turn must not call SQL")
 
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             database = root / "sales.sqlite"
             database.touch()
@@ -123,7 +123,7 @@ class SQLiteCheckpointTest(unittest.TestCase):
 
 class SQLiteStateStoreTest(unittest.TestCase):
     def test_legacy_json_tasks_are_imported_once(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             legacy = root / "demo_tasks"
             legacy.mkdir()
@@ -140,9 +140,10 @@ class SQLiteStateStoreTest(unittest.TestCase):
             self.assertEqual(store.import_legacy_tasks(legacy), 0)
             self.assertEqual(store.get_task("old-task")["result"]["answer"], "旧回答")
             self.assertEqual(store.get_conversation("old-conversation")["task_count"], 1)
+            store.close()
 
     def test_tasks_events_and_conversations_survive_reopen(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             path = Path(tmp) / "state.sqlite"
             store = SQLiteStateStore(path)
             store.create_task(task("task-1", "conversation-1"))
@@ -163,9 +164,11 @@ class SQLiteStateStoreTest(unittest.TestCase):
             conversation = reopened.get_conversation("conversation-1")
             self.assertEqual(conversation["actual_database_id"], "enterprise_sales")
             self.assertEqual(conversation["task_count"], 1)
+            store.close()
+            reopened.close()
 
     def test_restart_interrupts_active_tasks_without_requeueing(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             store = SQLiteStateStore(Path(tmp) / "state.sqlite")
             store.create_task(task("queued-1", "conversation-1"))
             store.append_event("queued-1", {"stage": "queue", "status": "queued"})
@@ -178,9 +181,10 @@ class SQLiteStateStoreTest(unittest.TestCase):
                 self.assertEqual(saved["status"], "interrupted")
                 self.assertIn("重启", saved["result"]["error"])
                 self.assertEqual(store.events_after(task_id, 0)[-1]["status"], "interrupted")
+            store.close()
 
     def test_delete_conversation_cascades_tasks_events_and_checkpoints(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             persistence = SQLitePersistence(Path(tmp) / "state.sqlite")
             graph = compile_graph(persistence.checkpointer)
             config = {"configurable": {"thread_id": "conversation-1:auto"}}
@@ -202,8 +206,18 @@ class SQLiteStateStoreTest(unittest.TestCase):
             self.assertIsNone(persistence.checkpointer.get(config))
             persistence.close()
 
+    def test_close_is_idempotent_and_fails_loudly_afterwards(self):
+        """store 现在持有一条长连接，关闭后必须明确报错，而不是静默写坏数据。"""
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            store = SQLiteStateStore(Path(tmp) / "state.sqlite")
+            store.create_task(task("task-1", "conversation-1"))
+            store.close()
+            store.close()
+            with self.assertRaises(RuntimeError):
+                store.get_task("task-1")
+
     def test_state_database_does_not_capture_runtime_configuration(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             path = Path(tmp) / "state.sqlite"
             store = SQLiteStateStore(path)
             store.create_task(task("task-1", "conversation-1", question="安全问题"))
@@ -218,6 +232,7 @@ class SQLiteStateStoreTest(unittest.TestCase):
             self.assertNotIn("OPENAI_API_KEY", text)
             self.assertNotIn("sk-", text)
             self.assertNotIn(str(Path.cwd()), text)
+            store.close()
 
 
 if __name__ == "__main__":

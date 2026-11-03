@@ -35,9 +35,9 @@ DATABASE_METADATA = {
 # active config selects. Vectors from text-embedding-v4 are not comparable with
 # qwen3.7-text-embedding-flash, and an unindexed database fails inside
 # value_retrieval with "Prepare the database value index" -- showing it in the
-# picker only turns a known gap into a live demo error. Rebuild with
-# `runner/complete_value_index.py --database <path>`, then add the ID back here.
-DEMO_READY_DATABASES = ("enterprise_sales", "enterprise_hr")
+# picker only turns a known gap into a live runtime error. Rebuild with
+# `uv run enterprise-agent build-index --database <path>`, then add the ID back here.
+READY_DATABASES = ("enterprise_sales", "enterprise_hr")
 
 
 class DatabaseRegistry:
@@ -51,10 +51,10 @@ class DatabaseRegistry:
 
     def _discover_databases(self) -> dict[str, Path]:
         database_root = self.project_root / "data/bird/dev/dev_databases"
-        allowed = set(DEMO_READY_DATABASES)
+        allowed = set(READY_DATABASES)
         databases: dict[str, Path] = {}
-        from app.enterprise import ensure_enterprise_demo_database, ensure_enterprise_hr_database
-        enterprise = ensure_enterprise_demo_database(self.project_root)
+        from app.enterprise import ensure_enterprise_sales_database, ensure_enterprise_hr_database
+        enterprise = ensure_enterprise_sales_database(self.project_root)
         databases["enterprise_sales"] = enterprise
         databases["enterprise_hr"] = ensure_enterprise_hr_database(self.project_root)
         for database_id in sorted(allowed):

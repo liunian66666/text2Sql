@@ -1,4 +1,4 @@
-"""Compose API routers and the local static demonstration frontend."""
+"""Compose API routers and the local static web frontend."""
 from __future__ import annotations
 
 from pathlib import Path

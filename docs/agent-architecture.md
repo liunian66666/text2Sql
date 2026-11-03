@@ -68,6 +68,8 @@ Function Calling 的端点，应在模型适配层明确报错或单独增加受
 | 后端任务记录 | `workspace/state/agent_state.sqlite` 的 `tasks` / `task_events` | 状态机（`queued`/`running`/`success`/`empty_result`/`error`/`interrupted`）、请求参数、序列化结果与完整 SSE 事件序列 | 删除会话时级联删除；进程重启时把未完成任务改成 `interrupted` | 404，前端清理记录并提示重新提交 |
 | LangGraph 会话记忆 | 同一状态库中的 SQLite Checkpointer，thread ID = `conversation_id + database_id` | 消息历史、业务口径、Schema、上一轮 SQL 与结果，供“做成柱状图”和重启后追问复用 | 用户删除历史会话时同步删除对应 thread | 仅删除的会话会失去上下文 |
 
+状态库只保留**一条长连接**（`check_same_thread=False` + 进程内 `RLock`），读写串行执行，写入统一走 `BEGIN IMMEDIATE` 显式事务。这不是性能优化，而是正确性要求：早先“每次调用新开连接、用完即关”的写法在 WAL 模式下会反复创建/删除 `-wal`/`-shm`，Windows 上后台 worker 线程那次重建会拿到 `SQLITE_READONLY`，任务永远停在 `queued`。生产环境被 LangGraph 的长连接掩盖了这个问题，测试里没有那条连接才暴露出来。代价是**关闭前必须先停 worker**（`TaskManager.close()`），否则 Windows 上文件句柄不释放、临时目录删不掉。
+
 因此三个边界必须讲清楚：
 
 1. **刷新不取消任务**。任务跑在服务端线程里，浏览器只是 SSE 订阅者。刷新后页面用原 `request_id` 查一次 `GET /api/query/{request_id}`，`queued`/`running` 就重连事件流，全程不会 `POST /api/chat`。
@@ -75,7 +77,7 @@ Function Calling 的端点，应在模型适配层明确报错或单独增加受
 3. **刷新与重启都能恢复已完成会话**。任务结果、SSE 事件和 LangGraph Checkpoint 都写入独立状态库，服务重启后仍可打开历史会话并继续追问。
 4. **`interrupted` 不是失败**。它只表示“进程在任务执行期间退出，这个任务没有任何 worker 会再推进它”。前端据此停止重连、清掉活动任务、把问题文本填回输入框，而不是无限重试或自动重提。
 
-判定逻辑抽在 `app/web/static/recovery.js`（纯函数、不碰 DOM），由 `tests/js/recovery.test.mjs` 用 Node 断言；接口字段与静态资源由 `tests/test_demo_recovery.py` 覆盖。
+判定逻辑抽在 `app/web/static/recovery.js`（纯函数、不碰 DOM），由 `tests/js/recovery.test.mjs` 用 Node 断言；接口字段与静态资源由 `tests/test_web_recovery.py` 覆盖。
 
 ## 当前限制
 

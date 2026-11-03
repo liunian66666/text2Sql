@@ -1,6 +1,6 @@
 import unittest
 
-from runner.evaluate_agent import score_agent_case, validate_agent_cases
+from app.commands.evaluate import score_agent_case, validate_agent_cases
 
 
 class AgentEvaluationTest(unittest.TestCase):

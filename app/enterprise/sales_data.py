@@ -1,4 +1,4 @@
-"""Create a deterministic, reproducible enterprise sales demo database."""
+"""Create a deterministic, reproducible synthetic enterprise sales database."""
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -11,7 +11,7 @@ import sqlite3
 SCHEMA_VERSION = 1
 
 
-def ensure_enterprise_demo_database(project_root: Path, *, force: bool = False) -> Path:
+def ensure_enterprise_sales_database(project_root: Path, *, force: bool = False) -> Path:
     destination = project_root / "data" / "enterprise_sales" / "enterprise_sales.sqlite"
     if destination.exists() and not force:
         try:

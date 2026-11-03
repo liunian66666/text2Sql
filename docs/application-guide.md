@@ -1,4 +1,4 @@
-# DeepEye-SQL 演示站说明（答辩用一页纸）
+# DeepEye-SQL Web 应用说明（答辩用一页纸）
 
 本地单用户演示入口：企业数据分析 Agent + 离线评测结果浏览。只读数据库、串行任务队列，不启动任何评测任务。
 
@@ -7,28 +7,28 @@
 ```bash
 # 在项目根目录 DeepEye-SQL/ 下执行；首次先同步依赖
 uv sync
-uv run python -B runner/run_demo.py --check-only
-uv run python -B runner/run_demo.py
+uv run enterprise-agent check      # 启动前自检
+uv run enterprise-agent            # 启动应用（默认 127.0.0.1:8000）
 
-# uvicorn 零参工厂方式（不支持 --config，用默认配置或环境变量 CONFIG_PATH）
-uv run uvicorn app.web.server:create_app_from_env --factory --port 8000
+# 开发模式：代码变更自动重启；演示与正式运行不要开
+uv run uvicorn app.main:app --reload
 ```
 
 `uv run` 默认会确认锁文件与虚拟环境一致，适合首次启动和换机器复现。只有已经执行过 `uv sync`、并且明确不希望 uv 再检查依赖时，才需要可选的 `--no-sync`。
 
-配置来源按 **shell 环境变量 > 仓库根目录 `.env` > TOML** 叠加；把密钥写进 `.env`（`cp .env.example .env`）同样可用，`--check-only` 会显示是否命中 `.env`（只报变量个数）。
+配置来源按 **shell 环境变量 > 仓库根目录 `.env` > TOML** 叠加；把密钥写进 `.env`（`cp .env.example .env`）同样可用，`enterprise-agent check` 会显示是否命中 `.env`（只报变量个数）。
 
 浏览器打开 <http://127.0.0.1:8000> 即可。可选参数：
 
 | 参数 | 默认值 | 说明 |
 | --- | --- | --- |
-| `--config` | `config/local/demo-fast/config-bird-demo.toml` | 快速演示配置（缺失时兼容回退到50题配置） |
+| `--config` | `config/local/app-fast/config.toml` | 快速本地快速配置（缺失时兼容回退到50题配置） |
 | `--host` | `127.0.0.1` | 仅本机访问；答辩需要局域网投屏时改 `0.0.0.0` |
 | `--port` | `8000` | 端口被占用时换一个，如 `--port 8010` |
 
 启动前确认：`--config` 指向的配置文件里模型服务可达（可用 `curl <base_url>/models` 自检）。
 
-当前 `demo-fast` 配置使用 `deepseek-v4.1-flash-1017`；下方 2026-10-27 的历史实测仍保留当时 `deepseek-v4-pro-0813` 的模型标注，切换模型后不可直接横向比较耗时和 token。
+当前 `app-fast` 配置使用 `deepseek-v4.1-flash-1017`；下方 2026-10-27 的历史实测仍保留当时 `deepseek-v4-pro-0813` 的模型标注，切换模型后不可直接横向比较耗时和 token。
 
 ## 页面结构
 
@@ -37,7 +37,7 @@ uv run uvicorn app.web.server:create_app_from_env --factory --port 8000
   进度条上前三格是 Agent 自己的循环：**LLM 规划**每轮模型调用各亮一次、**工具调用**每次工具执行各亮一次、**规划与编排**从请求开始亮到请求结束（它的耗时 = 总墙钟 − SQL Skill 自己的秒表，所以常是最大的一格）。
 - **离线评测结果**：自动识别三类报告：Text-to-SQL 三档消融、Agent 专项通过率、业务口径 RAG Recall/MRR。报告只读展示，现场不触发昂贵评测。
 
-## 推荐企业演示问题
+## 推荐示例问题
 
 数据库选择 **企业电商销售分析**。页面已预置以下问题：
 
@@ -80,14 +80,14 @@ uv run uvicorn app.web.server:create_app_from_env --factory --port 8000
 
 结果核对方式：企业库是合成数据、没有 BIRD 金标 SQL，因此不声称 EX 准确率。用「JOIN 后直接聚合」与「先按订单聚合再求和」两种写法对 `enterprise_sales.sqlite` 独立复算，得到相同的 **2,513,691.692 元 / 453 单 / 5,548.99 元客单价**；2026 年状态分布 367 completed + 44 paid + 42 shipped = 453，36 笔 cancelled 被正确排除。
 
-> 历史数据：2026-10-26 那组"3 题 41.62 秒 / 153,436 Token、集合式 EX 3/3"是在自建端点 + text-embedding-v4 下跑在 BIRD 库上的结果，保存在 `evals/demo-fast/`。切换模型和向量后它不代表当前配置，且当时"思考输出无法关闭"的结论只适用于自建端点。
+> 历史数据：2026-10-26 那组"3 题 41.62 秒 / 153,436 Token、集合式 EX 3/3"是在自建端点 + text-embedding-v4 下跑在 BIRD 库上的结果，保存在 `evals/enterprise-smoke/`。切换模型和向量后它不代表当前配置，且当时"思考输出无法关闭"的结论只适用于自建端点。
 
 ## 当前可用范围
 
-演示站当前注册两个值索引已就绪的业务库：`enterprise_sales` 和 `enterprise_hr`。默认选择“自动识别业务域”；手动选库时以用户选择为准。5 个 BIRD 演示库的旧索引与当前向量模型不一致，因此不在演示白名单中。
+Web 应用当前注册两个值索引已就绪的业务库：`enterprise_sales` 和 `enterprise_hr`。默认选择“自动识别业务域”；手动选库时以用户选择为准。5 个 BIRD 演示库的旧索引与当前向量模型不一致，因此不在演示白名单中。
 
 ```powershell
-uv run python -B runner/complete_value_index.py --database data/bird/dev/dev_databases/<id>/<id>.sqlite
+uv run enterprise-agent build-index --database data/bird/dev/dev_databases/<id>/<id>.sqlite
 ```
 
 ## 演示流程建议（约 8 分钟）
@@ -127,7 +127,7 @@ uv run python -B runner/complete_value_index.py --database data/bird/dev/dev_dat
 
 | 现象 | 处理 |
 | --- | --- |
-| 提交后长期停在“排队/运行中” | 模型服务被 50 题评测占满时会排队，属正常；评测结束后变快。看 `workspace/demo_server.log` 是否有 `retry` 告警 |
+| 提交后长期停在“排队/运行中” | 模型服务被 50 题评测占满时会排队，属正常；评测结束后变快。看终端输出是否有 `retry` 告警 |
 | 某阶段红色“失败” | 结果区会显示 `failed_stage`；先 `curl <base_url>/models` 确认模型服务在线，再换推荐问题重试 |
 | 刷新页面丢了进度 | 正常情况下不需要处理：页面会自动用原 `request_id` 查状态并重连。若显示“任务记录已失效”，说明后端已没有该任务（超过清理周期或换了机器），重新提交即可；也可手动访问 `GET /api/query/<request_id>` 核对 |
 | 新标签页没有接手正在跑的任务 | 先确认服务是新代码（`GET /api/query/active` 应返回 `{"task": {...}}`，旧进程会 404）。若返回 `{"task": null}`，说明任务其实已经结束——跨标签页只接手 `queued` / `running`，不追溯已完成的历史结果 |

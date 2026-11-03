@@ -937,6 +937,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("#question").addEventListener("input", autoGrow);
   $("#question").addEventListener("keydown", event => { if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();$("#query-form").requestSubmit();} });
   $("#refresh-evals").addEventListener("click", loadEvaluations);
+  const toggleBtn = $("#toggle-sidebar");
+  if (toggleBtn) {
+    const applySidebar = collapsed => document.querySelector(".chat-shell").classList.toggle("sidebar-collapsed", collapsed);
+    try { applySidebar(localStorage.getItem("sidebar-collapsed") === "1"); } catch {}
+    toggleBtn.addEventListener("click", () => {
+      const next = !document.querySelector(".chat-shell").classList.contains("sidebar-collapsed");
+      applySidebar(next);
+      try { localStorage.setItem("sidebar-collapsed", next ? "1" : "0"); } catch {}
+    });
+  }
   document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
     document.querySelectorAll(".tab").forEach(item=>item.classList.toggle("active",item===tab));
     document.querySelectorAll(".panel").forEach(panel=>panel.classList.remove("active"));

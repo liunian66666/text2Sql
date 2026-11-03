@@ -1,4 +1,4 @@
-"""Create the deterministic HR demo database used by the second business domain."""
+"""Create the deterministic synthetic HR database used by the second business domain."""
 from __future__ import annotations
 
 from datetime import date, timedelta

@@ -35,8 +35,8 @@ LLM 是 Agent 的决策核心。系统 Prompt 位于 `app/agent/prompts/`，`Cha
 业务口径 RAG 的独立对照评测：
 
 ```bash
-uv run --no-sync python runner/evaluate_metric_rag.py --validate-only
-uv run --no-sync python runner/evaluate_metric_rag.py
+uv run enterprise-agent evaluate-rag --validate-only
+uv run enterprise-agent evaluate-rag
 ```
 
 报告写入 `evals/metric-rag/latest/summary.json`，同时记录 keyword / hybrid 的 Recall@K、MRR、平均耗时和向量 token。
@@ -45,7 +45,7 @@ uv run --no-sync python runner/evaluate_metric_rag.py
 
 ## 企业演示数据
 
-`runner/create_enterprise_demo.py` 使用固定随机种子生成本地 SQLite 数据库，包含：
+`enterprise-agent generate-data`（实现见 `app/commands/generate_data.py`）使用固定随机种子生成本地 SQLite 数据库，包含：
 
 - `orders`、`order_items`、`products`
 - `customers`、`categories`
@@ -57,21 +57,20 @@ uv run --no-sync python runner/evaluate_metric_rag.py
 
 ```powershell
 uv sync
-uv run python -B runner/create_enterprise_demo.py
-$env:CONFIG_PATH="config/local/demo-fast/config-bird-demo.toml"
-uv run python -B runner/complete_value_index.py --database data/enterprise_sales/enterprise_sales.sqlite
-uv run python -B runner/run_demo.py --check-only
-uv run python -B runner/run_demo.py --port 8000
+uv run enterprise-agent generate-data
+uv run enterprise-agent build-index --database data/enterprise_sales/enterprise_sales.sqlite
+uv run enterprise-agent check
+uv run enterprise-agent --port 8000
 ```
 
 浏览器打开 <http://127.0.0.1:8000>，数据源默认“自动识别业务域”，Agent 会在销售库与 HR 库之间自行选择。
 
-配置来源按优先级叠加：**shell 环境变量 > 仓库根目录 `.env` > TOML**。想把密钥从 TOML 里挪出来时，`cp .env.example .env` 后填 `OPENAI_API_KEY` 即可（`CONFIG_PATH`、`OPENAI_BASE_URL`、`DEFAULT_LLM_MODEL`、`EMBEDDING_MODEL` 同样可放 `.env`）。`.env` 在 `app.config` 导入时读取，缺失或解析失败都不阻断启动；`--check-only` 只报告命中的变量个数，不回显名称与值。
+配置来源按优先级叠加：**shell 环境变量 > 仓库根目录 `.env` > TOML**。想把密钥从 TOML 里挪出来时，`cp .env.example .env` 后填 `OPENAI_API_KEY` 即可（`CONFIG_PATH`、`OPENAI_BASE_URL`、`DEFAULT_LLM_MODEL`、`EMBEDDING_MODEL` 同样可放 `.env`）。`.env` 在 `app.config` 导入时读取，缺失或解析失败都不阻断启动；`enterprise-agent check` 只报告命中的变量个数，不回显名称与值。
 
 也可以只运行一个问题：
 
 ```powershell
-uv run python -B runner/run_agent.py --config config/local/demo-fast/config-bird-demo.toml --question "按月统计2026年的销售额和订单量变化趋势。"
+uv run enterprise-agent ask --question "按月统计2026年的销售额和订单量变化趋势。"
 ```
 
 ## MCP Server
@@ -79,7 +78,7 @@ uv run python -B runner/run_agent.py --config config/local/demo-fast/config-bird
 同一套只读分析能力可以通过 MCP 提供给其他 Agent：
 
 ```powershell
-uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config-bird-demo.toml
+uv run enterprise-agent mcp
 ```
 
 默认 stdio 模式暴露 `list_databases`、`search_business_metrics`、`inspect_database_schema` 和 `run_text_to_sql`。数据库文件路径和密钥不会出现在工具返回中。
@@ -87,7 +86,7 @@ uv run python -B runner/run_mcp_server.py --config config/local/demo-fast/config
 ## Agent 专项评测
 
 ```powershell
-uv run python runner/evaluate_agent.py --config config/local/demo-fast/config-bird-demo.toml
+uv run enterprise-agent evaluate --config config/local/app-fast/config.toml
 ```
 
 题单位于 `evals/agent/questions.json`，与 50 题 SQL EX 分开，统计工具策略、intent、图表类型、多轮结果复用、只读安全、Agent 墙钟和总 token。可先用 `--max-cases 2` 做小规模连通性检查。

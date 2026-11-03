@@ -3,17 +3,24 @@
 The state database is deliberately separate from the read-only sales and HR
 databases.  LangGraph owns its checkpoint tables; this module owns only the
 human-readable conversation, task and SSE event tables.
+
+连接策略：整个 store 只持有一条长连接（``check_same_thread=False``），所有读写
+都在 ``self._lock`` 里串行执行。早先的实现是“每次调用新开一条连接、用完即关”，
+在 WAL 模式下会反复创建/删除 ``-wal``/``-shm``；Windows 上后台 worker 线程那次
+重建会拿到 ``SQLITE_READONLY``（``attempt to write a readonly database``），
+任务永远停在 ``queued``。生产环境之所以没暴露，是因为 LangGraph 的 checkpointer
+一直持有一条连接，把副作用掩盖了——测试里没有那条连接，问题才显形。
 """
 from __future__ import annotations
 
-from contextlib import closing
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
 import sqlite3
 from threading import RLock
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 from langgraph.checkpoint.sqlite import SqliteSaver
 
@@ -45,18 +52,56 @@ class SQLiteStateStore:
         self.path = path.resolve()
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = RLock()
+        self._connection = self._open_connection()
         self.setup()
 
-    def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.path, timeout=5.0)
+    def _open_connection(self) -> sqlite3.Connection:
+        connection = sqlite3.connect(
+            self.path, timeout=5.0, check_same_thread=False,
+        )
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys=ON")
         connection.execute("PRAGMA busy_timeout=5000")
         return connection
 
+    @contextmanager
+    def _read(self) -> Iterator[sqlite3.Connection]:
+        with self._lock:
+            yield self._connection_or_raise()
+
+    @contextmanager
+    def _write(self) -> Iterator[sqlite3.Connection]:
+        """One explicit write transaction; rolled back if the body raises.
+
+        ``isolation_level`` 保持默认值，但这里始终显式 ``BEGIN IMMEDIATE``，
+        所以事务边界不再依赖“隐式 begin + commit”的巧合，也不会因为某次异常
+        把一条未提交的事务留在长连接上。
+        """
+        with self._lock:
+            connection = self._connection_or_raise()
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                yield connection
+            except BaseException:
+                connection.rollback()
+                raise
+            else:
+                connection.commit()
+
+    def _connection_or_raise(self) -> sqlite3.Connection:
+        if self._connection is None:
+            raise RuntimeError("SQLiteStateStore is closed")
+        return self._connection
+
+    def close(self) -> None:
+        with self._lock:
+            if self._connection is not None:
+                self._connection.close()
+                self._connection = None
+
     def setup(self) -> None:
-        with self._lock, closing(self._connect()) as connection:
-            connection.executescript(
+        with self._lock:
+            self._connection.executescript(
                 """
                 PRAGMA journal_mode=WAL;
 
@@ -110,7 +155,7 @@ class SQLiteStateStore:
                 ON task_events(task_id, sequence);
                 """
             )
-            connection.commit()
+            self._connection.commit()
 
     @staticmethod
     def _conversation_from_row(row: sqlite3.Row, *, task_count: int | None = None) -> dict[str, Any]:
@@ -149,7 +194,7 @@ class SQLiteStateStore:
         title = question.strip().replace("\n", " ")[:48] or "新对话"
         now = task["created_at"]
         database_id = request.get("database_id") or "auto"
-        with self._lock, closing(self._connect()) as connection:
+        with self._write() as connection:
             connection.execute(
                 """INSERT INTO conversations
                    (id, title, requested_database_id, created_at, updated_at,
@@ -170,7 +215,6 @@ class SQLiteStateStore:
                 (task["id"], conversation_id, database_id, task["status"],
                  _json_dump(request), now),
             )
-            connection.commit()
 
     def import_legacy_tasks(self, directory: Path) -> int:
         """One-time, idempotent import of the former JSON task records."""
@@ -224,7 +268,7 @@ class SQLiteStateStore:
                     finished_at: str | None = None, result: dict[str, Any] | None = None) -> None:
         result_json = _json_dump(result) if result is not None else None
         error = (result or {}).get("error") if result else None
-        with self._lock, closing(self._connect()) as connection:
+        with self._write() as connection:
             row = connection.execute(
                 "SELECT conversation_id FROM tasks WHERE id=?", (task_id,)
             ).fetchone()
@@ -246,13 +290,11 @@ class SQLiteStateStore:
                 (finished_at or started_at or utc_now(), status, actual_database_id,
                  row["conversation_id"]),
             )
-            connection.commit()
 
     def append_event(self, task_id: str, event: dict[str, Any]) -> dict[str, Any]:
         payload = {key: value for key, value in event.items() if key not in {"sequence", "at"}}
         at = event.get("at") or utc_now()
-        with self._lock, closing(self._connect()) as connection:
-            connection.execute("BEGIN IMMEDIATE")
+        with self._write() as connection:
             exists = connection.execute("SELECT 1 FROM tasks WHERE id=?", (task_id,)).fetchone()
             if exists is None:
                 raise KeyError(task_id)
@@ -267,7 +309,6 @@ class SQLiteStateStore:
                 (task_id, sequence, at, str(payload.get("stage", "unknown")),
                  str(payload.get("status", "unknown")), _json_dump(payload)),
             )
-            connection.commit()
         return {"sequence": sequence, "at": at, **payload}
 
     def finish_task(self, task_id: str, *, status: str, finished_at: str,
@@ -278,8 +319,7 @@ class SQLiteStateStore:
         terminal task before its final event has been committed.
         """
         payload = {"stage": "request", "status": status}
-        with self._lock, closing(self._connect()) as connection:
-            connection.execute("BEGIN IMMEDIATE")
+        with self._write() as connection:
             row = connection.execute(
                 "SELECT conversation_id FROM tasks WHERE id=?", (task_id,)
             ).fetchone()
@@ -306,11 +346,10 @@ class SQLiteStateStore:
                    VALUES (?, ?, ?, 'request', ?, ?)""",
                 (task_id, sequence, finished_at, status, _json_dump(payload)),
             )
-            connection.commit()
         return {"sequence": sequence, "at": finished_at, **payload}
 
     def get_task(self, task_id: str) -> dict[str, Any]:
-        with closing(self._connect()) as connection:
+        with self._read() as connection:
             row = connection.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
         if row is None:
             raise KeyError(task_id)
@@ -318,7 +357,7 @@ class SQLiteStateStore:
 
     def active_task(self) -> dict[str, Any] | None:
         placeholders = ",".join("?" for _ in TERMINAL_STATUSES)
-        with closing(self._connect()) as connection:
+        with self._read() as connection:
             row = connection.execute(
                 f"SELECT * FROM tasks WHERE status NOT IN ({placeholders}) ORDER BY created_at, id LIMIT 1",
                 tuple(sorted(TERMINAL_STATUSES)),
@@ -326,7 +365,7 @@ class SQLiteStateStore:
         return self._task_from_row(row) if row else None
 
     def events_after(self, task_id: str, after: int) -> list[dict[str, Any]]:
-        with closing(self._connect()) as connection:
+        with self._read() as connection:
             exists = connection.execute("SELECT 1 FROM tasks WHERE id=?", (task_id,)).fetchone()
             if exists is None:
                 raise KeyError(task_id)
@@ -344,8 +383,7 @@ class SQLiteStateStore:
     def interrupt_incomplete_tasks(self) -> list[str]:
         interrupted: list[str] = []
         now = utc_now()
-        with self._lock, closing(self._connect()) as connection:
-            connection.execute("BEGIN IMMEDIATE")
+        with self._write() as connection:
             rows = connection.execute(
                 "SELECT id, conversation_id FROM tasks WHERE status IN ('queued', 'running')"
             ).fetchall()
@@ -377,11 +415,10 @@ class SQLiteStateStore:
                     (now, row["conversation_id"]),
                 )
                 interrupted.append(row["id"])
-            connection.commit()
         return interrupted
 
     def list_conversations(self, *, limit: int = 50) -> list[dict[str, Any]]:
-        with closing(self._connect()) as connection:
+        with self._read() as connection:
             rows = connection.execute(
                 """SELECT c.*, COUNT(t.id) AS task_count
                    FROM conversations c LEFT JOIN tasks t ON t.conversation_id=c.id
@@ -392,7 +429,7 @@ class SQLiteStateStore:
         return [self._conversation_from_row(row, task_count=row["task_count"]) for row in rows]
 
     def get_conversation(self, conversation_id: str) -> dict[str, Any]:
-        with closing(self._connect()) as connection:
+        with self._read() as connection:
             conversation = connection.execute(
                 "SELECT * FROM conversations WHERE id=? AND archived=0", (conversation_id,)
             ).fetchone()
@@ -408,13 +445,12 @@ class SQLiteStateStore:
         }
 
     def delete_conversation(self, conversation_id: str) -> bool:
-        with self._lock, closing(self._connect()) as connection:
+        with self._write() as connection:
             cursor = connection.execute("DELETE FROM conversations WHERE id=?", (conversation_id,))
-            connection.commit()
             return cursor.rowcount > 0
 
     def table_names(self) -> list[str]:
-        with closing(self._connect()) as connection:
+        with self._read() as connection:
             rows = connection.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
             ).fetchall()
@@ -443,4 +479,5 @@ class SQLitePersistence:
             self.checkpointer.delete_thread(thread_id)
 
     def close(self) -> None:
+        self.state.close()
         self._checkpoint_connection.close()
