@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="740" viewBox="0 0 1200 740" role="img" aria-label="新版 DeepEye Data Copilot 运行中界面示意图">
+  <title>运行中 · Agent 编排与实时用量（新版界面示意图）</title>
+  <desc>按新版 chat.html / chat.js 结构绘制：三页签、业务数据源、Agent 分析过程时间轴、SSE 实时用量与只读执行提示。非运行截图。</desc>
+  <defs>
+    <style>
+      .t { font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif; fill: #1a2436; }
+      .h { font-weight: 700; }
+      .deep { fill: #142c5e; }
+      .m { fill: #64748f; }
+      .faint { fill: #8e9ab0; }
+      .mono { font-family: Consolas, 'Cascadia Mono', monospace; }
+      .line { stroke: #e3e8f0; stroke-width: 1; fill: none; }
+      /* presentation-attribute 颜色需要高于 .t 的优先级，否则深色底上的白字会被覆盖 */
+      .t[fill="#ffffff"] { fill: #ffffff; }
+      .t[fill="#1d4ed8"] { fill: #1d4ed8; }
+      .t[fill="#086579"] { fill: #086579; }
+      .t[fill="#0f7a4f"] { fill: #0f7a4f; }
+      .t[fill="#9a6a00"] { fill: #9a6a00; }
+      .t[fill="#0d6b54"] { fill: #0d6b54; }
+      .t[fill="#7b3f92"] { fill: #7b3f92; }
+      .t[fill="#155e75"] { fill: #155e75; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="740" fill="#f4f6fa"/>
+
+  <!-- 顶部导航 -->
+  <rect x="0" y="0" width="1200" height="54" fill="#ffffff"/>
+  <line class="line" x1="0" y1="54" x2="1200" y2="54"/>
+  <rect x="16" y="11" width="32" height="32" rx="8" fill="#142c5e"/>
+  <text class="t h" x="32" y="34" font-size="17" fill="#ffffff" text-anchor="middle">D</text>
+  <text class="t h" x="56" y="26" font-size="14">DeepEye Data Copilot</text>
+  <text class="t m" x="56" y="42" font-size="10.5">企业知识增强数据分析平台</text>
+  <rect x="470" y="10" width="260" height="34" rx="9" fill="#eef1f6"/>
+  <rect x="476" y="14" width="84" height="26" rx="6" fill="#142c5e"/>
+  <text class="t" x="518" y="31" font-size="11.5" fill="#ffffff" text-anchor="middle">智能分析</text>
+  <text class="t m" x="606" y="31" font-size="11.5" text-anchor="middle">企业知识库</text>
+  <text class="t m" x="688" y="31" font-size="11.5" text-anchor="middle">离线评测</text>
+  <rect x="1050" y="14" width="134" height="26" rx="13" fill="#dcf5f7"/>
+  <circle cx="1064" cy="27" r="3.5" fill="#0e9aa7"/>
+  <text class="t" x="1074" y="31" font-size="11" fill="#086579">模型思考中</text>
+
+  <!-- 左侧栏 -->
+  <rect x="0" y="54" width="228" height="686" fill="#ffffff"/>
+  <line class="line" x1="228" y1="54" x2="228" y2="740"/>
+  <rect x="14" y="68" width="200" height="32" rx="7" fill="#1d4ed8"/>
+  <text class="t h" x="114" y="89" font-size="12.5" fill="#ffffff" text-anchor="middle">＋ 新建分析</text>
+  <text class="t h" x="14" y="124" font-size="12">历史会话</text>
+  <text class="t" x="196" y="124" font-size="10.5" fill="#1d4ed8" text-anchor="end">刷新</text>
+  <rect x="14" y="134" width="200" height="28" rx="6" fill="#f8fafc" stroke="#e3e8f0"/>
+  <text class="t faint" x="24" y="152" font-size="10.5">搜索历史会话标题…</text>
+  <rect x="14" y="170" width="200" height="40" rx="6" fill="#f8fafc"/>
+  <text class="t" x="24" y="186" font-size="10.5">请分析数据库中最近一个完整自然年的…</text>
+  <text class="t faint" x="24" y="202" font-size="9.5">4 轮 · 2026/11/13 18:05</text>
+  <rect x="14" y="216" width="200" height="40" rx="6" fill="#f8fafc"/>
+  <text class="t" x="24" y="232" font-size="10.5">统计 2026 年有效订单的销售额、订单量…</text>
+  <text class="t faint" x="24" y="248" font-size="9.5">4 轮 · 2026/11/12 19:12</text>
+  <rect x="14" y="262" width="200" height="40" rx="6" fill="#f8fafc"/>
+  <text class="t" x="24" y="278" font-size="10.5">当前各部门在职人数是多少？</text>
+  <text class="t faint" x="24" y="294" font-size="9.5">1 轮 · 2026/11/12 18:24</text>
+  <line class="line" x1="14" y1="316" x2="214" y2="316"/>
+
+  <text class="t h" x="14" y="340" font-size="12">业务数据源</text>
+  <rect x="14" y="350" width="200" height="30" rx="6" fill="#f8fafc" stroke="#d3dcea"/>
+  <text class="t" x="26" y="369" font-size="11">自动识别业务域（推荐）</text>
+  <rect x="14" y="388" width="60" height="20" rx="5" fill="#e4f5ef"/>
+  <text class="t" x="44" y="402" font-size="9.5" fill="#0d6b54" text-anchor="middle">销售域 · 7 表</text>
+  <rect x="80" y="388" width="52" height="20" rx="5" fill="#f4eafa"/>
+  <text class="t" x="106" y="402" font-size="9.5" fill="#7b3f92" text-anchor="middle">HR 域 · 4 表</text>
+  <rect x="138" y="388" width="76" height="20" rx="5" fill="#e8f6fa"/>
+  <text class="t" x="176" y="402" font-size="9.5" fill="#155e75" text-anchor="middle">AW · 71 表</text>
+  <rect x="14" y="416" width="200" height="42" rx="6" fill="#fdf3df" stroke="#f0dca6"/>
+  <text class="t" x="24" y="433" font-size="9.5" fill="#9a6a00">AdventureWorks · 71 表 486 列（示例库）</text>
+  <text class="t" x="24" y="449" font-size="9.5" fill="#9a6a00">制度条款为 SIMULATED / UNREVIEWED</text>
+
+  <text class="t h" x="14" y="484" font-size="12">推荐问题</text>
+  <text class="t faint" x="214" y="484" font-size="9.5" text-anchor="end">随数据源切换</text>
+  <rect x="14" y="494" width="200" height="40" rx="6" fill="#f8fafc" stroke="#e3e8f0"/>
+  <text class="t" x="24" y="510" font-size="10">统计 2026 年有效订单的销售额、</text>
+  <text class="t" x="24" y="525" font-size="10">订单量和平均客单价。</text>
+  <rect x="14" y="540" width="200" height="40" rx="6" fill="#f8fafc" stroke="#e3e8f0"/>
+  <text class="t" x="24" y="556" font-size="10">按月统计 2026 年销售额前 10 的</text>
+  <text class="t" x="24" y="571" font-size="10">商品，返回名称、销量和销售额。</text>
+  <text class="t" x="14" y="602" font-size="11.5">▸ 高级设置</text>
+  <rect x="14" y="684" width="58" height="22" rx="6" fill="#eef1f6"/>
+  <text class="t m" x="43" y="699" font-size="9.5" text-anchor="middle">只读 SQL</text>
+  <rect x="78" y="684" width="64" height="22" rx="6" fill="#eef1f6"/>
+  <text class="t m" x="110" y="699" font-size="9.5" text-anchor="middle">SSE 进度</text>
+  <rect x="148" y="684" width="66" height="22" rx="6" fill="#eef1f6"/>
+  <text class="t m" x="181" y="699" font-size="9.5" text-anchor="middle">沙箱执行</text>
+
+  <!-- 主区顶栏 -->
+  <rect x="228" y="54" width="972" height="54" fill="#ffffff"/>
+  <line class="line" x1="228" y1="108" x2="1200" y2="108"/>
+  <text class="t m" x="246" y="87" font-size="16">☰</text>
+  <text class="t h" x="278" y="80" font-size="14">跨业务域数据分析</text>
+  <text class="t m" x="278" y="98" font-size="10.5">Agent 将自动识别业务域，再检索对应指标与 Schema</text>
+  <circle cx="1064" cy="81" r="3.5" fill="#0f7a4f"/>
+  <text class="t" x="1074" y="85" font-size="10.5" fill="#0f7a4f">Agent 在线</text>
+
+  <!-- 用户问题 -->
+  <rect x="770" y="132" width="400" height="44" rx="12" fill="#1d4ed8"/>
+  <text class="t" x="788" y="160" font-size="12.5" fill="#ffffff">统计 2026 年有效订单的销售额、订单量和平均客单价。</text>
+
+  <!-- 助手运行中卡片 -->
+  <circle cx="254" cy="194" r="14" fill="#142c5e"/>
+  <text class="t h" x="254" y="199" font-size="12" fill="#ffffff" text-anchor="middle">D</text>
+  <rect x="272" y="186" width="880" height="420" rx="12" fill="#ffffff" stroke="#e3e8f0"/>
+  <circle cx="296" cy="213" r="7" fill="none" stroke="#c4d3f5" stroke-width="2"/>
+  <path d="M296,206 A7,7 0 0 1 303,213" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"/>
+  <text class="t h" x="312" y="218" font-size="13">模型思考中</text>
+  <text class="t m" x="1132" y="218" font-size="11" text-anchor="end">48s</text>
+  <text class="t m" x="292" y="242" font-size="11.5">已调用 12 次 · 32,516 tokens · 48s　｜　SSE 实时进度已连接</text>
+
+  <rect x="292" y="254" width="848" height="32" rx="7" fill="#f8fafc" stroke="#e3e8f0"/>
+  <text class="t m" x="306" y="275" font-size="10.5">实时用量</text>
+  <text class="t h" x="400" y="275" font-size="11">模型调用 12</text>
+  <text class="t h" x="560" y="275" font-size="11">累计 Tokens 32,516</text>
+  <text class="t h" x="780" y="275" font-size="11">已耗时 48s</text>
+  <text class="t faint" x="1124" y="275" font-size="10" text-anchor="end">单次请求预算 120k / 600s</text>
+
+  <rect x="292" y="298" width="848" height="270" rx="8" fill="#f8fafc" stroke="#e3e8f0"/>
+  <text class="t h" x="308" y="320" font-size="12">▾ Agent 分析过程</text>
+  <text class="t m" x="1124" y="320" font-size="11" text-anchor="end">7/8 阶段</text>
+  <line class="line" x1="308" y1="330" x2="1124" y2="330"/>
+
+  <circle cx="316" cy="346" r="5" fill="#0f7a4f"/>
+  <text class="t" x="330" y="350" font-size="11.5">任务排队</text>
+  <text class="t m" x="1124" y="350" font-size="10.5" text-anchor="end">0.1 秒</text>
+  <circle cx="316" cy="371" r="5" fill="#0f7a4f"/>
+  <text class="t" x="330" y="375" font-size="11.5">规划与编排</text>
+  <text class="t m" x="1124" y="375" font-size="10.5" text-anchor="end">完成</text>
+  <circle cx="316" cy="396" r="5" fill="#0f7a4f"/>
+  <text class="t" x="330" y="400" font-size="11.5">LLM 规划</text>
+  <text class="t m" x="1124" y="400" font-size="10.5" text-anchor="end">完成</text>
+  <circle cx="316" cy="421" r="5" fill="#0f7a4f"/>
+  <text class="t" x="330" y="425" font-size="11.5">知识检索 / GraphRAG</text>
+  <text class="t m" x="1124" y="425" font-size="10.5" text-anchor="end">0.6 秒 · hybrid + subgraph · 1,204 tokens</text>
+  <circle cx="316" cy="446" r="5" fill="#0f7a4f"/>
+  <text class="t" x="330" y="450" font-size="11.5">请求准备</text>
+  <text class="t m" x="1124" y="450" font-size="10.5" text-anchor="end">完成</text>
+  <circle cx="316" cy="471" r="5" fill="#0f7a4f"/>
+  <text class="t" x="330" y="475" font-size="11.5">Value Retrieval</text>
+  <text class="t m" x="1124" y="475" font-size="10.5" text-anchor="end">8.2 秒</text>
+  <circle cx="316" cy="496" r="5" fill="#0f7a4f"/>
+  <text class="t" x="330" y="500" font-size="11.5">Few-shot 准备</text>
+  <text class="t m" x="1124" y="500" font-size="10.5" text-anchor="end">完成</text>
+  <circle cx="316" cy="521" r="5" fill="#1d4ed8"/>
+  <text class="t h" x="330" y="525" font-size="11.5" fill="#1d4ed8">Schema Linking</text>
+  <text class="t" x="1124" y="525" font-size="10.5" fill="#1d4ed8" text-anchor="end">进行中…</text>
+  <line class="line" x1="308" y1="538" x2="1124" y2="538"/>
+  <text class="t mono faint" x="308" y="556" font-size="10">工具轨迹：select_data_source → search_business_metrics → inspect_database_schema → inspect_join_path → run_text_to_sql</text>
+
+  <text class="t faint" x="292" y="592" font-size="10">阶段事件来自 /api/query/{id}/events；仅渲染真实发生过的阶段，未发生的阶段不预填。</text>
+
+  <!-- 输入区 -->
+  <rect x="248" y="626" width="932" height="64" rx="10" fill="#ffffff" stroke="#d3dcea"/>
+  <text class="t faint" x="266" y="660" font-size="12">可提问销售或 HR 数据，例如：各部门在职人数是多少？</text>
+  <rect x="1138" y="642" width="32" height="32" rx="8" fill="#1d4ed8"/>
+  <text class="t h" x="1154" y="665" font-size="18" fill="#ffffff" text-anchor="middle">↑</text>
+  <text class="t faint" x="252" y="710" font-size="10">当前数据源：自动识别业务域　　Enter 发送 · Shift+Enter 换行 · 结果仅用于分析参考</text>
+  <text class="t faint" x="1176" y="732" font-size="9.5" text-anchor="end">界面示意图 · 依据新版 chat.html / chat.js 绘制，非运行截图 · 2026-11-18</text>
+</svg>

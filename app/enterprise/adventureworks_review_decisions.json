@@ -1,0 +1,5 @@
+{
+  "database_id": "adventureworks",
+  "decisions": [],
+  "notice": "人工审核决定文件。默认空；不得由脚本自动写入 approved 记录。"
+}

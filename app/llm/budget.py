@@ -36,6 +36,11 @@ class TruncatedResponseError(BudgetExceededError):
 class BudgetMeter:
     max_total_tokens: Optional[int] = None
     max_seconds: Optional[int] = None
+    # Hard cap on *successful* LLM round trips for this request. Checked at the
+    # same point as tokens/time (before every real HTTP call), so parallel
+    # workers and tenacity retries cannot bypass it. Failed attempts are not
+    # counted (they produced no usage payload) but still re-enter check().
+    max_calls: Optional[int] = None
     started_at: float = field(default_factory=time.monotonic)
     prompt_tokens: int = 0
     completion_tokens: int = 0
@@ -60,6 +65,7 @@ class BudgetMeter:
                 "elapsed_seconds": round(self.elapsed_seconds, 1),
                 "budget_tokens": self.max_total_tokens,
                 "budget_seconds": self.max_seconds,
+                "budget_calls": self.max_calls,
             }
 
     def add_call(self, prompt_tokens: int, completion_tokens: int) -> None:
@@ -82,14 +88,20 @@ class BudgetMeter:
             raise BudgetExceededError(
                 f"LLM time budget exceeded ({elapsed:.0f}s/{self.max_seconds}s) after {calls} calls"
             )
+        if self.max_calls and calls >= self.max_calls:
+            raise BudgetExceededError(
+                f"LLM call budget exceeded ({calls}/{self.max_calls} completed calls)"
+            )
 
 
 _meter: ContextVar[Optional[BudgetMeter]] = ContextVar("llm_budget_meter", default=None)
 _hook: ContextVar[Optional[Callable[[dict], None]]] = ContextVar("llm_budget_hook", default=None)
 
 
-def start_meter(max_total_tokens: Optional[int], max_seconds: Optional[int]) -> Token:
-    return _meter.set(BudgetMeter(max_total_tokens=max_total_tokens, max_seconds=max_seconds))
+def start_meter(max_total_tokens: Optional[int], max_seconds: Optional[int],
+                max_calls: Optional[int] = None) -> Token:
+    return _meter.set(BudgetMeter(max_total_tokens=max_total_tokens, max_seconds=max_seconds,
+                                  max_calls=max_calls))
 
 
 def get_meter() -> Optional[BudgetMeter]:

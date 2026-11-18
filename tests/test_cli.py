@@ -18,8 +18,9 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(names, set(cli.COMMANDS))
         self.assertEqual(
             names,
-            {"serve", "check", "ask", "mcp", "evaluate", "evaluate-rag",
-             "generate-data", "build-index"},
+             {"serve", "check", "ask", "mcp", "evaluate", "evaluate-rag",
+             "generate-data", "build-index", "build-knowledge", "evaluate-graphrag",
+             "evaluate-join-paths", "phase4b-smoke", "final-eval"},
         )
 
     def test_subcommands_accept_their_own_flags(self):

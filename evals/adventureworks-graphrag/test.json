@@ -1,0 +1,337 @@
+{
+  "dataset": "adventureworks-graphrag",
+  "split": "test",
+  "version": "1",
+  "source_notice": "数据来自微软公开示例库 AdventureWorks OLTP（MIT），不是真实生产企业数据；业务制度均为 docs/simulated-policies/ 下的 SIMULATED/UNREVIEWED 模拟条款，非微软官方规则。",
+  "generation": "reference_sql 与结果均由 app.skills.sql_skill.execute_readonly_table 在真实 SQLite 上执行取得",
+  "isolation": "独立测试集：题目/标准 SQL 不得用于 Prompt 调优，不得进入 Few-shot 或 SQL 经验知识库；不得用测试集反复调参",
+  "case_count": 6,
+  "cases": [
+    {
+      "id": "AW-TEST-001",
+      "question": "统计销售额最高的五个商品子类别。",
+      "category": "intermediate_table",
+      "difficulty": "medium",
+      "required_tables": [
+        "Sales.SalesOrderDetail",
+        "Production.Product",
+        "Production.ProductSubcategory"
+      ],
+      "required_intermediate_tables": [
+        "Production.ProductSubcategory"
+      ],
+      "acceptable_join_paths": [],
+      "policy_evidence": [],
+      "key_conclusion": "Road Bikes 43,909,437.51 居首",
+      "validation_rules": [
+        "必须经 Product 到 ProductSubcategory",
+        "金额需 CAST"
+      ],
+      "counter": null,
+      "counter_example": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT s.\"Name\" AS subcategory, ROUND(SUM(CAST(d.\"LineTotal\" AS REAL)),2) AS sales FROM \"Sales.SalesOrderDetail\" d JOIN \"Production.Product\" p ON d.\"ProductID\"=p.\"ProductID\" JOIN \"Production.ProductSubcategory\" s ON p.\"ProductSubcategoryID\"=s.\"ProductSubcategoryID\" GROUP BY s.\"Name\" ORDER BY sales DESC LIMIT 5",
+      "reference_result": {
+        "columns": [
+          "subcategory",
+          "sales"
+        ],
+        "rows": [
+          [
+            "Road Bikes",
+            43909437.51
+          ],
+          [
+            "Mountain Bikes",
+            36445443.94
+          ],
+          [
+            "Touring Bikes",
+            14296291.26
+          ],
+          [
+            "Mountain Frames",
+            4713930.23
+          ],
+          [
+            "Road Frames",
+            3851350.6
+          ]
+        ]
+      },
+      "split": "test",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-TEST-002",
+      "question": "按区域统计销售人员数量与 YTD 快照合计，返回 YTD 最高的五个区域。",
+      "category": "multi_join_path",
+      "difficulty": "hard",
+      "required_tables": [
+        "Sales.SalesPerson",
+        "Sales.SalesTerritory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "SalesPerson.TerritoryID -> SalesTerritory.TerritoryID"
+      ],
+      "policy_evidence": [
+        "POL-PERF-001#2.1"
+      ],
+      "key_conclusion": "Southwest 2 人、YTD 6,709,904.17 居首",
+      "validation_rules": [
+        "使用 SalesPerson.TerritoryID",
+        "YTD 为快照值"
+      ],
+      "counter": null,
+      "counter_example": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT t.\"Name\" AS territory, COUNT(*) AS salespersons, ROUND(SUM(CAST(sp.\"SalesYTD\" AS REAL)),2) AS ytd FROM \"Sales.SalesPerson\" sp JOIN \"Sales.SalesTerritory\" t ON sp.\"TerritoryID\"=t.\"TerritoryID\" GROUP BY t.\"Name\" ORDER BY ytd DESC LIMIT 5",
+      "reference_result": {
+        "columns": [
+          "territory",
+          "salespersons",
+          "ytd"
+        ],
+        "rows": [
+          [
+            "Southwest",
+            2,
+            6709904.17
+          ],
+          [
+            "Northwest",
+            3,
+            4502152.27
+          ],
+          [
+            "United Kingdom",
+            1,
+            4116871.23
+          ],
+          [
+            "Canada",
+            2,
+            4058260.18
+          ],
+          [
+            "Northeast",
+            1,
+            3763178.18
+          ]
+        ]
+      },
+      "split": "test",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-TEST-003",
+      "question": "按年份统计成本历史区间数量与平均标准成本。",
+      "category": "historical_cost",
+      "difficulty": "medium",
+      "required_tables": [
+        "Production.ProductCostHistory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-COST-002#3.1"
+      ],
+      "key_conclusion": "2022/2023/2024 分别 72/128/195 个区间",
+      "validation_rules": [
+        "日期为 TEXT，用 substr 取年份",
+        "按区间记录计数"
+      ],
+      "counter": null,
+      "counter_example": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT substr(\"StartDate\",1,4) AS yr, COUNT(*) AS intervals, ROUND(AVG(CAST(\"StandardCost\" AS REAL)),4) AS avg_cost FROM \"Production.ProductCostHistory\" GROUP BY substr(\"StartDate\",1,4) ORDER BY yr",
+      "reference_result": {
+        "columns": [
+          "yr",
+          "intervals",
+          "avg_cost"
+        ],
+        "rows": [
+          [
+            "2022",
+            72,
+            692.157
+          ],
+          [
+            "2023",
+            128,
+            363.3177
+          ],
+          [
+            "2024",
+            195,
+            385.6155
+          ]
+        ]
+      },
+      "split": "test",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-TEST-004",
+      "question": "演示采购订单头金额与采购明细直接 JOIN 后的放大值。",
+      "category": "grain_conflict",
+      "difficulty": "hard",
+      "required_tables": [
+        "Purchasing.PurchaseOrderHeader",
+        "Purchasing.PurchaseOrderDetail"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-PUR-001#4.1"
+      ],
+      "key_conclusion": "错误 JOIN 得到 180,741,104.49，正确采购应付总额 70,479,332.64",
+      "validation_rules": [
+        "采购头与明细为一对多",
+        "正确值以 q11_purchase 为基准"
+      ],
+      "counter": "q11_purchase",
+      "counter_example": {
+        "reference_sql": "SELECT COUNT(DISTINCT \"PurchaseOrderID\") AS orders, ROUND(SUM(CAST(\"TotalDue\" AS REAL)),2) AS total FROM \"Purchasing.PurchaseOrderHeader\"",
+        "reference_result": {
+          "columns": [
+            "orders",
+            "total"
+          ],
+          "rows": [
+            [
+              4012,
+              70479332.64
+            ]
+          ]
+        }
+      },
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT ROUND(SUM(CAST(h.\"TotalDue\" AS REAL)),2) AS inflated FROM \"Purchasing.PurchaseOrderHeader\" h JOIN \"Purchasing.PurchaseOrderDetail\" d ON h.\"PurchaseOrderID\"=d.\"PurchaseOrderID\"",
+      "reference_result": {
+        "columns": [
+          "inflated"
+        ],
+        "rows": [
+          [
+            180741104.49
+          ]
+        ]
+      },
+      "split": "test",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-TEST-005",
+      "question": "演示复合外键只用 ProductID 单列关联时的行膨胀。",
+      "category": "grain_conflict",
+      "difficulty": "hard",
+      "required_tables": [
+        "Sales.SalesOrderDetail",
+        "Sales.SpecialOfferProduct"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-SALES-002#2.2"
+      ],
+      "key_conclusion": "单列 JOIN 得到 296,983 行，双列复合外键正确值 121,317 行",
+      "validation_rules": [
+        "必须同时匹配 SpecialOfferID 与 ProductID",
+        "正确值以 q13_composite_fk 为基准"
+      ],
+      "counter": "q13_composite_fk",
+      "counter_example": {
+        "reference_sql": "SELECT COUNT(*) AS n FROM \"Sales.SalesOrderDetail\" d JOIN \"Sales.SpecialOfferProduct\" s ON d.\"SpecialOfferID\"=s.\"SpecialOfferID\" AND d.\"ProductID\"=s.\"ProductID\"",
+        "reference_result": {
+          "columns": [
+            "n"
+          ],
+          "rows": [
+            [
+              121317
+            ]
+          ]
+        }
+      },
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT COUNT(*) AS n FROM \"Sales.SalesOrderDetail\" d JOIN \"Sales.SpecialOfferProduct\" s ON d.\"ProductID\"=s.\"ProductID\"",
+      "reference_result": {
+        "columns": [
+          "n"
+        ],
+        "rows": [
+          [
+            296983
+          ]
+        ]
+      },
+      "split": "test",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-TEST-006",
+      "question": "按订单归属区域统计订单数与平均订单金额，返回订单数最多的五个区域。",
+      "category": "multi_join_path",
+      "difficulty": "medium",
+      "required_tables": [
+        "Sales.SalesOrderHeader",
+        "Sales.SalesTerritory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "SalesOrderHeader.TerritoryID -> SalesTerritory.TerritoryID"
+      ],
+      "policy_evidence": [
+        "POL-REGION-001#4.2"
+      ],
+      "key_conclusion": "Australia 6,843 单、平均订单额 1,557.11 居首",
+      "validation_rules": [
+        "使用订单头 TerritoryID",
+        "分母用订单数去重，NULLIF 防零"
+      ],
+      "counter": null,
+      "counter_example": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT t.\"Name\" AS territory, COUNT(DISTINCT o.\"SalesOrderID\") AS orders, ROUND(SUM(CAST(o.\"SubTotal\" AS REAL))/NULLIF(COUNT(DISTINCT o.\"SalesOrderID\"),0),2) AS avg_order FROM \"Sales.SalesOrderHeader\" o JOIN \"Sales.SalesTerritory\" t ON o.\"TerritoryID\"=t.\"TerritoryID\" GROUP BY t.\"Name\" ORDER BY orders DESC LIMIT 5",
+      "reference_result": {
+        "columns": [
+          "territory",
+          "orders",
+          "avg_order"
+        ],
+        "rows": [
+          [
+            "Australia",
+            6843,
+            1557.11
+          ],
+          [
+            "Southwest",
+            6224,
+            3885.7
+          ],
+          [
+            "Northwest",
+            4594,
+            3501.29
+          ],
+          [
+            "Canada",
+            4067,
+            4021.58
+          ],
+          [
+            "United Kingdom",
+            3219,
+            2382.95
+          ]
+        ]
+      },
+      "split": "test",
+      "reference_sql_verified": true
+    }
+  ]
+}

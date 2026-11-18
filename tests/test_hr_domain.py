@@ -1,5 +1,6 @@
 from pathlib import Path
 from contextlib import closing
+import json
 import sqlite3
 import tempfile
 import unittest
@@ -64,8 +65,11 @@ class HRRoutingTest(unittest.TestCase):
         state = {"turn_id": "t1", "question": "员工人数", "database_id": "enterprise_sales",
                  "requested_database_id": "enterprise_sales", "request": {"database_id": "enterprise_sales"}}
         outcome = registry.execute("select_data_source", {"database_id": "enterprise_hr"}, state)
-        self.assertEqual(outcome.status, "failed")
-        self.assertIn("手动指定", outcome.error)
+        # 语义不变：手动指定的数据源绝不会被切走；只是不再记成一次失败调用
+        # （失败会白耗一轮工具预算，模型也会误判数据源不可用）。
+        self.assertEqual(outcome.status, "completed")
+        self.assertNotIn("database_id", outcome.updates)
+        self.assertIn("手动指定", json.loads(outcome.content)["note"])
 
     def test_auto_selected_hr_uses_the_existing_agent_tool_chain(self):
         with tempfile.TemporaryDirectory() as tmp:

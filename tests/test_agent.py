@@ -8,6 +8,8 @@ import unittest
 from langchain_core.messages import AIMessage
 
 from app.agent import ChatRequest, DataAnalysisAgent
+from app.agent.graph import MAX_TOOL_ROUNDS
+from app.agent.tools.registry import ToolRegistry
 from app.agent.visualization import build_visualization
 
 
@@ -307,16 +309,32 @@ class AgentTest(unittest.TestCase):
 
     def test_tool_round_limit_closes_pending_calls(self):
         with tempfile.TemporaryDirectory() as tmp:
+            # 每轮参数必须不同：完全相同的调用会被通用去重层拦下（第 3 次
+            # 判定 loop_detected），根本走不到轮数上限。这里要测的是轮数闸门。
             responses = [AIMessage(content="", tool_calls=[{
-                "id": str(index), "name": "get_capabilities", "args": {}}]) for index in range(7)]
+                "id": str(index), "name": "search_business_metrics",
+                "args": {"query": f"指标{index}"}}])
+                for index in range(MAX_TOOL_ROUNDS + 1)]
             agent = DataAnalysisAgent(FakeSQLSkill(), workspace=Path(tmp),
                                       databases={"enterprise_sales": self._database(Path(tmp) / "demo.sqlite")},
                                       chat_model=ScriptedChatModel(responses))
             result = agent.run({"question": "反复调用工具", "database_id": "enterprise_sales"})
             self.assertEqual(result.status, "error")
             self.assertIn("工具调用上限", result.error)
-            self.assertEqual(len(result.tool_trace), 6)
+            self.assertEqual(len(result.tool_trace), MAX_TOOL_ROUNDS)
             self.assertIn("安全停止", result.answer)
+
+    def test_visualization_followup_rejects_long_analysis_questions(self):
+        # 长分析题同时含图表词（表格）与追问词（结果）时不得误判为改图追问，
+        # 否则 run_text_to_sql 会走复用快速路径，Agent 在旧结果上乒乓循环。
+        long_question = (
+            "请分析数据库中最近一个完整自然年的销售经营情况，按照地区和商品大类统计"
+            "销售额、订单数量、毛利额及毛利率，并与上一年度同比比较，"
+            "最后以表格和图表展示分析结果，提供执行的 SQL。")
+        self.assertGreater(len(long_question), 40)
+        self.assertFalse(ToolRegistry.is_visualization_followup(long_question))
+        self.assertTrue(ToolRegistry.is_visualization_followup("做成柱状图"))
+        self.assertTrue(ToolRegistry.is_visualization_followup("把上面的表格换成饼图"))
 
 
 if __name__ == "__main__":

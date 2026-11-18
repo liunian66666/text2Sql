@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="DeepEye Data Copilot 新版运行时链路图">
+  <title>DeepEye Data Copilot 新版运行时链路</title>
+  <desc>浏览器到 FastAPI/SSE、6 节点 LangGraph、8 个工具、知识层与七阶段 SQLSkill、只读 SQLite 的完整运行时链路。</desc>
+  <defs>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8e9ab0"/></marker>
+    <marker id="a2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b6c1d2"/></marker>
+    <style>
+      .t { font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif; fill: #1a2436; }
+      .h { font-weight: 700; fill: #142c5e; }
+      .m { fill: #64748f; }
+      .faint { fill: #8e9ab0; }
+      .mono { font-family: Consolas, 'Cascadia Mono', monospace; }
+      .card { fill: #ffffff; stroke: #e3e8f0; stroke-width: 1; }
+      .node { fill: #eef3ff; stroke: #c4d3f5; stroke-width: 1; }
+      .cond { fill: #e3f6f8; stroke: #a9dbe2; stroke-width: 1; }
+      .limit { fill: #fdf3df; stroke: #f0dca6; stroke-width: 1; }
+      .tool { fill: #f8fafc; stroke: #e3e8f0; stroke-width: 1; }
+      .chip { fill: #eef3ff; stroke: #c4d3f5; stroke-width: 1; }
+      .arr { stroke: #8e9ab0; stroke-width: 1.6; fill: none; marker-end: url(#a); }
+      .dash { stroke: #b6c1d2; stroke-width: 1.4; stroke-dasharray: 4 4; fill: none; marker-end: url(#a2); }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="900" fill="#f4f6fa"/>
+  <text class="t h" x="24" y="42" font-size="24">新版运行时链路 · DeepEye Data Copilot</text>
+  <text class="t m" x="24" y="66" font-size="13">浏览器 → FastAPI / SSE → 6 节点 LangGraph → 8 工具 → 知识层 + 七阶段 SQLSkill → 只读 SQLite</text>
+  <line x1="24" y1="76" x2="1176" y2="76" stroke="#d3dcea" stroke-width="1"/>
+
+  <!-- ① 浏览器 -->
+  <rect class="card" x="24" y="84" width="270" height="216" rx="10"/>
+  <text class="t h" x="40" y="110" font-size="14.5">① 浏览器 · 原生单页</text>
+  <text class="t" x="40" y="136" font-size="12.5">智能分析 / 企业知识库 / 离线评测</text>
+  <text class="t mono" x="40" y="158" font-size="12">POST /api/chat → 202 request_id</text>
+  <text class="t mono" x="40" y="180" font-size="12">GET /api/query/{id}/events · SSE</text>
+  <text class="t" x="40" y="202" font-size="12.5">模型思考中 + Agent 分析过程时间轴</text>
+  <text class="t" x="40" y="224" font-size="12.5">sessionStorage 白名单 · 断线重连</text>
+  <text class="t" x="40" y="246" font-size="12.5">实时用量：调用次数 · tokens · 秒</text>
+  <rect class="chip" x="40" y="260" width="104" height="24" rx="6"/>
+  <text class="t" x="52" y="276" font-size="11.5">刷新不丢任务</text>
+  <rect class="chip" x="152" y="260" width="104" height="24" rx="6"/>
+  <text class="t" x="164" y="276" font-size="11.5">新标签页接管</text>
+
+  <!-- ② FastAPI -->
+  <rect class="card" x="318" y="84" width="300" height="216" rx="10"/>
+  <text class="t h" x="334" y="110" font-size="14.5">② FastAPI 服务层</text>
+  <text class="t" x="334" y="136" font-size="12.5">TaskManager 串行队列（单进程）</text>
+  <text class="t" x="334" y="158" font-size="12.5">SSE 事件按序落库，可断线回放</text>
+  <text class="t mono" x="334" y="180" font-size="12">workspace/state/agent_state.sqlite</text>
+  <text class="t" x="334" y="202" font-size="12.5">Checkpoint / 任务 / 事件持久化</text>
+  <text class="t mono" x="334" y="224" font-size="11.5">/api/knowledge/* · /api/evaluations</text>
+  <text class="t" x="334" y="246" font-size="12.5">on_stage 进度回调 · preflight 自检</text>
+  <rect class="chip" x="334" y="260" width="92" height="24" rx="6"/>
+  <text class="t" x="346" y="276" font-size="11">凭据不回显</text>
+  <rect class="chip" x="434" y="260" width="168" height="24" rx="6"/>
+  <text class="t" x="446" y="276" font-size="11">重启 → interrupted</text>
+
+  <!-- ③ LangGraph -->
+  <rect class="card" x="642" y="84" width="534" height="216" rx="10"/>
+  <text class="t h" x="658" y="110" font-size="14.5">③ LangGraph 运行时 · 6 节点 ReAct</text>
+  <rect class="node" x="658" y="126" width="54" height="30" rx="6"/>
+  <text class="t" x="685" y="146" font-size="11.5" text-anchor="middle">START</text>
+  <rect class="node" x="722" y="126" width="88" height="30" rx="6"/>
+  <text class="t h" x="766" y="146" font-size="11.5" text-anchor="middle">assistant</text>
+  <rect class="node" x="820" y="126" width="64" height="30" rx="6"/>
+  <text class="t" x="852" y="146" font-size="11.5" text-anchor="middle">tools</text>
+  <rect class="node" x="894" y="126" width="132" height="30" rx="6"/>
+  <text class="t" x="960" y="146" font-size="11" text-anchor="middle">increment_tool_round</text>
+  <text class="t m" x="1040" y="146" font-size="11.5">→ 最终回答 / END</text>
+  <line class="arr" x1="712" y1="141" x2="720" y2="141"/>
+  <line class="arr" x1="810" y1="141" x2="818" y2="141"/>
+  <line class="arr" x1="884" y1="141" x2="892" y2="141"/>
+  <line class="arr" x1="1026" y1="141" x2="1034" y2="141"/>
+  <path class="dash" d="M960,156 L960,168 L766,168 L766,158"/>
+  <text class="t faint" x="838" y="164" font-size="10.5">round &lt; 8 循环</text>
+  <text class="t m" x="658" y="186" font-size="11.5">工具轮后按条件路由：</text>
+  <rect class="cond" x="658" y="194" width="160" height="30" rx="6"/>
+  <text class="t" x="738" y="214" font-size="11.5" text-anchor="middle">planner · 复杂问题首轮</text>
+  <rect class="cond" x="830" y="194" width="160" height="30" rx="6"/>
+  <text class="t" x="910" y="214" font-size="11.5" text-anchor="middle">reflection · 循环证据</text>
+  <rect class="limit" x="1002" y="194" width="160" height="30" rx="6"/>
+  <text class="t" x="1082" y="214" font-size="11.5" text-anchor="middle">tool_limit · 8 轮收尾</text>
+  <text class="t" x="658" y="244" font-size="11.5">护栏：MeteredChatModel 预算闸 300k tokens / 24 次 / 900s</text>
+  <text class="t" x="658" y="264" font-size="11.5">指纹去重：第 2 次同参复用缓存，第 3 次判定 loop_detected</text>
+  <text class="t m" x="658" y="286" font-size="11">termination_reason：tool_limit / capability_gap / probe_limit / sql_budget_limit / llm_budget_exhausted</text>
+
+  <line class="arr" x1="294" y1="192" x2="316" y2="192"/>
+  <line class="arr" x1="618" y1="192" x2="640" y2="192"/>
+
+  <!-- ④ 工具层 -->
+  <text class="t h" x="24" y="332" font-size="14.5">④ 工具层 · ToolNode（8 个工具，运行时依赖由 state / config 注入）</text>
+  <g class="t">
+    <rect class="tool" x="24" y="348" width="276" height="52" rx="8"/>
+    <text class="mono h" x="38" y="368" font-size="12.5">select_data_source</text>
+    <text class="m" x="38" y="388" font-size="11.5">自动选库 · 能力识别与切换</text>
+    <rect class="tool" x="312" y="348" width="276" height="52" rx="8"/>
+    <text class="mono h" x="326" y="368" font-size="12.5">search_business_metrics</text>
+    <text class="m" x="326" y="388" font-size="11.5">指标口径混合检索（关键词 + 向量）</text>
+    <rect class="tool" x="600" y="348" width="276" height="52" rx="8"/>
+    <text class="mono h" x="614" y="368" font-size="12.5">inspect_database_schema</text>
+    <text class="m" x="614" y="388" font-size="11.5">Schema 数据字典 · 生成 SQL 前必调</text>
+    <rect class="tool" x="888" y="348" width="276" height="52" rx="8"/>
+    <text class="mono h" x="902" y="368" font-size="12.5">probe_database</text>
+    <text class="m" x="902" y="388" font-size="11.5">数据探查 · 本轮上限 6 次</text>
+    <rect class="tool" x="24" y="408" width="276" height="52" rx="8"/>
+    <text class="mono h" x="38" y="428" font-size="12.5">inspect_join_path</text>
+    <text class="m" x="38" y="448" font-size="11.5">外键图 Join 路径 · 复合外键风险</text>
+    <rect class="tool" x="312" y="408" width="276" height="52" rx="8"/>
+    <text class="mono h" x="326" y="428" font-size="12.5">run_text_to_sql</text>
+    <text class="m" x="326" y="448" font-size="11.5">Text-to-SQL Skill 入口 · 本轮上限 3 次</text>
+    <rect class="tool" x="600" y="408" width="276" height="52" rx="8"/>
+    <text class="mono h" x="614" y="428" font-size="12.5">build_visualization</text>
+    <text class="m" x="614" y="448" font-size="11.5">指标卡 / 柱状 / 折线 / 饼图 / 表格</text>
+    <rect class="tool" x="888" y="408" width="276" height="52" rx="8"/>
+    <text class="mono h" x="902" y="428" font-size="12.5">get_capabilities</text>
+    <text class="m" x="902" y="448" font-size="11.5">能力快照 · 缺口如实上报</text>
+  </g>
+  <line class="arr" x1="600" y1="300" x2="600" y2="342"/>
+  <text class="t faint" x="610" y="324" font-size="11">tool_calls / tool results</text>
+
+  <!-- ⑤ 知识层 -->
+  <rect class="card" x="24" y="482" width="470" height="196" rx="10"/>
+  <text class="t h" x="40" y="508" font-size="14.5">⑤ 知识层 · 离线构建 + 在线检索</text>
+  <text class="t" x="40" y="534" font-size="12">build-knowledge：指标口径 / 数据字典 / 外键图 / 指纹</text>
+  <text class="t" x="40" y="556" font-size="12">retrieval：hybrid → subgraph → join_path → context_builder</text>
+  <text class="t" x="40" y="578" font-size="12">retrieve_schema_context：hint 模式，可选开关默认关闭</text>
+  <text class="t" x="40" y="600" font-size="12">GraphRAG 证据：检索模式 / context_tokens / 命中子图</text>
+  <text class="t" x="40" y="622" font-size="12">值索引：字段白名单 + PII 排除 + 运行时签名校验</text>
+  <text class="t" x="40" y="644" font-size="12">状态判定：missing / incompatible / stale / partial / complete</text>
+  <text class="t m" x="40" y="666" font-size="11.5">指标 reviewed / trusted 默认 false，不作硬 SQL 约束</text>
+
+  <!-- ⑥ SQLSkill -->
+  <rect class="card" x="510" y="482" width="666" height="196" rx="10"/>
+  <text class="t h" x="526" y="508" font-size="14.5">⑥ SQLSkill · 单问题七阶段（上游算法沿用）</text>
+  <g class="t">
+    <rect class="chip" x="526" y="520" width="86" height="30" rx="6"/>
+    <text x="569" y="540" font-size="11" text-anchor="middle">值检索</text>
+    <rect class="chip" x="618" y="520" width="86" height="30" rx="6"/>
+    <text x="661" y="540" font-size="11" text-anchor="middle">Few-shot</text>
+    <rect class="chip" x="710" y="520" width="86" height="30" rx="6"/>
+    <text x="753" y="540" font-size="11" text-anchor="middle">Schema 链接</text>
+    <rect class="chip" x="802" y="520" width="86" height="30" rx="6"/>
+    <text x="845" y="540" font-size="11" text-anchor="middle">SQL 生成</text>
+    <rect class="chip" x="894" y="520" width="86" height="30" rx="6"/>
+    <text x="937" y="540" font-size="11" text-anchor="middle">SQL 修订</text>
+    <rect class="chip" x="986" y="520" width="86" height="30" rx="6"/>
+    <text x="1029" y="540" font-size="11" text-anchor="middle">SQL 选择</text>
+    <rect class="chip" x="1078" y="520" width="86" height="30" rx="6"/>
+    <text x="1121" y="540" font-size="11" text-anchor="middle">只读执行</text>
+  </g>
+  <text class="t" x="526" y="572" font-size="12">DC / Skeleton / ICL 三路采样 · 八个 Checker 修订 · 一致性分组 + LLM 投票选择</text>
+  <text class="t" x="526" y="594" font-size="12">execution：mode=ro + query_only + set_authorizer 白名单 + 超时 / 行数上限</text>
+  <text class="t" x="526" y="616" font-size="12">on_stage 阶段回调 → SSE；异常收敛为 failed_stage + 脱敏 error.txt</text>
+  <text class="t" x="526" y="638" font-size="12">产物：workspace/sql_requests/&lt;request_id&gt;/ · result.json + 阶段 snapshot</text>
+  <text class="t m" x="526" y="662" font-size="11.5">_guard_value_index 先于开库校验索引；SQL 生成后 validate_sql_joins 对账</text>
+
+  <line class="dash" x1="250" y1="482" x2="250" y2="462"/>
+  <text class="t faint" x="260" y="476" font-size="10.5">知识证据 / hint</text>
+  <line class="arr" x1="840" y1="460" x2="840" y2="480"/>
+  <text class="t faint" x="850" y="476" font-size="10.5">run_text_to_sql</text>
+
+  <!-- ⑦⑧⑨ -->
+  <rect class="card" x="24" y="706" width="350" height="124" rx="10"/>
+  <text class="t h" x="40" y="732" font-size="14">⑦ 只读数据源</text>
+  <text class="t" x="40" y="758" font-size="12">企业销售 7 表 / HR 4 表（固定种子合成）</text>
+  <text class="t" x="40" y="780" font-size="12">AdventureWorks 71 表 486 列（示例库，显式开关）</text>
+  <text class="t" x="40" y="802" font-size="12">ATTACH / 写操作 / load_extension 全部拒绝</text>
+  <text class="t m" x="40" y="824" font-size="11.5">表名带 Schema 点号，DECIMAL_TEXT 需 CAST</text>
+
+  <rect class="card" x="390" y="706" width="390" height="124" rx="10"/>
+  <text class="t h" x="406" y="732" font-size="14">⑧ 成本与可观测</text>
+  <text class="t" x="406" y="758" font-size="12">usage.jsonl：逐调用阶段 / 耗时 / token</text>
+  <text class="t" x="406" y="780" font-size="12">SQL 侧熔断：120k tokens / 600s</text>
+  <text class="t" x="406" y="802" font-size="12">Agent 侧预算：300k tokens / 24 次 / 900s</text>
+  <text class="t m" x="406" y="824" font-size="11.5">阶段耗时条 · agent_usage · analyses 多 SQL 追溯</text>
+
+  <rect class="card" x="796" y="706" width="380" height="124" rx="10"/>
+  <text class="t h" x="812" y="732" font-size="14">⑨ 会话与恢复</text>
+  <text class="t" x="812" y="758" font-size="12">刷新只重建前端，不重复提交任务</text>
+  <text class="t" x="812" y="780" font-size="12">/api/query/active 让新标签页接管任务</text>
+  <text class="t" x="812" y="802" font-size="12">重启后遗留 running → interrupted</text>
+  <text class="t m" x="812" y="824" font-size="11.5">历史会话继续追问（Checkpoint 持久化）</text>
+
+  <line class="arr" x1="200" y1="678" x2="200" y2="704"/>
+  <line class="arr" x1="585" y1="678" x2="585" y2="704"/>
+  <line class="arr" x1="985" y1="678" x2="985" y2="704"/>
+
+  <text class="t m" x="24" y="862" font-size="11.5">外部依赖：DashScope 兼容端点 LLM · 本地 Qwen3 embedding（离线检索） · SQLite；在线端到端评测未运行。</text>
+  <text class="t faint" x="24" y="884" font-size="11">制图依据：app/agent/graph.py · app/agent/tools/* · app/skills/sql_skill.py · app/knowledge/retrieval/* · app/web/static/chat.js</text>
+  <text class="t faint" x="1176" y="884" font-size="11" text-anchor="end">示意图 · 非截图 · 2026-11-18</text>
+</svg>

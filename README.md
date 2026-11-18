@@ -34,9 +34,11 @@
 
 ## 📸 界面预览
 
-| 结果页 · 三版 SQL 与阶段耗时 | 运行中 · 流水线进度与实时用量 |
+| 运行中 · Agent 编排与实时用量（新版） | 结果页 · 三版 SQL 与阶段耗时（历史 demo） |
 |---|---|
-| ![结果页](./docs/screenshots/结果页-三版SQL与阶段耗时.png) | ![运行中](./docs/screenshots/运行中-流水线进度与实时用量.png) |
+| ![运行中](./docs/screenshots/运行中-Agent编排与实时用量.png) | ![结果页](./docs/screenshots/结果页-三版SQL与阶段耗时.png) |
+
+> 左图按当前 `app/web/static/chat.html` / `chat.js` 结构重新绘制：三页签、业务数据源、Agent 分析过程时间轴与 SSE 实时用量，是**界面示意图，不是运行截图**；可编辑矢量源文件见 [运行中-Agent编排与实时用量.svg](./docs/screenshots/运行中-Agent编排与实时用量.svg)。右图与未再引用的 `运行中-流水线进度与实时用量.png` 同属升级前的 BIRD demo 界面，保留作历史对照。
 
 > 📖 **答辩用一页纸说明**（三种启动方式、页面结构、故障排查、推荐示例问题）：[docs/application-guide.md](./docs/application-guide.md) · **交付范围界定**：[docs/internship-release-checklist.md](./docs/internship-release-checklist.md)
 
@@ -82,37 +84,13 @@
 
 ## 🏗️ 系统架构
 
-```
-浏览器（原生单页，零构建）
-   │  POST /api/chat                     ┌─────────────────────────────────┐
-   ├─ 202 request_id ───────────────────►│ TaskManager  串行任务队列         │
-   │  GET /api/query/{id}/events ◄─SSE───│  · 事件可回放（断线重连不丢进度） │
-   │  GET /api/query/{id}                │  · SQLite 状态与 SSE 事件持久化   │
-   └─────────────────────────────────────└───────────────┬─────────────────┘
-                                                         ▼
-                      LangGraph：ChatOpenAI ◄───────────────┐
-                               │ tool_calls                │ tool results
-                               ▼                           │
-             业务口径 / Schema / Text-to-SQL / 可视化工具 ──┘
-                                      │
-                                      └─ SQLSkill.run()：七阶段串行
-   ┌──────────────┬───────────────────┬──────────────┬────────────────┐
-   │ value_       │ few_shot_         │ schema_      │ sql_generation │
-   │ retrieval    │ preparation       │ linking      │ (DC/Skeleton/  │
-   │ 关键词→真实值│ 初步SQL+掩码+检索 │ 正反向链接   │  ICL 三路采样) │
-   └──────────────┴───────────────────┴──────────────┴────────┬───────┘
-                                                    ┌──────────────────┐
-                                                    │ sql_revision      │
-                                                    │ sql_selection     │
-                                                    │ execution（只读） │
-                                                    └───────────────────┘
-                                                         │
-                                  结果 ──► 可视化节点 ──► 指标卡/柱状/折线/饼图/表格
-              每次模型/向量调用 → usage.jsonl（阶段、题目、耗时、token）
-              每请求产物 → workspace/sql_requests/<request_id>/（快照 + result.json + error.txt）
+![新版运行时链路](./docs/diagrams/runtime-flow.png)
 
-外部依赖：DashScope OpenAI 兼容端点 deepseek-v4.1-flash-1017（可关思考） · qwen3.7-text-embedding-flash 向量 · 本地 SQLite
-```
+> 矢量源文件：[docs/diagrams/runtime-flow.svg](./docs/diagrams/runtime-flow.svg)。本图按当前代码重新绘制，与早期版本的差异集中在：**6 节点 LangGraph**（`assistant / tools / increment_tool_round / planner / reflection / tool_limit`，含 `MeteredChatModel` 预算闸、工具指纹去重与 `termination_reason`）、**8 个工具**（新增 `probe_database`、`inspect_join_path`、`get_capabilities`）、**知识层 GraphRAG**（hybrid → subgraph → join_path → context_builder，以可选 hint 接入 SQLSkill）、以及运行时索引签名校验与多 SQL 结果 `analyses` 追溯。
+>
+> 无图环境下的一次请求主链路：浏览器 `POST /api/chat` → TaskManager 串行队列与 SQLite 状态库 → LangGraph 工具循环 → `run_text_to_sql` → SQLSkill 七阶段（值检索 / Few-shot / Schema Linking / SQL 生成 / SQL 修订 / SQL 选择 / 只读执行）→ 只读 SQLite（`query_only` + authorizer 白名单）→ SSE 事件回放 → 结果表与自动图表。逐调用用量写入 `usage.jsonl`，阶段快照与结果落在 `workspace/sql_requests/<request_id>/`。
+>
+> 外部依赖：DashScope OpenAI 兼容端点的 LLM、本地 Qwen3 embedding（离线检索）、本地 SQLite。
 
 ## 🚀 快速开始
 
@@ -275,7 +253,7 @@ DeepEye-SQL/
 │   └── local/                # 本地实验配置与真实密钥（.gitignore 排除）
 ├── evals/                    # 题单、逐题明细与汇总报告（Web 应用只读浏览）
 ├── results/                  # 上游发布的预测文件（用于同题对照）
-├── docs/                     # 运行手册、评测报告、失败分析、交付清单、截图
+├── docs/                     # 运行手册、评测报告、失败分析、交付清单、截图与矢量示意图
 ├── tests/                    # 105 项离线单元测试（tests/js/ 为 Node 侧恢复状态机测试）
 └── workspace/                # 运行产物与索引（不入库）
 ```
@@ -300,6 +278,7 @@ DeepEye-SQL/
 | [📋 交付清单](./docs/internship-release-checklist.md) | 项目定位、已完成项与发布前检查 | 自己/面试官 |
 | [🎤 面试讲解稿](./docs/interview-pitch.md) | 30 秒/3 分钟介绍、简历描述与高频追问 | 面试/答辩 |
 | [📐 项目设计文档](./docs/项目设计文档.md) | 需求背景与整体设计 | 产品/架构 |
+| [🧭 新版运行时链路图](./docs/diagrams/runtime-flow.svg) | 6 节点 Agent、8 工具、知识层与七阶段链路（可编辑矢量图） | 面试/开发者 |
 
 ## ❓ 常见问题
 

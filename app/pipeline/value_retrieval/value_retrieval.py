@@ -11,6 +11,7 @@ from app.vector_db import (
     get_collection_name,
     get_local_index_path,
     local_index_exists,
+    verify_runtime_index,
 )
 from app.db_utils import map_lower_table_name_to_original_table_name, map_lower_column_name_to_original_column_name
 from app.pipeline.validation import validate_pipeline_step
@@ -170,6 +171,17 @@ class ValueRetrievalRunner:
                     raise FileNotFoundError(
                         f"Local index not found for {db_id}: {index_path}. "
                         "Rebuild the vector database with local index enabled."
+                    )
+                # Phase 4B: never score query vectors against an index built by
+                # another embedding configuration. ``partial`` is allowed (its
+                # uncovered columns degrade to "no values").
+                status = verify_runtime_index(
+                    index_path, embedding_config=self._vector_database_config)
+                if not status["usable"]:
+                    raise ValueError(
+                        f"Local index for {db_id} is {status['status']} "
+                        f"({'/'.join(status.get('reasons') or [])}); "
+                        "rebuild it with the configured embedding model."
                     )
                 self._local_value_index_dict[db_id] = LocalValueIndex(
                     index_path=index_path,

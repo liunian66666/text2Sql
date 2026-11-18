@@ -1,0 +1,32 @@
+[
+  {
+    "difficulty": "中间表补全",
+    "intent": "ranking",
+    "question": "统计各商品类别的明细净销售额，按销售额从高到低排列。",
+    "note": "需要 ProductSubcategory 作为必要中间表；仅用于前端示例展示，不是评测标准答案。"
+  },
+  {
+    "difficulty": "区域汇总",
+    "intent": "ranking",
+    "question": "查询销售额最高的五个销售区域，返回区域名称与销售额。",
+    "note": "默认按订单头 TerritoryID 归属，见模拟制度 POL-REGION-001 §4.2。"
+  },
+  {
+    "difficulty": "粒度冲突",
+    "intent": "query",
+    "question": "统计当前库存总量，并找出库存低于再订货点的商品数量。",
+    "note": "需先把多库位库存按 ProductID 聚合，再与商品级 ReorderPoint 比较。"
+  },
+  {
+    "difficulty": "多表关联",
+    "intent": "query",
+    "question": "列出各部门的员工人数，按人数从高到低排列。",
+    "note": "员工与部门需经 HumanResources.EmployeeDepartmentHistory 关联。"
+  },
+  {
+    "difficulty": "采购汇总",
+    "intent": "query",
+    "question": "统计采购订单总数与采购应付总额。",
+    "note": "金额列为 TEXT 存储，聚合前须 CAST AS REAL。"
+  }
+]

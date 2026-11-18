@@ -107,7 +107,12 @@ class LLM:
         }
         
         current_max_tokens = kwargs.pop("max_tokens", self._config.max_tokens)
-        
+        # Some OpenAI-compatible hosts reject the temperature parameter outright
+        # for specific models (e.g. dashscope's kimi-k3 family returns
+        # 400 "Parameter 'temperature'=... is not supported"). Retry once
+        # without it instead of failing the whole request.
+        send_temperature = True
+
         while len(all_choices) < target_n:
             if meter is not None:
                 meter.check()
@@ -118,10 +123,11 @@ class LLM:
                     "model": self._config.model,
                     "messages": messages,
                     "max_tokens": current_max_tokens,
-                    "temperature": self._config.temperature,
                     "timeout": timeout,
                     "n": current_n,
                 }
+                if send_temperature:
+                    request_params["temperature"] = self._config.temperature
                 if self._config.reasoning_effort is not None:
                     request_params["reasoning_effort"] = self._config.reasoning_effort
                 if self._config.extra_body:
@@ -185,6 +191,13 @@ class LLM:
                     logger.error("Authentication error, please check your api key.")
                 elif isinstance(e, BadRequestError):
                     error_msg = str(e).lower()
+                    if "temperature" in error_msg and "not supported" in error_msg:
+                        logger.warning(
+                            f"Model {self._config.model} rejected the temperature "
+                            "parameter; retrying without it."
+                        )
+                        send_temperature = False
+                        continue
                     if "context" in error_msg or "tokens" in error_msg or "length" in error_msg:
                         new_max_tokens = int(current_max_tokens * 0.9) if current_max_tokens else 0
                         if new_max_tokens > 0:

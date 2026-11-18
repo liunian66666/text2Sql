@@ -9,6 +9,8 @@ from typing import Any
 DISPLAY_NAMES = {
     "enterprise_sales": "企业电商销售分析",
     "enterprise_hr": "企业人力资源分析",
+    # Microsoft public SAMPLE database; never present it as real production data.
+    "adventureworks": "AdventureWorks OLTP（微软公开示例库）",
     "california_schools": "California Schools",
     "superhero": "Superhero",
     "student_club": "Student Club",
@@ -28,6 +30,14 @@ DATABASE_METADATA = {
         "domain_name": "HR 域",
         "description": "员工、部门、出勤与绩效分析",
         "table_count": 4,
+    },
+    "adventureworks": {
+        "domain": "sample_oltp",
+        "domain_name": "示例 OLTP 域",
+        "description": "销售、商品、采购、库存与人力示例数据（微软公开示例库，非真实生产企业数据）",
+        "table_count": 71,
+        "sample_data": True,
+        "license": "MIT (microsoft/sql-server-samples)",
     },
 }
 
@@ -61,6 +71,12 @@ class DatabaseRegistry:
             candidate = database_root / database_id / f"{database_id}.sqlite"
             if candidate.is_file():
                 databases[database_id] = candidate.resolve()
+        # Optional, explicitly enabled sample database. It never overwrites an
+        # existing entry and it never creates/rewrites any database file.
+        from app.enterprise import adventureworks
+        curated = adventureworks.registered_path(self.project_root)
+        if curated is not None:
+            databases.setdefault(adventureworks.DATABASE_ID, curated)
         return databases
 
     def _load_examples(self) -> dict[str, list[dict[str, Any]]]:
@@ -71,6 +87,9 @@ class DatabaseRegistry:
         hr_examples = Path(__file__).parents[1] / "enterprise" / "hr_examples.json"
         if hr_examples.is_file():
             grouped["enterprise_hr"] = json.loads(hr_examples.read_text(encoding="utf-8"))
+        aw_examples = Path(__file__).parents[1] / "enterprise" / "adventureworks_examples.json"
+        if aw_examples.is_file():
+            grouped["adventureworks"] = json.loads(aw_examples.read_text(encoding="utf-8"))
         if not self.sample_path.exists():
             return grouped
         sample = json.loads(self.sample_path.read_text(encoding="utf-8"))
@@ -98,7 +117,7 @@ class DatabaseRegistry:
         return dict(self._databases)
 
     def public_entries(self) -> list[dict[str, Any]]:
-        order = {"enterprise_sales": 0, "enterprise_hr": 1}
+        order = {"enterprise_sales": 0, "enterprise_hr": 1, "adventureworks": 2}
         return [
             {
                 "id": database_id,

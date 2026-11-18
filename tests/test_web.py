@@ -317,7 +317,11 @@ class WebAPITest(unittest.TestCase):
         # Only databases with a value index for the active embedding model are
         # listed; see READY_DATABASES in app/web/registry.py.
         entries = databases.json()["databases"]
-        self.assertEqual([entry["id"] for entry in entries], ["enterprise_sales", "enterprise_hr"])
+        ids = [entry["id"] for entry in entries]
+        # 两个企业库始终在前；AdventureWorks 是显式启用项（ENABLE_ADVENTUREWORKS），
+        # 启用后必须出现在列表里，未启用时不得凭空出现。
+        self.assertEqual(ids[:2], ["enterprise_sales", "enterprise_hr"])
+        self.assertTrue(set(ids) <= {"enterprise_sales", "enterprise_hr", "adventureworks"})
         self.assertTrue(all(len(entry["examples"]) >= 3 for entry in entries))
         self.assertGreaterEqual(len(evaluations.json()["evaluations"]), 1)
         self.assertIn("DeepEye-SQL", page.text)

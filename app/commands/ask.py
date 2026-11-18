@@ -14,6 +14,10 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--question", required=True)
     parser.add_argument("--evidence", default="", help="用户补充口径，会带来源标签注入 SQL Skill")
     parser.add_argument("--conversation-id", default=None, help="复用会话以带上多轮上下文")
+    parser.add_argument("--max-tokens", type=int, default=None,
+                        help="单次 SQL Skill 的 token 熔断上限（默认取 DEFAULT_REQUEST_TOKEN_CAP）")
+    parser.add_argument("--max-seconds", type=int, default=None,
+                        help="单次 SQL Skill 的时间熔断上限（默认取 DEFAULT_REQUEST_SECONDS_CAP）")
 
 
 def run(args: argparse.Namespace) -> int:
@@ -28,7 +32,7 @@ def run(args: argparse.Namespace) -> int:
     registry = DatabaseRegistry(PROJECT_ROOT)
     skill = SQLSkill(get_config(), registry.database_paths,
                      workspace=PROJECT_ROOT / "workspace/skill_requests",
-                     max_total_tokens=80_000, max_seconds=240)
+                     max_total_tokens=args.max_tokens, max_seconds=args.max_seconds)
     agent = DataAnalysisAgent(
         skill,
         workspace=PROJECT_ROOT / "workspace/agent_requests",

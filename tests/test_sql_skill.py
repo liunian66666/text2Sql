@@ -77,6 +77,25 @@ class SQLSkillSafetyTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             skill.run({"question": "Count rows", "database_id": "unknown"})
 
+    def test_missing_index_guard_raises_filenotfound_not_attributeerror(self):
+        """回归：_guard_value_index 曾访问 self._config.vector_database_config
+        （AppConfig 的真实字段名是 vector_database），在线首跑在 prepare 阶段
+        以 AttributeError 崩溃。缺索引必须以 FileNotFoundError 暴露，错误类型
+        是这条契约的一部分。"""
+        llm = {"model": "test", "base_url": "http://localhost:1", "api_key": "test"}
+        config = AppConfig.model_validate({
+            "dataset": {"type": "bird", "split": "dev", "root_path": "."},
+            "vector_database": {"store_root_path": str(Path(self.tmp.name) / "indexes")},
+            "value_retrieval": {"llm": llm, "backend": "local_index"},
+            **{stage: {"llm": llm} for stage in ("schema_linking", "sql_generation", "sql_revision", "sql_selection")},
+        })
+        skill = SQLSkill(config, {"data": self.db}, workspace=Path(self.tmp.name) / "requests2")
+        with patch.object(skill, "_runner_for_stage", side_effect=AssertionError("must not call model")):
+            result = skill.run(SQLSkillRequest(question="Count rows", database_id="data"))
+        self.assertEqual((result.status, result.failed_stage), ("error", "prepare"))
+        self.assertTrue(result.error.startswith("FileNotFoundError"),
+                        f"expected missing-index FileNotFoundError, got: {result.error}")
+
     def test_blank_request_and_invalid_limits(self):
         for values in ({"question": " "}, {"max_rows": 0}, {"max_rows": 1001}):
             with self.subTest(values=values), self.assertRaises(ValueError):

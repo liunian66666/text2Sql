@@ -1,0 +1,1714 @@
+{
+  "knowledge_version": "1",
+  "source": {
+    "database": "adventureworks",
+    "database_origin": "https://github.com/microsoft/sql-server-samples (MIT)",
+    "sqlite_port": "https://adventureworks.demodb.dev/downloads/",
+    "policies": "docs/simulated-policies/ (SIMULATED, UNREVIEWED — not Microsoft official rules)",
+    "notice": "示例数据 + 模拟制度；不得描述为真实生产企业数据或真实业务结论。"
+  },
+  "metrics": [
+    {
+      "id": "aw_sales_amount",
+      "name": "销售额（不含税运费）",
+      "keywords": [
+        "销售额",
+        "营收",
+        "sales amount"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"SubTotal\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "fields": [
+        "Sales.SalesOrderHeader.SubTotal",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"SubTotal\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+        "aggregation": "SUM",
+        "grain": "订单头",
+        "time_field": "Sales.SalesOrderHeader.OrderDate",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [
+          "Sales.SalesOrderHeader.TerritoryID"
+        ],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-001-销售口径与订单确认 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "derived: 真实维度字段（模拟制度允许）"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_total_due",
+      "name": "应收总额",
+      "keywords": [
+        "应收总额",
+        "aw_total_due"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"TotalDue\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "fields": [
+        "Sales.SalesOrderHeader.TotalDue",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"TotalDue\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+        "aggregation": "SUM",
+        "grain": "订单头",
+        "time_field": "Sales.SalesOrderHeader.OrderDate",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.4",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-001-销售口径与订单确认 §3.4（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_tax_amount",
+      "name": "税额",
+      "keywords": [
+        "税额",
+        "aw_tax_amount"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.5（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"TaxAmt\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "fields": [
+        "Sales.SalesOrderHeader.TaxAmt",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"TaxAmt\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+        "aggregation": "SUM",
+        "grain": "订单头",
+        "time_field": "Sales.SalesOrderHeader.OrderDate",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.5",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-001-销售口径与订单确认 §3.5（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_freight_amount",
+      "name": "运费",
+      "keywords": [
+        "运费",
+        "aw_freight_amount"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.6（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"Freight\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "fields": [
+        "Sales.SalesOrderHeader.Freight",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"Freight\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+        "aggregation": "SUM",
+        "grain": "订单头",
+        "time_field": "Sales.SalesOrderHeader.OrderDate",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.6",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-001-销售口径与订单确认 §3.6（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_order_count",
+      "name": "订单数",
+      "keywords": [
+        "订单数",
+        "aw_order_count"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(DISTINCT \"SalesOrderID\") FROM \"Sales.SalesOrderHeader\"",
+      "tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "fields": [
+        "Sales.SalesOrderHeader.SalesOrderID",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "structured": {
+        "expression": "COUNT(DISTINCT \"SalesOrderID\") FROM \"Sales.SalesOrderHeader\"",
+        "aggregation": "COUNT_DISTINCT",
+        "grain": "订单头",
+        "time_field": "Sales.SalesOrderHeader.OrderDate",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-001-销售口径与订单确认 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_avg_order_value",
+      "name": "平均订单金额",
+      "keywords": [
+        "平均订单金额",
+        "aw_avg_order_value"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"SubTotal\" AS REAL)) / NULLIF(COUNT(DISTINCT \"SalesOrderID\"), 0) FROM \"Sales.SalesOrderHeader\"",
+      "tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "fields": [
+        "Sales.SalesOrderHeader.SubTotal",
+        "Sales.SalesOrderHeader.SalesOrderID",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"SubTotal\" AS REAL)) / NULLIF(COUNT(DISTINCT \"SalesOrderID\"), 0) FROM \"Sales.SalesOrderHeader\"",
+        "aggregation": "RATIO",
+        "grain": "订单头",
+        "time_field": "Sales.SalesOrderHeader.OrderDate",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-001-销售口径与订单确认 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "division_by_zero",
+            "description": "分母可能为零，直接相除会得到 NULL 或运行时错误",
+            "affected_tables": [
+              "Sales.SalesOrderHeader"
+            ],
+            "required_mitigation": "使用 NULLIF(denominator, 0)，分母为零时返回 NULL 而非 0",
+            "source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_line_net_sales",
+      "name": "明细净销售额",
+      "keywords": [
+        "明细净销售额",
+        "aw_line_net_sales"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-002-净销售额与折扣处理 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"LineTotal\" AS REAL)) FROM \"Sales.SalesOrderDetail\"",
+      "tables": [
+        "Sales.SalesOrderDetail"
+      ],
+      "fields": [
+        "Sales.SalesOrderDetail.LineTotal",
+        "Sales.SalesOrderDetail.SalesOrderID"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"LineTotal\" AS REAL)) FROM \"Sales.SalesOrderDetail\"",
+        "aggregation": "SUM",
+        "grain": "订单明细行",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-002-净销售额与折扣处理.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-002-净销售额与折扣处理 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "duplicate_aggregation",
+            "description": "订单头金额与订单明细行直接 JOIN 会按明细行数重复计入",
+            "affected_tables": [
+              "Sales.SalesOrderDetail"
+            ],
+            "required_mitigation": "先在明细层按 SalesOrderID 聚合，再与订单头 1:1 关联",
+            "source_ref": "docs/simulated-policies/POL-SALES-002-净销售额与折扣处理.md#3.1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_units_sold",
+      "name": "销售件数",
+      "keywords": [
+        "销售件数",
+        "aw_units_sold"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-002-净销售额与折扣处理 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(\"OrderQty\") FROM \"Sales.SalesOrderDetail\"",
+      "tables": [
+        "Sales.SalesOrderDetail"
+      ],
+      "fields": [
+        "Sales.SalesOrderDetail.OrderQty"
+      ],
+      "structured": {
+        "expression": "SUM(\"OrderQty\") FROM \"Sales.SalesOrderDetail\"",
+        "aggregation": "SUM",
+        "grain": "订单明细行",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-002-净销售额与折扣处理.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-002-净销售额与折扣处理 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_discount_amount",
+      "name": "折扣金额",
+      "keywords": [
+        "折扣金额",
+        "aw_discount_amount"
+      ],
+      "domain": "sales",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-SALES-002-净销售额与折扣处理 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"UnitPrice\" AS REAL) * \"OrderQty\") - SUM(CAST(\"LineTotal\" AS REAL))",
+      "tables": [
+        "Sales.SalesOrderDetail"
+      ],
+      "fields": [
+        "Sales.SalesOrderDetail.UnitPrice",
+        "Sales.SalesOrderDetail.OrderQty",
+        "Sales.SalesOrderDetail.LineTotal"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"UnitPrice\" AS REAL) * \"OrderQty\") - SUM(CAST(\"LineTotal\" AS REAL))",
+        "aggregation": "SUM",
+        "grain": "订单明细行",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-SALES-002-净销售额与折扣处理.md#3.4",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-SALES-002-净销售额与折扣处理 §3.4（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_standard_cost",
+      "name": "当前标准成本",
+      "keywords": [
+        "当前标准成本",
+        "aw_standard_cost"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-COST-001-标准成本与毛利口径 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "CAST(\"StandardCost\" AS REAL)",
+      "tables": [
+        "Production.Product"
+      ],
+      "fields": [
+        "Production.Product.StandardCost",
+        "Production.Product.ProductID"
+      ],
+      "structured": {
+        "expression": "CAST(\"StandardCost\" AS REAL)",
+        "aggregation": "NONE",
+        "grain": "商品",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-COST-001-标准成本与毛利口径.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-COST-001-标准成本与毛利口径 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_list_price",
+      "name": "当前目录价",
+      "keywords": [
+        "当前目录价",
+        "aw_list_price"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-COST-001-标准成本与毛利口径 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "CAST(\"ListPrice\" AS REAL)",
+      "tables": [
+        "Production.Product"
+      ],
+      "fields": [
+        "Production.Product.ListPrice",
+        "Production.Product.ProductID"
+      ],
+      "structured": {
+        "expression": "CAST(\"ListPrice\" AS REAL)",
+        "aggregation": "NONE",
+        "grain": "商品",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-COST-001-标准成本与毛利口径.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-COST-001-标准成本与毛利口径 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_unit_margin",
+      "name": "单位毛利",
+      "keywords": [
+        "单位毛利",
+        "aw_unit_margin"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-COST-001-标准成本与毛利口径 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "CAST(\"ListPrice\" AS REAL) - CAST(\"StandardCost\" AS REAL)",
+      "tables": [
+        "Production.Product"
+      ],
+      "fields": [
+        "Production.Product.ListPrice",
+        "Production.Product.StandardCost",
+        "Production.Product.ProductID"
+      ],
+      "structured": {
+        "expression": "CAST(\"ListPrice\" AS REAL) - CAST(\"StandardCost\" AS REAL)",
+        "aggregation": "NONE",
+        "grain": "商品",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-COST-001-标准成本与毛利口径.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-COST-001-标准成本与毛利口径 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_gross_margin_rate",
+      "name": "毛利率",
+      "keywords": [
+        "毛利率",
+        "aw_gross_margin_rate"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-COST-001-标准成本与毛利口径 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "(CAST(\"ListPrice\" AS REAL) - CAST(\"StandardCost\" AS REAL)) / NULLIF(CAST(\"ListPrice\" AS REAL), 0)",
+      "tables": [
+        "Production.Product"
+      ],
+      "fields": [
+        "Production.Product.ListPrice",
+        "Production.Product.StandardCost",
+        "Production.Product.ProductID"
+      ],
+      "structured": {
+        "expression": "(CAST(\"ListPrice\" AS REAL) - CAST(\"StandardCost\" AS REAL)) / NULLIF(CAST(\"ListPrice\" AS REAL), 0)",
+        "aggregation": "RATIO",
+        "grain": "商品",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-COST-001-标准成本与毛利口径.md#3.4",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-COST-001-标准成本与毛利口径 §3.4（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "division_by_zero",
+            "description": "分母可能为零，直接相除会得到 NULL 或运行时错误",
+            "affected_tables": [
+              "Production.Product"
+            ],
+            "required_mitigation": "使用 NULLIF(denominator, 0)，分母为零时返回 NULL 而非 0",
+            "source_ref": "docs/simulated-policies/POL-COST-001-标准成本与毛利口径.md#3.4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_product_count",
+      "name": "商品数",
+      "keywords": [
+        "商品数",
+        "aw_product_count"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PROD-001-商品分类与在售状态 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(\"ProductID\") FROM \"Production.Product\"",
+      "tables": [
+        "Production.Product"
+      ],
+      "fields": [
+        "Production.Product.ProductID"
+      ],
+      "structured": {
+        "expression": "COUNT(\"ProductID\") FROM \"Production.Product\"",
+        "aggregation": "COUNT",
+        "grain": "商品",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PROD-001-商品分类与在售状态.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PROD-001-商品分类与在售状态 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_active_product_count",
+      "name": "在售商品数",
+      "keywords": [
+        "在售商品数",
+        "aw_active_product_count"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PROD-001-商品分类与在售状态 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(*) WHERE \"FinishedGoodsFlag\" = 1 AND \"SellEndDate\" IS NULL",
+      "tables": [
+        "Production.Product"
+      ],
+      "fields": [
+        "Production.Product.ProductID",
+        "Production.Product.FinishedGoodsFlag",
+        "Production.Product.SellEndDate"
+      ],
+      "structured": {
+        "expression": "COUNT(*) WHERE \"FinishedGoodsFlag\" = 1 AND \"SellEndDate\" IS NULL",
+        "aggregation": "COUNT",
+        "grain": "商品",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PROD-001-商品分类与在售状态.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PROD-001-商品分类与在售状态 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_subcategory_count",
+      "name": "商品子类别数",
+      "keywords": [
+        "商品子类别数",
+        "aw_subcategory_count"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PROD-001-商品分类与在售状态 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(\"ProductSubcategoryID\") FROM \"Production.ProductSubcategory\"",
+      "tables": [
+        "Production.ProductSubcategory"
+      ],
+      "fields": [
+        "Production.ProductSubcategory.ProductSubcategoryID"
+      ],
+      "structured": {
+        "expression": "COUNT(\"ProductSubcategoryID\") FROM \"Production.ProductSubcategory\"",
+        "aggregation": "COUNT",
+        "grain": "子类别",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PROD-001-商品分类与在售状态.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PROD-001-商品分类与在售状态 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_category_count",
+      "name": "商品类别数",
+      "keywords": [
+        "商品类别数",
+        "aw_category_count"
+      ],
+      "domain": "product",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PROD-001-商品分类与在售状态 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(\"ProductCategoryID\") FROM \"Production.ProductCategory\"",
+      "tables": [
+        "Production.ProductCategory"
+      ],
+      "fields": [
+        "Production.ProductCategory.ProductCategoryID"
+      ],
+      "structured": {
+        "expression": "COUNT(\"ProductCategoryID\") FROM \"Production.ProductCategory\"",
+        "aggregation": "COUNT",
+        "grain": "类别",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [
+          "Product.ProductSubcategoryID -> ProductSubcategory.ProductSubcategoryID -> ProductCategory.ProductCategoryID（必要中间表 ProductSubcategory）"
+        ],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PROD-001-商品分类与在售状态.md#3.4",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PROD-001-商品分类与在售状态 §3.4（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "derived: 真实外键与必要中间表",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_on_hand_qty",
+      "name": "库存总量",
+      "keywords": [
+        "库存总量",
+        "aw_on_hand_qty"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-001-库存数量与库位 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(\"Quantity\") FROM \"Production.ProductInventory\"",
+      "tables": [
+        "Production.ProductInventory"
+      ],
+      "fields": [
+        "Production.ProductInventory.Quantity"
+      ],
+      "structured": {
+        "expression": "SUM(\"Quantity\") FROM \"Production.ProductInventory\"",
+        "aggregation": "SUM",
+        "grain": "商品×库位",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-001-库存数量与库位 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_product_on_hand_qty",
+      "name": "商品库存量",
+      "keywords": [
+        "商品库存量",
+        "aw_product_on_hand_qty"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-001-库存数量与库位 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SELECT \"ProductID\", SUM(\"Quantity\") FROM \"Production.ProductInventory\" GROUP BY \"ProductID\"",
+      "tables": [
+        "Production.ProductInventory"
+      ],
+      "fields": [
+        "Production.ProductInventory.ProductID",
+        "Production.ProductInventory.Quantity"
+      ],
+      "structured": {
+        "expression": "SELECT \"ProductID\", SUM(\"Quantity\") FROM \"Production.ProductInventory\" GROUP BY \"ProductID\"",
+        "aggregation": "SUM",
+        "grain": "商品（需先聚合）",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-001-库存数量与库位 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "mixed_grain",
+            "description": "源表为多对一/一对多粒度，直接 JOIN 或逐行比较会重复计数或误判",
+            "affected_tables": [
+              "Production.ProductInventory"
+            ],
+            "required_mitigation": "先按业务主键聚合到目标粒度，再关联",
+            "source_ref": "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_location_count",
+      "name": "库位数",
+      "keywords": [
+        "库位数",
+        "aw_location_count"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-001-库存数量与库位 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(\"LocationID\") FROM \"Production.Location\"",
+      "tables": [
+        "Production.Location"
+      ],
+      "fields": [
+        "Production.Location.LocationID"
+      ],
+      "structured": {
+        "expression": "COUNT(\"LocationID\") FROM \"Production.Location\"",
+        "aggregation": "COUNT",
+        "grain": "库位",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-001-库存数量与库位 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_transaction_count",
+      "name": "库存事务数",
+      "keywords": [
+        "库存事务数",
+        "aw_transaction_count"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-001-库存数量与库位 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(\"TransactionID\") FROM \"Production.TransactionHistory\"",
+      "tables": [
+        "Production.TransactionHistory"
+      ],
+      "fields": [
+        "Production.TransactionHistory.TransactionID"
+      ],
+      "structured": {
+        "expression": "COUNT(\"TransactionID\") FROM \"Production.TransactionHistory\"",
+        "aggregation": "COUNT",
+        "grain": "库存事务",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.4",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-001-库存数量与库位 §3.4（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_below_reorder_count",
+      "name": "低于再订货点商品数",
+      "keywords": [
+        "低于再订货点商品数",
+        "aw_below_reorder_count"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-002-再订货点与报废 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SELECT COUNT(*) FROM (SELECT \"ProductID\", SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\" GROUP BY \"ProductID\") inv JOIN \"Production.Product\" p ON inv.\"ProductID\" = p.\"ProductID\" WHERE inv.qty < p.\"ReorderPoint\"",
+      "tables": [
+        "Production.ProductInventory",
+        "Production.Product"
+      ],
+      "fields": [
+        "Production.ProductInventory.ProductID",
+        "Production.ProductInventory.Quantity",
+        "Production.Product.ProductID",
+        "Production.Product.ReorderPoint"
+      ],
+      "structured": {
+        "expression": "SELECT COUNT(*) FROM (SELECT \"ProductID\", SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\" GROUP BY \"ProductID\") inv JOIN \"Production.Product\" p ON inv.\"ProductID\" = p.\"ProductID\" WHERE inv.qty < p.\"ReorderPoint\"",
+        "aggregation": "COUNT",
+        "grain": "商品（必须先聚合）",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-002-再订货点与报废 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "mixed_grain",
+            "description": "源表为多对一/一对多粒度，直接 JOIN 或逐行比较会重复计数或误判",
+            "affected_tables": [
+              "Production.ProductInventory",
+              "Production.Product"
+            ],
+            "required_mitigation": "先按业务主键聚合到目标粒度，再关联",
+            "source_ref": "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_work_order_count",
+      "name": "工单数",
+      "keywords": [
+        "工单数",
+        "aw_work_order_count"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-002-再订货点与报废 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(\"WorkOrderID\") FROM \"Production.WorkOrder\"",
+      "tables": [
+        "Production.WorkOrder"
+      ],
+      "fields": [
+        "Production.WorkOrder.WorkOrderID"
+      ],
+      "structured": {
+        "expression": "COUNT(\"WorkOrderID\") FROM \"Production.WorkOrder\"",
+        "aggregation": "COUNT",
+        "grain": "工单",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-002-再订货点与报废 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_work_order_qty",
+      "name": "工单计划产量",
+      "keywords": [
+        "工单计划产量",
+        "aw_work_order_qty"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-002-再订货点与报废 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(\"OrderQty\") FROM \"Production.WorkOrder\"",
+      "tables": [
+        "Production.WorkOrder"
+      ],
+      "fields": [
+        "Production.WorkOrder.OrderQty"
+      ],
+      "structured": {
+        "expression": "SUM(\"OrderQty\") FROM \"Production.WorkOrder\"",
+        "aggregation": "SUM",
+        "grain": "工单",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-002-再订货点与报废 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_scrap_rate",
+      "name": "报废率",
+      "keywords": [
+        "报废率",
+        "aw_scrap_rate"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-INV-002-再订货点与报废 §3.5（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(\"ScrappedQty\") / NULLIF(SUM(\"OrderQty\"), 0) FROM \"Production.WorkOrder\"",
+      "tables": [
+        "Production.WorkOrder"
+      ],
+      "fields": [
+        "Production.WorkOrder.ScrappedQty",
+        "Production.WorkOrder.OrderQty"
+      ],
+      "structured": {
+        "expression": "SUM(\"ScrappedQty\") / NULLIF(SUM(\"OrderQty\"), 0) FROM \"Production.WorkOrder\"",
+        "aggregation": "RATIO",
+        "grain": "工单",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.5",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-INV-002-再订货点与报废 §3.5（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "division_by_zero",
+            "description": "分母可能为零，直接相除会得到 NULL 或运行时错误",
+            "affected_tables": [
+              "Production.WorkOrder"
+            ],
+            "required_mitigation": "使用 NULLIF(denominator, 0)，分母为零时返回 NULL 而非 0",
+            "source_ref": "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_historical_standard_cost",
+      "name": "历史标准成本",
+      "keywords": [
+        "历史标准成本",
+        "aw_historical_standard_cost"
+      ],
+      "domain": "inventory",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-COST-002-历史成本匹配 §3.5（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SELECT CAST(\"StandardCost\" AS REAL) FROM \"Production.ProductCostHistory\" WHERE \"ProductID\" = :product AND \"StartDate\" <= :event AND (\"EndDate\" IS NULL OR :event < \"EndDate\")",
+      "tables": [
+        "Production.ProductCostHistory"
+      ],
+      "fields": [
+        "Production.ProductCostHistory.ProductID",
+        "Production.ProductCostHistory.StartDate",
+        "Production.ProductCostHistory.EndDate",
+        "Production.ProductCostHistory.StandardCost"
+      ],
+      "structured": {
+        "expression": "SELECT CAST(\"StandardCost\" AS REAL) FROM \"Production.ProductCostHistory\" WHERE \"ProductID\" = :product AND \"StartDate\" <= :event AND (\"EndDate\" IS NULL OR :event < \"EndDate\")",
+        "aggregation": "NONE",
+        "grain": "商品×成本区间",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-COST-002-历史成本匹配.md#3.5",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-COST-002-历史成本匹配 §3.5（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "mixed_grain",
+            "description": "源表为多对一/一对多粒度，直接 JOIN 或逐行比较会重复计数或误判",
+            "affected_tables": [
+              "Production.ProductCostHistory"
+            ],
+            "required_mitigation": "先按业务主键聚合到目标粒度，再关联",
+            "source_ref": "docs/simulated-policies/POL-COST-002-历史成本匹配.md#3.5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_purchase_order_count",
+      "name": "采购订单数",
+      "keywords": [
+        "采购订单数",
+        "aw_purchase_order_count"
+      ],
+      "domain": "purchasing",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PUR-001-采购订单与供应商 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(DISTINCT \"PurchaseOrderID\") FROM \"Purchasing.PurchaseOrderHeader\"",
+      "tables": [
+        "Purchasing.PurchaseOrderHeader"
+      ],
+      "fields": [
+        "Purchasing.PurchaseOrderHeader.PurchaseOrderID"
+      ],
+      "structured": {
+        "expression": "COUNT(DISTINCT \"PurchaseOrderID\") FROM \"Purchasing.PurchaseOrderHeader\"",
+        "aggregation": "COUNT_DISTINCT",
+        "grain": "采购订单头",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PUR-001-采购订单与供应商 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_purchase_total_due",
+      "name": "采购应付总额",
+      "keywords": [
+        "采购应付总额",
+        "aw_purchase_total_due"
+      ],
+      "domain": "purchasing",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PUR-001-采购订单与供应商 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"TotalDue\" AS REAL)) FROM \"Purchasing.PurchaseOrderHeader\"",
+      "tables": [
+        "Purchasing.PurchaseOrderHeader"
+      ],
+      "fields": [
+        "Purchasing.PurchaseOrderHeader.TotalDue"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"TotalDue\" AS REAL)) FROM \"Purchasing.PurchaseOrderHeader\"",
+        "aggregation": "SUM",
+        "grain": "采购订单头",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PUR-001-采购订单与供应商 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_purchase_units",
+      "name": "采购件数",
+      "keywords": [
+        "采购件数",
+        "aw_purchase_units"
+      ],
+      "domain": "purchasing",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PUR-001-采购订单与供应商 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(\"OrderQty\") FROM \"Purchasing.PurchaseOrderDetail\"",
+      "tables": [
+        "Purchasing.PurchaseOrderDetail"
+      ],
+      "fields": [
+        "Purchasing.PurchaseOrderDetail.OrderQty"
+      ],
+      "structured": {
+        "expression": "SUM(\"OrderQty\") FROM \"Purchasing.PurchaseOrderDetail\"",
+        "aggregation": "SUM",
+        "grain": "采购明细行",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PUR-001-采购订单与供应商 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_received_qty",
+      "name": "收货数量",
+      "keywords": [
+        "收货数量",
+        "aw_received_qty"
+      ],
+      "domain": "purchasing",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PUR-001-采购订单与供应商 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SUM(CAST(\"ReceivedQty\" AS REAL)) FROM \"Purchasing.PurchaseOrderDetail\"",
+      "tables": [
+        "Purchasing.PurchaseOrderDetail"
+      ],
+      "fields": [
+        "Purchasing.PurchaseOrderDetail.ReceivedQty"
+      ],
+      "structured": {
+        "expression": "SUM(CAST(\"ReceivedQty\" AS REAL)) FROM \"Purchasing.PurchaseOrderDetail\"",
+        "aggregation": "SUM",
+        "grain": "采购明细行",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.4",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PUR-001-采购订单与供应商 §3.4（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_active_vendor_count",
+      "name": "活跃供应商数",
+      "keywords": [
+        "活跃供应商数",
+        "aw_active_vendor_count"
+      ],
+      "domain": "purchasing",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PUR-001-采购订单与供应商 §3.5（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(*) FROM \"Purchasing.Vendor\" WHERE \"ActiveFlag\" = 1",
+      "tables": [
+        "Purchasing.Vendor"
+      ],
+      "fields": [
+        "Purchasing.Vendor.BusinessEntityID",
+        "Purchasing.Vendor.ActiveFlag"
+      ],
+      "structured": {
+        "expression": "COUNT(*) FROM \"Purchasing.Vendor\" WHERE \"ActiveFlag\" = 1",
+        "aggregation": "COUNT",
+        "grain": "供应商",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.5",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PUR-001-采购订单与供应商 §3.5（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_avg_lead_time",
+      "name": "平均交付提前期",
+      "keywords": [
+        "平均交付提前期",
+        "aw_avg_lead_time"
+      ],
+      "domain": "purchasing",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PUR-001-采购订单与供应商 §3.6（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "AVG(\"AverageLeadTime\") FROM \"Purchasing.ProductVendor\"",
+      "tables": [
+        "Purchasing.ProductVendor"
+      ],
+      "fields": [
+        "Purchasing.ProductVendor.AverageLeadTime"
+      ],
+      "structured": {
+        "expression": "AVG(\"AverageLeadTime\") FROM \"Purchasing.ProductVendor\"",
+        "aggregation": "AVG",
+        "grain": "商品×供应商",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.6",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PUR-001-采购订单与供应商 §3.6（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_employee_count",
+      "name": "在职员工数",
+      "keywords": [
+        "在职员工数",
+        "aw_employee_count"
+      ],
+      "domain": "hr",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PERF-002-员工与薪酬口径 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(*) FROM \"HumanResources.Employee\" WHERE \"CurrentFlag\" = 1",
+      "tables": [
+        "HumanResources.Employee"
+      ],
+      "fields": [
+        "HumanResources.Employee.BusinessEntityID",
+        "HumanResources.Employee.CurrentFlag"
+      ],
+      "structured": {
+        "expression": "COUNT(*) FROM \"HumanResources.Employee\" WHERE \"CurrentFlag\" = 1",
+        "aggregation": "COUNT",
+        "grain": "员工",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PERF-002-员工与薪酬口径.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PERF-002-员工与薪酬口径 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_avg_pay_rate",
+      "name": "平均薪资费率（历史记录）",
+      "keywords": [
+        "平均薪资费率（历史记录）",
+        "aw_avg_pay_rate"
+      ],
+      "domain": "hr",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PERF-002-员工与薪酬口径 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "AVG(CAST(\"Rate\" AS REAL)) FROM \"HumanResources.EmployeePayHistory\"",
+      "tables": [
+        "HumanResources.EmployeePayHistory"
+      ],
+      "fields": [
+        "HumanResources.EmployeePayHistory.Rate",
+        "HumanResources.EmployeePayHistory.RateChangeDate"
+      ],
+      "structured": {
+        "expression": "AVG(CAST(\"Rate\" AS REAL)) FROM \"HumanResources.EmployeePayHistory\"",
+        "aggregation": "AVG",
+        "grain": "员工×调薪日期",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PERF-002-员工与薪酬口径.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PERF-002-员工与薪酬口径 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "mixed_grain",
+            "description": "源表为多对一/一对多粒度，直接 JOIN 或逐行比较会重复计数或误判",
+            "affected_tables": [
+              "HumanResources.EmployeePayHistory"
+            ],
+            "required_mitigation": "先按业务主键聚合到目标粒度，再关联",
+            "source_ref": "docs/simulated-policies/POL-PERF-002-员工与薪酬口径.md#3.3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_region_count",
+      "name": "销售区域数",
+      "keywords": [
+        "销售区域数",
+        "aw_region_count"
+      ],
+      "domain": "region",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-REGION-001-区域归属与汇总 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(\"TerritoryID\") FROM \"Sales.SalesTerritory\"",
+      "tables": [
+        "Sales.SalesTerritory"
+      ],
+      "fields": [
+        "Sales.SalesTerritory.TerritoryID"
+      ],
+      "structured": {
+        "expression": "COUNT(\"TerritoryID\") FROM \"Sales.SalesTerritory\"",
+        "aggregation": "COUNT",
+        "grain": "区域",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-REGION-001-区域归属与汇总.md#3.1",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-REGION-001-区域归属与汇总 §3.1（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_region_sales_amount",
+      "name": "区域销售额",
+      "keywords": [
+        "区域销售额",
+        "aw_region_sales_amount"
+      ],
+      "domain": "region",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-REGION-001-区域归属与汇总 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "SELECT \"TerritoryID\", SUM(CAST(\"SubTotal\" AS REAL)) FROM \"Sales.SalesOrderHeader\" GROUP BY \"TerritoryID\"",
+      "tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "fields": [
+        "Sales.SalesOrderHeader.TerritoryID",
+        "Sales.SalesOrderHeader.SubTotal"
+      ],
+      "structured": {
+        "expression": "SELECT \"TerritoryID\", SUM(CAST(\"SubTotal\" AS REAL)) FROM \"Sales.SalesOrderHeader\" GROUP BY \"TerritoryID\"",
+        "aggregation": "SUM",
+        "grain": "区域",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [
+          "Sales.SalesOrderHeader.TerritoryID"
+        ],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-REGION-001-区域归属与汇总.md#3.2",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-REGION-001-区域归属与汇总 §3.2（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "derived: 真实维度字段（模拟制度允许）"
+        },
+        "aggregation_risks": []
+      }
+    },
+    {
+      "id": "aw_quota_attainment",
+      "name": "配额达成率",
+      "keywords": [
+        "配额达成率",
+        "aw_quota_attainment"
+      ],
+      "domain": "performance",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PERF-001-销售绩效与配额 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "CAST(\"SalesYTD\" AS REAL) / NULLIF(CAST(\"SalesQuota\" AS REAL), 0)",
+      "tables": [
+        "Sales.SalesPerson",
+        "Sales.SalesPersonQuotaHistory"
+      ],
+      "fields": [
+        "Sales.SalesPerson.SalesYTD",
+        "Sales.SalesPerson.BusinessEntityID",
+        "Sales.SalesPersonQuotaHistory.SalesQuota",
+        "Sales.SalesPersonQuotaHistory.BusinessEntityID"
+      ],
+      "structured": {
+        "expression": "CAST(\"SalesYTD\" AS REAL) / NULLIF(CAST(\"SalesQuota\" AS REAL), 0)",
+        "aggregation": "RATIO",
+        "grain": "销售人员×配额期",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PERF-001-销售绩效与配额.md#3.3",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PERF-001-销售绩效与配额 §3.3（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": [
+          {
+            "kind": "division_by_zero",
+            "description": "分母可能为零，直接相除会得到 NULL 或运行时错误",
+            "affected_tables": [
+              "Sales.SalesPerson",
+              "Sales.SalesPersonQuotaHistory"
+            ],
+            "required_mitigation": "使用 NULLIF(denominator, 0)，分母为零时返回 NULL 而非 0",
+            "source_ref": "docs/simulated-policies/POL-PERF-001-销售绩效与配额.md#3.3"
+          },
+          {
+            "kind": "mixed_grain",
+            "description": "源表为多对一/一对多粒度，直接 JOIN 或逐行比较会重复计数或误判",
+            "affected_tables": [
+              "Sales.SalesPerson",
+              "Sales.SalesPersonQuotaHistory"
+            ],
+            "required_mitigation": "先按业务主键聚合到目标粒度，再关联",
+            "source_ref": "docs/simulated-policies/POL-PERF-001-销售绩效与配额.md#3.3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aw_salesperson_count",
+      "name": "销售人员数",
+      "keywords": [
+        "销售人员数",
+        "aw_salesperson_count"
+      ],
+      "domain": "performance",
+      "database_id": "adventureworks",
+      "definition": "模拟条款 POL-PERF-001-销售绩效与配额 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula": "COUNT(DISTINCT \"BusinessEntityID\") FROM \"Sales.SalesPerson\"",
+      "tables": [
+        "Sales.SalesPerson"
+      ],
+      "fields": [
+        "Sales.SalesPerson.BusinessEntityID"
+      ],
+      "structured": {
+        "expression": "COUNT(DISTINCT \"BusinessEntityID\") FROM \"Sales.SalesPerson\"",
+        "aggregation": "COUNT_DISTINCT",
+        "grain": "销售人员",
+        "time_field": "UNKNOWN",
+        "unit": "UNKNOWN",
+        "allowed_dimensions": [],
+        "join_constraints": [],
+        "required_filters": [],
+        "source_ref": "docs/simulated-policies/POL-PERF-001-销售绩效与配额.md#3.4",
+        "evidence_status": "partial",
+        "provenance": {
+          "expression": "verbatim: POL-PERF-001-销售绩效与配额 §3.4（模拟待审核条款）",
+          "source_tables": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "source_columns": "verified: SQLite PRAGMA table_info（真实库元数据）",
+          "aggregation": "derived: 模拟条款中的聚合函数字面",
+          "grain": "derived: 由真实主键/复合主键推断",
+          "unit": "unknown: 示例库未声明币种与计量单位",
+          "join_constraints": "unknown: 未人工审核关联约束",
+          "allowed_dimensions": "unknown: 未人工审核允许维度"
+        },
+        "aggregation_risks": []
+      }
+    }
+  ]
+}

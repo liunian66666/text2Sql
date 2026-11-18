@@ -25,6 +25,14 @@ from app.llm import LLM
 from app.llm.budget import BudgetExceededError, reset_hook, reset_meter, set_hook, start_meter
 from app.llm.usage import meter_item
 from app.services import SchemaService, reset_execution_service, reset_schema_service
+from app.vector_db.local_index import (
+    INDEX_INCOMPATIBLE,
+    INDEX_MISSING,
+    INDEX_STALE,
+    covered_column_keys,
+    verify_runtime_index,
+)
+from app.vector_db.value_index_policy import POLICY_VERSION
 
 _RUN_LOCK = threading.Lock()
 STAGES = ("value_retrieval", "few_shot_preparation", "schema_linking", "sql_generation", "sql_revision", "sql_selection")
@@ -34,8 +42,8 @@ STAGES = ("value_retrieval", "few_shot_preparation", "schema_linking", "sql_gene
 # these caps turn an overloaded provider or an out-of-scope question into a visible error
 # instead of making an interviewer wait indefinitely.
 # Passing None disables the guard entirely (batch/eval runs may not want a cap).
-DEFAULT_REQUEST_TOKEN_CAP = 80_000
-DEFAULT_REQUEST_SECONDS_CAP = 240
+DEFAULT_REQUEST_TOKEN_CAP = 200_000
+DEFAULT_REQUEST_SECONDS_CAP = 480
 
 
 class SQLSkillRequest(BaseModel):
@@ -143,7 +151,8 @@ def _summarize_usage(path):
 
 class SQLSkill:
     def __init__(self, config, databases: dict[str, str | Path], *, workspace: str | Path | None = None,
-                 max_total_tokens: int | None = None, max_seconds: int | None = None):
+                 max_total_tokens: int | None = None, max_seconds: int | None = None,
+                 max_llm_calls: int | None = None):
         self._config: AppConfig = (config if isinstance(config, AppConfig) else config.app_config).model_copy(deep=True)
         self._databases = {name: Path(path).resolve() for name, path in databases.items()}
         self._workspace = Path(workspace or PROJECT_ROOT / "workspace/skill_requests").resolve()
@@ -151,6 +160,7 @@ class SQLSkill:
         # burning tokens through the nested retry layers indefinitely.
         self._max_total_tokens = max_total_tokens
         self._max_seconds = max_seconds
+        self._max_llm_calls = max_llm_calls
         for name, path in self._databases.items():
             if not path.is_file():
                 raise FileNotFoundError(f"Database {name!r} does not exist")
@@ -218,6 +228,74 @@ class SQLSkill:
         item.few_shot_preparation_metadata = {"wall_seconds": time.perf_counter() - started,
             "retrieved_example_count": len(prepared.examples), "target_mask_source": prepared.mask_source}
 
+    @staticmethod
+    def _text_columns(schema: dict[str, Any]) -> set[tuple[str, str]]:
+        columns: set[tuple[str, str]] = set()
+        for table_name, table in (schema.get("tables") or {}).items():
+            for column_name, column in (table.get("columns") or {}).items():
+                column_type = str((column or {}).get("column_type", "")).upper()
+                if column_type == "TEXT" or column_type.startswith(("VARCHAR", "CHAR")):
+                    columns.add((table_name, column_name))
+        return columns
+
+    def _guard_value_index(self, cfg, index_dir: Path, db: Path) -> dict[str, Any]:
+        """Refuse an index built with another model, or one whose DB changed.
+
+        A *partial* index is a declared, legitimate state: uncovered columns
+        simply return no values. Only ``incompatible`` / ``stale`` stop the run,
+        because scoring vectors from a different model is silently wrong.
+
+        This runs **before** the schema is loaded on purpose: a missing index must
+        fail before any SQLite connection is opened, so the failure stays a pure
+        precondition error instead of leaving a locked file behind.
+        """
+        if cfg.value_retrieval_config.backend != "local_index":
+            return {"status": "not_applicable",
+                    "backend": cfg.value_retrieval_config.backend}
+        # Signature 必须用「构建时看到的那份配置」计算：运行时配置把相对模型路径
+        # 展开成了绝对路径，直接比较会产生假不兼容。AppConfig 本体的字段名是
+        # vector_database（_runtime_config 才会以 *_config 命名导出）。
+        status = verify_runtime_index(
+            index_dir / "local_index",
+            embedding_config=self._config.vector_database,
+            database_fingerprint=hashlib.sha256(db.read_bytes()).hexdigest(),
+            policy_version=POLICY_VERSION,
+        )
+        if status["status"] == INDEX_MISSING:
+            raise FileNotFoundError("Prepare the database value index before running this skill")
+        if status["status"] == INDEX_STALE:
+            raise ValueError("Database changed since value indexing; rebuild its index")
+        if status["status"] == INDEX_INCOMPATIBLE:
+            raise ValueError(
+                "Value index is incompatible with the current embedding configuration "
+                f"({', '.join(status.get('reasons') or [])}); rebuild it or point "
+                "vector_database.store_root_path at a matching index")
+        return status
+
+    def _record_value_index(self, status: dict[str, Any], cfg, index_dir: Path,
+                            db: Path, schema: dict[str, Any],
+                            destination: Path) -> dict[str, Any]:
+        """Annotate the guard result with real coverage numbers and persist it."""
+        if status.get("status") == "not_applicable":
+            return status
+        covered = covered_column_keys(index_dir / "local_index")
+        text_columns = self._text_columns(schema)
+        lower = bool(cfg.vector_database_config.lower_meta_data)
+        normalized_covered = {((table.lower() if lower else table), (column.lower() if lower else column))
+                              for table, column in covered}
+        uncovered = sorted(column for column in text_columns if column not in normalized_covered)
+        status.update({
+            "database_id": db.stem,
+            "text_column_count": len(text_columns),
+            "uncovered_text_columns": len(uncovered),
+            "uncovered_columns_sample": [f"{table}.{column}" for table, column in uncovered[:20]],
+            "degradation": ("uncovered columns return no values; value retrieval stays optional"
+                            if uncovered else "full coverage for this schema"),
+        })
+        (destination / "value_index_status.json").write_text(
+            json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
+        return status
+
     def run(self, request: SQLSkillRequest | dict, *, on_stage: Callable[[dict], None] | None = None) -> SQLSkillResult:
         request = SQLSkillRequest.model_validate(request)
         if request.database_id not in self._databases:
@@ -229,7 +307,7 @@ class SQLSkill:
         result = SQLSkillResult(request_id=request_id, status="error", artifacts_dir=str(destination))
         ledger = destination / "usage.jsonl"
         current_stage = "prepare"
-        meter_token = start_meter(self._max_total_tokens, self._max_seconds)
+        meter_token = start_meter(self._max_total_tokens, self._max_seconds, self._max_llm_calls)
         hook_token = set_hook(lambda snapshot: on_stage({
             "stage": "meter", "status": "usage", "request_id": request_id, **snapshot}) if on_stage else None)
         with _RUN_LOCK, _usage_environment(ledger):
@@ -239,16 +317,11 @@ class SQLSkill:
                 _execute_sql_cached.cache_clear()
                 db = self._databases[request.database_id]
                 index = Path(cfg.vector_database_config.store_root_path) / request.database_id
-                if cfg.value_retrieval_config.backend == "local_index" and not (index / "local_index/manifest.json").exists():
-                    raise FileNotFoundError("Prepare the database value index before running this skill")
-                provenance = index / "local_index/embedding_provenance.json"
-                if provenance.exists():
-                    expected = json.loads(provenance.read_text(encoding="utf-8")).get("database_sha256")
-                    if expected and expected != hashlib.sha256(db.read_bytes()).hexdigest():
-                        raise ValueError("Database changed since value indexing; rebuild its index")
+                guard = self._guard_value_index(cfg, index, db)
+                schema = SchemaService().load_sqlite_schema(str(db))
+                self._record_value_index(guard, cfg, index, db, schema, destination)
                 if not (Path(cfg.few_shot_index_config.save_path) / "manifest.json").exists():
                     raise FileNotFoundError("Prepare the training few-shot index before running this skill")
-                schema = SchemaService().load_sqlite_schema(str(db))
                 item = DataItem(question_id=0, question=request.question, evidence=request.evidence,
                     gold_sql="", database_id=request.database_id, database_path=str(db), database_schema=schema)
                 save_dataset(RequestDataset(cfg.dataset_config, item), cfg.dataset_config.save_path)

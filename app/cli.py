@@ -9,6 +9,10 @@
     enterprise-agent evaluate-rag     # 业务口径 RAG 评测
     enterprise-agent generate-data    # 生成合成企业库
     enterprise-agent build-index      # 构建值向量索引
+    enterprise-agent build-knowledge # 构建结构化指标 / Schema 知识库
+    enterprise-agent evaluate-graphrag # Schema 检索 / GraphRAG A-D 对照评测
+    enterprise-agent evaluate-join-paths # 公平 Join 路径方法对照（离线）
+    enterprise-agent phase4b-smoke     # AdventureWorks 在线端到端 Smoke Test
 
 子命令实现在 ``app/commands/``，每个模块只暴露 ``add_arguments`` 与 ``run``，
 这个文件只负责把名字接到函数上，不放任何业务逻辑。
@@ -21,11 +25,16 @@ import sys
 from app.commands import (
     ask,
     build_index,
+    build_knowledge,
     check,
     evaluate,
+    evaluate_graphrag,
+    evaluate_join_paths,
     evaluate_rag,
+    final_eval,
     generate_data,
     mcp,
+    phase4b_smoke,
     serve,
 )
 
@@ -39,6 +48,11 @@ COMMANDS = {
     "evaluate-rag": (evaluate_rag, "业务口径关键词 vs 混合检索对照"),
     "generate-data": (generate_data, "生成销售与 HR 合成企业库"),
     "build-index": (build_index, "增量构建值向量索引"),
+    "build-knowledge": (build_knowledge, "构建结构化指标 / Schema 知识库（离线、可复现）"),
+    "evaluate-graphrag": (evaluate_graphrag, "Schema 检索与 GraphRAG 开发集 A-D 对照评测"),
+    "evaluate-join-paths": (evaluate_join_paths, "公平 Join 路径方法对照（离线，零在线配额）"),
+    "phase4b-smoke": (phase4b_smoke, "AdventureWorks 在线端到端 Smoke Test（默认只做离线预算规划）"),
+    "final-eval": (final_eval, "封存 test 集最终在线对照（Baseline vs Enhanced，默认只做离线规划）"),
 }
 
 

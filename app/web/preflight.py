@@ -1,6 +1,7 @@
 """Local, credential-safe readiness checks for the web application."""
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,29 @@ def _absolute(root: Path, value: str | os.PathLike) -> Path:
     return path if path.is_absolute() else root / path
 
 
+def _value_index_facts(manifest_path: Path) -> dict[str, Any]:
+    """Read the manifest directly (json only) to keep preflight lightweight.
+
+    Reports the real coverage so a *partial* index is visible instead of being
+    flattened to a single ready/not-ready bit.
+    """
+    if not manifest_path.is_file():
+        return {"ready": False, "kind": "missing", "covered_tables": 0, "covered_columns": 0}
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return {"ready": False, "kind": "unreadable", "covered_tables": 0, "covered_columns": 0, "error": str(exc)}
+    columns = manifest.get("columns") or []
+    covered_tables = {entry.get("table_name") for entry in columns if entry.get("table_name")}
+    kind = manifest.get("index_kind") or ("complete" if columns else "partial")
+    return {
+        "ready": True,
+        "kind": kind,
+        "covered_tables": len(covered_tables),
+        "covered_columns": len(columns),
+    }
+
+
 def collect_preflight(
     app_config: Any,
     database_paths: dict[str, Path],
@@ -29,10 +53,14 @@ def collect_preflight(
     databases = []
     for database_id, database_path in sorted(database_paths.items()):
         manifest = vector_root / database_id / "local_index" / "manifest.json"
+        index_facts = _value_index_facts(manifest)
         databases.append({
             "id": database_id,
             "database_ready": Path(database_path).is_file(),
-            "value_index_ready": manifest.is_file(),
+            "value_index_ready": index_facts["ready"],
+            "value_index_kind": index_facts["kind"],
+            "value_index_covered_tables": index_facts["covered_tables"],
+            "value_index_covered_columns": index_facts["covered_columns"],
         })
     reports = sorted(
         path.parent.relative_to(evaluations_root).as_posix()

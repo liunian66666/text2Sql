@@ -1,0 +1,722 @@
+{
+  "dataset": "adventureworks-graphrag",
+  "split": "dev",
+  "version": "1",
+  "source_notice": "数据来自微软公开示例库 AdventureWorks OLTP（MIT），不是真实生产企业数据；业务制度均为 docs/simulated-policies/ 下的 SIMULATED/UNREVIEWED 模拟条款，非微软官方规则。",
+  "generation": "reference_sql 与结果均由 app.skills.sql_skill.execute_readonly_table 在真实 SQLite 上执行取得",
+  "isolation": "开发集：可用于调参与错误分析",
+  "case_count": 12,
+  "cases": [
+    {
+      "id": "AW-DEV-001",
+      "question": "统计各商品类别的明细净销售额，按销售额从高到低排列。",
+      "category": "intermediate_table",
+      "difficulty": "medium",
+      "required_tables": [
+        "Sales.SalesOrderDetail",
+        "Production.Product",
+        "Production.ProductSubcategory",
+        "Production.ProductCategory"
+      ],
+      "required_intermediate_tables": [
+        "Production.ProductSubcategory"
+      ],
+      "acceptable_join_paths": [
+        "SalesOrderDetail.ProductID -> Product.ProductID",
+        "Product.ProductSubcategoryID -> ProductSubcategory.ProductSubcategoryID",
+        "ProductSubcategory.ProductCategoryID -> ProductCategory.ProductCategoryID"
+      ],
+      "policy_evidence": [
+        "POL-PROD-001#2.1"
+      ],
+      "key_conclusion": "Bikes 类别净销售额 94,651,172.70 居首，共 4 个类别",
+      "validation_rules": [
+        "必须经 ProductSubcategory 中间表",
+        "ProductSubcategoryID 可空，未分类商品不计入类别汇总",
+        "金额列需 CAST AS REAL"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT c.\"Name\" AS category, ROUND(SUM(CAST(d.\"LineTotal\" AS REAL)),2) AS sales FROM \"Sales.SalesOrderDetail\" d JOIN \"Production.Product\" p ON d.\"ProductID\"=p.\"ProductID\" JOIN \"Production.ProductSubcategory\" s ON p.\"ProductSubcategoryID\"=s.\"ProductSubcategoryID\" JOIN \"Production.ProductCategory\" c ON s.\"ProductCategoryID\"=c.\"ProductCategoryID\" GROUP BY c.\"Name\" ORDER BY sales DESC",
+      "reference_result": {
+        "columns": [
+          "category",
+          "sales"
+        ],
+        "rows": [
+          [
+            "Bikes",
+            94651172.7
+          ],
+          [
+            "Components",
+            11802593.29
+          ],
+          [
+            "Clothing",
+            2120542.52
+          ],
+          [
+            "Accessories",
+            1272072.88
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-002",
+      "question": "列出各部门的员工人数，按人数从高到低排列。",
+      "category": "intermediate_table",
+      "difficulty": "medium",
+      "required_tables": [
+        "HumanResources.EmployeeDepartmentHistory",
+        "HumanResources.Department"
+      ],
+      "required_intermediate_tables": [
+        "HumanResources.EmployeeDepartmentHistory"
+      ],
+      "acceptable_join_paths": [
+        "EmployeeDepartmentHistory.DepartmentID -> Department.DepartmentID"
+      ],
+      "policy_evidence": [
+        "POL-PERF-002#4.2"
+      ],
+      "key_conclusion": "Production 部门 180 人最多，共 16 个部门",
+      "validation_rules": [
+        "Employee 与 Department 无直接关联字段，必须经历史表",
+        "按 BusinessEntityID 去重计数"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT d.\"Name\" AS dept, COUNT(DISTINCT h.\"BusinessEntityID\") AS employees FROM \"HumanResources.EmployeeDepartmentHistory\" h JOIN \"HumanResources.Department\" d ON h.\"DepartmentID\"=d.\"DepartmentID\" GROUP BY d.\"Name\" ORDER BY employees DESC",
+      "reference_result": {
+        "columns": [
+          "dept",
+          "employees"
+        ],
+        "rows": [
+          [
+            "Production",
+            180
+          ],
+          [
+            "Sales",
+            18
+          ],
+          [
+            "Purchasing",
+            13
+          ],
+          [
+            "Finance",
+            11
+          ],
+          [
+            "Information Services",
+            10
+          ],
+          [
+            "Marketing",
+            10
+          ],
+          [
+            "Engineering",
+            7
+          ],
+          [
+            "Facilities and Maintenance",
+            7
+          ],
+          [
+            "Quality Assurance",
+            7
+          ],
+          [
+            "Human Resources",
+            6
+          ],
+          [
+            "Production Control",
+            6
+          ],
+          [
+            "Shipping and Receiving",
+            6
+          ],
+          [
+            "Document Control",
+            5
+          ],
+          [
+            "Research and Development",
+            4
+          ],
+          [
+            "Tool Design",
+            4
+          ],
+          [
+            "Executive",
+            2
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-003",
+      "question": "统计每个供应商提供的商品数量，返回商品数最多的五个供应商。",
+      "category": "intermediate_table",
+      "difficulty": "medium",
+      "required_tables": [
+        "Purchasing.ProductVendor",
+        "Purchasing.Vendor"
+      ],
+      "required_intermediate_tables": [
+        "Purchasing.ProductVendor"
+      ],
+      "acceptable_join_paths": [
+        "ProductVendor.BusinessEntityID -> Vendor.BusinessEntityID"
+      ],
+      "policy_evidence": [
+        "POL-PUR-001#4.2"
+      ],
+      "key_conclusion": "Mountain Works 提供 30 个商品，居首",
+      "validation_rules": [
+        "ProductVendor 主键为 (ProductID, BusinessEntityID)",
+        "按供应商聚合而非按商品-供应商对计数"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT v.\"Name\" AS vendor, COUNT(*) AS products FROM \"Purchasing.ProductVendor\" pv JOIN \"Purchasing.Vendor\" v ON pv.\"BusinessEntityID\"=v.\"BusinessEntityID\" GROUP BY v.\"Name\" ORDER BY products DESC LIMIT 5",
+      "reference_result": {
+        "columns": [
+          "vendor",
+          "products"
+        ],
+        "rows": [
+          [
+            "Mountain Works",
+            30
+          ],
+          [
+            "Bergeron Off-Roads",
+            24
+          ],
+          [
+            "Norstan Bike Hut",
+            23
+          ],
+          [
+            "Cruger Bike Company",
+            23
+          ],
+          [
+            "Pro Sport Industries",
+            19
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-004",
+      "question": "按订单归属区域统计销售额，返回区域名称与销售额并降序排列。",
+      "category": "multi_join_path",
+      "difficulty": "medium",
+      "required_tables": [
+        "Sales.SalesOrderHeader",
+        "Sales.SalesTerritory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "SalesOrderHeader.TerritoryID -> SalesTerritory.TerritoryID"
+      ],
+      "policy_evidence": [
+        "POL-REGION-001#4.2"
+      ],
+      "key_conclusion": "Southwest 销售额 24,184,609.60 居首",
+      "validation_rules": [
+        "默认使用订单头 TerritoryID，不得改用 Customer.TerritoryID",
+        "不得混用两处 TerritoryID",
+        "金额列需 CAST"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT t.\"Name\" AS territory, ROUND(SUM(CAST(o.\"SubTotal\" AS REAL)),2) AS sales FROM \"Sales.SalesOrderHeader\" o JOIN \"Sales.SalesTerritory\" t ON o.\"TerritoryID\"=t.\"TerritoryID\" GROUP BY t.\"Name\" ORDER BY sales DESC",
+      "reference_result": {
+        "columns": [
+          "territory",
+          "sales"
+        ],
+        "rows": [
+          [
+            "Southwest",
+            24184609.6
+          ],
+          [
+            "Canada",
+            16355770.46
+          ],
+          [
+            "Northwest",
+            16084942.55
+          ],
+          [
+            "Australia",
+            10655335.96
+          ],
+          [
+            "Central",
+            7909009.01
+          ],
+          [
+            "Southeast",
+            7879655.07
+          ],
+          [
+            "United Kingdom",
+            7670721.04
+          ],
+          [
+            "France",
+            7251555.65
+          ],
+          [
+            "Northeast",
+            6939374.48
+          ],
+          [
+            "Germany",
+            4915407.6
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-005",
+      "question": "按客户注册区域统计客户数，用于与订单归属区域口径做对比。",
+      "category": "multi_join_path",
+      "difficulty": "hard",
+      "required_tables": [
+        "Sales.Customer",
+        "Sales.SalesTerritory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "Customer.TerritoryID -> SalesTerritory.TerritoryID"
+      ],
+      "policy_evidence": [
+        "POL-REGION-001#4.1",
+        "POL-REGION-001#4.2"
+      ],
+      "key_conclusion": "客户注册区域口径下 Southwest 4,696 客户，与订单区域口径不同，不可互相替代",
+      "validation_rules": [
+        "必须显式标注所用区域口径",
+        "不得与 DEV-004 的结果混为同一指标"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT t.\"Name\" AS territory, COUNT(*) AS customers FROM \"Sales.Customer\" c JOIN \"Sales.SalesTerritory\" t ON c.\"TerritoryID\"=t.\"TerritoryID\" GROUP BY t.\"Name\" ORDER BY customers DESC",
+      "reference_result": {
+        "columns": [
+          "territory",
+          "customers"
+        ],
+        "rows": [
+          [
+            "Southwest",
+            4696
+          ],
+          [
+            "Australia",
+            3665
+          ],
+          [
+            "Northwest",
+            3520
+          ],
+          [
+            "United Kingdom",
+            1991
+          ],
+          [
+            "France",
+            1884
+          ],
+          [
+            "Germany",
+            1852
+          ],
+          [
+            "Canada",
+            1791
+          ],
+          [
+            "Southeast",
+            176
+          ],
+          [
+            "Central",
+            132
+          ],
+          [
+            "Northeast",
+            113
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-006",
+      "question": "查询销售人员的销售快照 YTD 与各期配额，指出快照与实时订单聚合不可混用。",
+      "category": "multi_join_path",
+      "difficulty": "hard",
+      "required_tables": [
+        "Sales.SalesPerson",
+        "Sales.SalesPersonQuotaHistory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "SalesPerson.BusinessEntityID -> SalesPersonQuotaHistory.BusinessEntityID"
+      ],
+      "policy_evidence": [
+        "POL-PERF-001#2.1",
+        "POL-PERF-001#4.1"
+      ],
+      "key_conclusion": "BusinessEntityID 274 的 SalesYTD 快照 559,697.5639 对应多条历史配额，直接 JOIN 会重复",
+      "validation_rules": [
+        "SalesYTD 为预置快照，不得与订单明细聚合相加",
+        "配额按 (BusinessEntityID, QuotaDate) 复合主键取"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT sp.\"BusinessEntityID\", CAST(sp.\"SalesYTD\" AS REAL) AS ytd, CAST(q.\"SalesQuota\" AS REAL) AS quota FROM \"Sales.SalesPerson\" sp JOIN \"Sales.SalesPersonQuotaHistory\" q ON sp.\"BusinessEntityID\"=q.\"BusinessEntityID\" ORDER BY sp.\"BusinessEntityID\" LIMIT 5",
+      "reference_result": {
+        "columns": [
+          "BusinessEntityID",
+          "ytd",
+          "quota"
+        ],
+        "rows": [
+          [
+            274,
+            559697.5639,
+            28000.0
+          ],
+          [
+            274,
+            559697.5639,
+            7000.0
+          ],
+          [
+            274,
+            559697.5639,
+            91000.0
+          ],
+          [
+            274,
+            559697.5639,
+            140000.0
+          ],
+          [
+            274,
+            559697.5639,
+            70000.0
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-007",
+      "question": "列出商品 707 的全部历史标准成本区间及成本值。",
+      "category": "historical_cost",
+      "difficulty": "medium",
+      "required_tables": [
+        "Production.ProductCostHistory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-COST-002#2",
+        "POL-COST-002#3.1"
+      ],
+      "key_conclusion": "商品 707 有 3 段成本区间：12.0278 / 13.8782 / 13.0863（末段 EndDate 为空）",
+      "validation_rules": [
+        "按 (ProductID, StartDate) 复合主键",
+        "EndDate IS NULL 表示当前有效区间",
+        "不得用 Product.StandardCost 替代历史成本"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT \"ProductID\", \"StartDate\", \"EndDate\", CAST(\"StandardCost\" AS REAL) AS cost FROM \"Production.ProductCostHistory\" WHERE \"ProductID\"=707 ORDER BY \"StartDate\"",
+      "reference_result": {
+        "columns": [
+          "ProductID",
+          "StartDate",
+          "EndDate",
+          "cost"
+        ],
+        "rows": [
+          [
+            707,
+            "2022-05-30 00:00:00.000",
+            "2023-05-29 00:00:00.000",
+            12.0278
+          ],
+          [
+            707,
+            "2023-05-30 00:00:00.000",
+            "2024-05-28 00:00:00.000",
+            13.8782
+          ],
+          [
+            707,
+            "2024-05-29 00:00:00.000",
+            null,
+            13.0863
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-008",
+      "question": "按订单日期匹配历史成本区间，统计 2023 年 1 月订单明细匹配到的成本记录数与成本合计。",
+      "category": "historical_cost",
+      "difficulty": "hard",
+      "required_tables": [
+        "Sales.SalesOrderDetail",
+        "Sales.SalesOrderHeader",
+        "Production.ProductCostHistory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "SalesOrderDetail.SalesOrderID -> SalesOrderHeader.SalesOrderID",
+        "SalesOrderDetail.ProductID -> ProductCostHistory.ProductID + 日期区间"
+      ],
+      "policy_evidence": [
+        "POL-COST-002#3.1",
+        "POL-COST-002#3.2"
+      ],
+      "key_conclusion": "匹配 848 行，成本合计 916,047.43（模拟区间口径，待审核）",
+      "validation_rules": [
+        "区间条件 StartDate <= OrderDate AND (EndDate IS NULL OR OrderDate < EndDate)",
+        "日期为 TEXT 同格式字符串比较",
+        "不得按 ProductID 直接 JOIN 成本表"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT COUNT(*) AS matched, ROUND(SUM(CAST(ch.\"StandardCost\" AS REAL)),2) AS cost_sum FROM \"Sales.SalesOrderDetail\" d JOIN \"Sales.SalesOrderHeader\" h ON d.\"SalesOrderID\"=h.\"SalesOrderID\" JOIN \"Production.ProductCostHistory\" ch ON ch.\"ProductID\"=d.\"ProductID\" AND ch.\"StartDate\" <= h.\"OrderDate\" AND (ch.\"EndDate\" IS NULL OR h.\"OrderDate\" < ch.\"EndDate\") WHERE h.\"OrderDate\" >= '2023-01-01' AND h.\"OrderDate\" < '2023-02-01'",
+      "reference_result": {
+        "columns": [
+          "matched",
+          "cost_sum"
+        ],
+        "rows": [
+          [
+            848,
+            916047.43
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-009",
+      "question": "验证成本历史表与价格历史表若仅按 ProductID 关联会产生多少行（笛卡尔积风险）。",
+      "category": "historical_cost",
+      "difficulty": "hard",
+      "required_tables": [
+        "Production.ProductCostHistory",
+        "Production.ProductListPriceHistory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-COST-002#3.4"
+      ],
+      "key_conclusion": "仅按 ProductID 关联得到 649 行，而两表各 395 行，证明存在区间粒度膨胀",
+      "validation_rules": [
+        "两表均为「商品×区间」粒度",
+        "必须按 ProductID + 日期区间同时匹配",
+        "结果仅用于风险验证，不可作为业务金额"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT COUNT(*) AS n FROM \"Production.ProductCostHistory\" c JOIN \"Production.ProductListPriceHistory\" l ON c.\"ProductID\"=l.\"ProductID\"",
+      "reference_result": {
+        "columns": [
+          "n"
+        ],
+        "rows": [
+          [
+            649
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-010",
+      "question": "统计当前库存低于再订货点的商品数量（必须先把多库位库存聚合到商品粒度）。",
+      "category": "grain_conflict",
+      "difficulty": "hard",
+      "required_tables": [
+        "Production.ProductInventory",
+        "Production.Product"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-INV-002#3.1",
+        "POL-INV-001#4.1"
+      ],
+      "key_conclusion": "按商品聚合后共 7 个商品低于再订货点",
+      "validation_rules": [
+        "ProductInventory 主键 (ProductID, LocationID)",
+        "禁止逐库位 Quantity 与 ReorderPoint 比较",
+        "先 GROUP BY ProductID 再 JOIN"
+      ],
+      "counter_example_key": null,
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT COUNT(*) AS n FROM (SELECT \"ProductID\", SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\" GROUP BY \"ProductID\") inv JOIN \"Production.Product\" p ON inv.\"ProductID\"=p.\"ProductID\" WHERE inv.qty < p.\"ReorderPoint\"",
+      "reference_result": {
+        "columns": [
+          "n"
+        ],
+        "rows": [
+          [
+            7
+          ]
+        ]
+      },
+      "counter_example": null,
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-011",
+      "question": "演示订单头金额与订单明细直接 JOIN 后的重复聚合放大，并与正确销售额对比。",
+      "category": "grain_conflict",
+      "difficulty": "hard",
+      "required_tables": [
+        "Sales.SalesOrderHeader",
+        "Sales.SalesOrderDetail"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-SALES-002#4.1"
+      ],
+      "key_conclusion": "错误 JOIN 得到 2,596,470,456.68，正确订单头销售额为 109,846,381.40（约 23.6 倍放大）",
+      "validation_rules": [
+        "必须先聚合明细层再与订单头 1:1 关联",
+        "正确值以 q01_orders_sales 为基准",
+        "本例为反例，不得作为业务结论"
+      ],
+      "counter_example_key": "q01_orders_sales",
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT ROUND(SUM(CAST(h.\"SubTotal\" AS REAL)),2) AS inflated FROM \"Sales.SalesOrderHeader\" h JOIN \"Sales.SalesOrderDetail\" d ON h.\"SalesOrderID\"=d.\"SalesOrderID\"",
+      "reference_result": {
+        "columns": [
+          "inflated"
+        ],
+        "rows": [
+          [
+            2596470456.68
+          ]
+        ]
+      },
+      "counter_example": {
+        "reference_sql": "SELECT COUNT(DISTINCT \"SalesOrderID\") AS orders, ROUND(SUM(CAST(\"SubTotal\" AS REAL)),2) AS sales FROM \"Sales.SalesOrderHeader\"",
+        "reference_result": {
+          "columns": [
+            "orders",
+            "sales"
+          ],
+          "rows": [
+            [
+              31465,
+              109846381.4
+            ]
+          ]
+        }
+      },
+      "split": "dev",
+      "reference_sql_verified": true
+    },
+    {
+      "id": "AW-DEV-012",
+      "question": "统计库存覆盖的商品数与库存总量，验证按商品聚合前后总量守恒。",
+      "category": "grain_conflict",
+      "difficulty": "medium",
+      "required_tables": [
+        "Production.ProductInventory"
+      ],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [],
+      "policy_evidence": [
+        "POL-INV-001#3.2",
+        "POL-INV-001#4.1"
+      ],
+      "key_conclusion": "按商品聚合后 432 个商品、总量 335,974，与直接 SUM 一致",
+      "validation_rules": [
+        "聚合前后总量必须相等",
+        "按商品聚合不得丢失库位数量"
+      ],
+      "counter_example_key": "q06_on_hand",
+      "database_id": "adventureworks",
+      "reference_sql": "SELECT COUNT(*) AS products, SUM(qty) AS total FROM (SELECT \"ProductID\", SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\" GROUP BY \"ProductID\")",
+      "reference_result": {
+        "columns": [
+          "products",
+          "total"
+        ],
+        "rows": [
+          [
+            432,
+            335974
+          ]
+        ]
+      },
+      "counter_example": {
+        "reference_sql": "SELECT SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\"",
+        "reference_result": {
+          "columns": [
+            "qty"
+          ],
+          "rows": [
+            [
+              335974
+            ]
+          ]
+        }
+      },
+      "split": "dev",
+      "reference_sql_verified": true
+    }
+  ]
+}

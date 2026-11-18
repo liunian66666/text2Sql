@@ -1,0 +1,98 @@
+{
+  "dataset": "adventureworks-graphrag-join",
+  "split": "dev",
+  "version": "1",
+  "source_notice": "Phase 4B 新增的 Join 路径开发题。所有 acceptable_join_paths 均由真实 SQLite 外键（workspace/knowledge/adventureworks/relations.json）核对，不是人工臆测。仅用于开发集，不涉及封存的 test.json。",
+  "generation": "参考边来自 PRAGMA foreign_key_list 抽取的真实外键约束；本文件不含 reference_sql，只评路径不评 SQL，因此不会泄漏给检索器。",
+  "isolation": "开发集：可用于调参与错误分析",
+  "case_count": 6,
+  "cases": [
+    {
+      "id": "AW-JOIN-001",
+      "question": "按收货地址所在州统计订单数量，返回州代码与订单数。",
+      "category": "multi_role",
+      "difficulty": "hard",
+      "required_tables": ["Sales.SalesOrderHeader", "Person.Address", "Person.StateProvince"],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "SalesOrderHeader.ShipToAddressID -> Address.AddressID",
+        "Address.StateProvinceID -> StateProvince.StateProvinceID"
+      ],
+      "role_sensitive": true,
+      "expect_ambiguity": true,
+      "role_note": "SalesOrderHeader 与 Address 之间有 BillToAddressID / ShipToAddressID 两个外键角色；问的是收货，必须用 ShipToAddressID。",
+      "validation_rules": ["必须选择 ShipToAddressID 角色", "不得使用 BillToAddressID"]
+    },
+    {
+      "id": "AW-JOIN-002",
+      "question": "列出装配件 749 使用的组件商品名称与用量。",
+      "category": "multi_role",
+      "difficulty": "hard",
+      "required_tables": ["Production.BillOfMaterials", "Production.Product"],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "BillOfMaterials.ComponentID -> Product.ProductID"
+      ],
+      "role_sensitive": true,
+      "expect_ambiguity": true,
+      "role_note": "BillOfMaterials 与 Product 之间有 ComponentID / ProductAssemblyID 两个角色；问的是组件，必须用 ComponentID。",
+      "validation_rules": ["必须选择 ComponentID 角色", "不得使用 ProductAssemblyID"]
+    },
+    {
+      "id": "AW-JOIN-003",
+      "question": "统计每个促销活动的销售明细行数与明细金额合计。",
+      "category": "composite_fk",
+      "difficulty": "hard",
+      "required_tables": ["Sales.SalesOrderDetail", "Sales.SpecialOfferProduct", "Sales.SpecialOffer"],
+      "required_intermediate_tables": ["Sales.SpecialOfferProduct"],
+      "acceptable_join_paths": [
+        "SalesOrderDetail.SpecialOfferID -> SpecialOfferProduct.SpecialOfferID",
+        "SalesOrderDetail.ProductID -> SpecialOfferProduct.ProductID",
+        "SpecialOfferProduct.SpecialOfferID -> SpecialOffer.SpecialOfferID"
+      ],
+      "composite_fk": true,
+      "composite_pair": ["SalesOrderDetail", "SpecialOfferProduct"],
+      "validation_rules": ["必须同时使用 SpecialOfferID 与 ProductID 两列", "只按 ProductID 关联会把行数从 121,317 膨胀到 296,983"]
+    },
+    {
+      "id": "AW-JOIN-004",
+      "question": "统计每个商品大类下的商品数量。",
+      "category": "intermediate_table",
+      "difficulty": "medium",
+      "required_tables": ["Production.Product", "Production.ProductSubcategory", "Production.ProductCategory"],
+      "required_intermediate_tables": ["Production.ProductSubcategory"],
+      "acceptable_join_paths": [
+        "Product.ProductSubcategoryID -> ProductSubcategory.ProductSubcategoryID",
+        "ProductSubcategory.ProductCategoryID -> ProductCategory.ProductCategoryID"
+      ],
+      "validation_rules": ["Product 与 ProductCategory 之间没有直接外键，必须经 ProductSubcategory"]
+    },
+    {
+      "id": "AW-JOIN-005",
+      "question": "统计订单归属销售区域的名称与订单数。",
+      "category": "multi_path_meaning",
+      "difficulty": "hard",
+      "required_tables": ["Sales.SalesOrderHeader", "Sales.SalesTerritory"],
+      "required_intermediate_tables": [],
+      "acceptable_join_paths": [
+        "SalesOrderHeader.TerritoryID -> SalesTerritory.TerritoryID"
+      ],
+      "business_meaning_note": "Customer 也有 TerritoryID，可经 Customer 到达 SalesTerritory，但那是客户注册区域口径，不是订单归属区域。",
+      "validation_rules": ["必须用订单头的 TerritoryID", "不得经 Customer.TerritoryID 绕行"]
+    },
+    {
+      "id": "AW-JOIN-006",
+      "question": "按商品子类别统计采购订单明细行数。",
+      "category": "long_path",
+      "difficulty": "hard",
+      "required_tables": ["Purchasing.PurchaseOrderHeader", "Purchasing.PurchaseOrderDetail", "Production.Product", "Production.ProductSubcategory"],
+      "required_intermediate_tables": ["Purchasing.PurchaseOrderDetail"],
+      "acceptable_join_paths": [
+        "PurchaseOrderHeader.PurchaseOrderID -> PurchaseOrderDetail.PurchaseOrderID",
+        "PurchaseOrderDetail.ProductID -> Product.ProductID",
+        "Product.ProductSubcategoryID -> ProductSubcategory.ProductSubcategoryID"
+      ],
+      "validation_rules": ["3 跳路径，必须保留中间表 PurchaseOrderDetail"]
+    }
+  ]
+}

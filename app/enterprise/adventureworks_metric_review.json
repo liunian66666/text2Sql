@@ -1,0 +1,753 @@
+{
+  "database_id": "adventureworks",
+  "decision_ledger": "app/enterprise/adventureworks_review_decisions.json",
+  "decision_policy": "只有 decision_ledger 中出现 decision=approved 且 reviewer 为具名人工的显式记录，review.apply() 才会把该指标 promoted；本脚本不写决定文件，也不批量批准。",
+  "metric_candidates": [
+    {
+      "amount_field_scope_note": "订单数只取 COUNT(DISTINCT SalesOrderID)，与金额字段无关。",
+      "business_definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "COUNT(DISTINCT \"SalesOrderID\") FROM \"Sales.SalesOrderHeader\"",
+      "formula_source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.2",
+      "grain": "订单头",
+      "join_constraints": [],
+      "metric_id": "aw_order_count",
+      "name": "订单数",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.2"
+      ],
+      "reference_result": {
+        "columns": [
+          "orders",
+          "sales"
+        ],
+        "rows": [
+          [
+            31465,
+            109846381.4
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT COUNT(DISTINCT \"SalesOrderID\") AS orders, ROUND(SUM(CAST(\"SubTotal\" AS REAL)),2) AS sales FROM \"Sales.SalesOrderHeader\"",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q01_orders_sales",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderHeader.SalesOrderID",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "time_field": "Sales.SalesOrderHeader.OrderDate",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "是否只统计已确认订单？示例库没有可核实的订单状态字典。",
+        "是否需要按 OrderDate 限定统计周期，当前 time_field 仅为候选。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "SubTotal = 订单头小计，不含税与运费；是订单级金额，不能与明细表 JOIN 后重复求和。",
+      "business_definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(CAST(\"SubTotal\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "formula_source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.1",
+      "grain": "订单头",
+      "join_constraints": [],
+      "metric_id": "aw_sales_amount",
+      "name": "销售额（不含税运费）",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.1"
+      ],
+      "reference_result": {
+        "columns": [
+          "orders",
+          "sales"
+        ],
+        "rows": [
+          [
+            31465,
+            109846381.4
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT COUNT(DISTINCT \"SalesOrderID\") AS orders, ROUND(SUM(CAST(\"SubTotal\" AS REAL)),2) AS sales FROM \"Sales.SalesOrderHeader\"",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q01_orders_sales",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderHeader.SubTotal",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "time_field": "Sales.SalesOrderHeader.OrderDate",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "币种与汇率口径 UNKNOWN，不能对外宣称人民币或美元。",
+        "是否含取消/退货订单无可靠字段依据。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "TotalDue = SubTotal + TaxAmt + Freight，订单级应收总额；与 LineTotal（明细级）不可混用。",
+      "business_definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.4（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(CAST(\"TotalDue\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "formula_source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.4",
+      "grain": "订单头",
+      "join_constraints": [],
+      "metric_id": "aw_total_due",
+      "name": "应收总额",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.4"
+      ],
+      "reference_result": {
+        "columns": [
+          "total_due"
+        ],
+        "rows": [
+          [
+            123216786.12
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT ROUND(SUM(CAST(\"TotalDue\" AS REAL)),2) AS total_due FROM \"Sales.SalesOrderHeader\"",
+      "reference_sql_source": "本脚本生成并用只读沙箱真实执行",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderHeader.TotalDue",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "time_field": "Sales.SalesOrderHeader.OrderDate",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "是否应剔税、剔运费属于业务口径，模拟条款未审核。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "TaxAmt 为订单级税额。",
+      "business_definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.5（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(CAST(\"TaxAmt\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "formula_source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.5",
+      "grain": "订单头",
+      "join_constraints": [],
+      "metric_id": "aw_tax_amount",
+      "name": "税额",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.5"
+      ],
+      "reference_result": {
+        "columns": [
+          "tax"
+        ],
+        "rows": [
+          [
+            10186974.46
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT ROUND(SUM(CAST(\"TaxAmt\" AS REAL)),2) AS tax FROM \"Sales.SalesOrderHeader\"",
+      "reference_sql_source": "本脚本生成并用只读沙箱真实执行",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderHeader.TaxAmt",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "time_field": "Sales.SalesOrderHeader.OrderDate",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "跨区域税率汇总是否有业务意义未审核。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "Freight 为订单级运费。",
+      "business_definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.6（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(CAST(\"Freight\" AS REAL)) FROM \"Sales.SalesOrderHeader\"",
+      "formula_source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.6",
+      "grain": "订单头",
+      "join_constraints": [],
+      "metric_id": "aw_freight_amount",
+      "name": "运费",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.6"
+      ],
+      "reference_result": {
+        "columns": [
+          "freight"
+        ],
+        "rows": [
+          [
+            3183430.25
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT ROUND(SUM(CAST(\"Freight\" AS REAL)),2) AS freight FROM \"Sales.SalesOrderHeader\"",
+      "reference_sql_source": "本脚本生成并用只读沙箱真实执行",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderHeader.Freight",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "time_field": "Sales.SalesOrderHeader.OrderDate",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "运费是否计入净销售额需人工确认。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "分子用订单头 SubTotal（不是明细 LineTotal 之和），分母是订单数；口径需与 aw_sales_amount 保持一致。",
+      "business_definition": "模拟条款 POL-SALES-001-销售口径与订单确认 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(CAST(\"SubTotal\" AS REAL)) / NULLIF(COUNT(DISTINCT \"SalesOrderID\"), 0) FROM \"Sales.SalesOrderHeader\"",
+      "formula_source_ref": "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.3",
+      "grain": "订单头",
+      "join_constraints": [],
+      "metric_id": "aw_avg_order_value",
+      "name": "平均订单金额",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-SALES-001-销售口径与订单确认.md#3.3"
+      ],
+      "reference_result": {
+        "columns": [
+          "avg_order_value"
+        ],
+        "rows": [
+          [
+            3491.07
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT ROUND(SUM(CAST(\"SubTotal\" AS REAL))/NULLIF(COUNT(DISTINCT \"SalesOrderID\"),0),2) AS avg_order_value FROM \"Sales.SalesOrderHeader\"",
+      "reference_sql_source": "本脚本生成并用只读沙箱真实执行",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderHeader.SubTotal",
+        "Sales.SalesOrderHeader.SalesOrderID",
+        "Sales.SalesOrderHeader.OrderDate"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "time_field": "Sales.SalesOrderHeader.OrderDate",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "是否改用 TotalDue 作分子未审核。",
+        "零订单时除零风险已用 NULLIF 缓解，但业务上应返回 NULL 还是 0 未定。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "LineTotal 为明细行净销售额（明细级），与订单头 SubTotal/TotalDue 是不同粒度。",
+      "business_definition": "模拟条款 POL-SALES-002-净销售额与折扣处理 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(CAST(\"LineTotal\" AS REAL)) FROM \"Sales.SalesOrderDetail\"",
+      "formula_source_ref": "docs/simulated-policies/POL-SALES-002-净销售额与折扣处理.md#3.1",
+      "grain": "订单明细行",
+      "join_constraints": [],
+      "metric_id": "aw_line_net_sales",
+      "name": "明细净销售额",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderDetail)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-SALES-002-净销售额与折扣处理.md#3.1"
+      ],
+      "reference_result": {
+        "columns": [
+          "line_net_sales"
+        ],
+        "rows": [
+          [
+            109846381.4
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT ROUND(SUM(CAST(\"LineTotal\" AS REAL)),2) AS line_net_sales FROM \"Sales.SalesOrderDetail\"",
+      "reference_sql_source": "本脚本生成并用只读沙箱真实执行",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderDetail.LineTotal",
+        "Sales.SalesOrderDetail.SalesOrderID"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderDetail"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "LineTotal 是否已扣折扣由示例库计算列给出，但折扣业务含义未经人工审核。",
+        "按商品类别汇总需要 allowed_dimensions，当前指标未定义该维度。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "使用订单头 TerritoryID 关联 SalesTerritory，属订单归属区域口径；不得改用 Customer.TerritoryID。",
+      "business_definition": "模拟条款 POL-REGION-001-区域归属与汇总 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SELECT \"TerritoryID\", SUM(CAST(\"SubTotal\" AS REAL)) FROM \"Sales.SalesOrderHeader\" GROUP BY \"TerritoryID\"",
+      "formula_source_ref": "docs/simulated-policies/POL-REGION-001-区域归属与汇总.md#3.2",
+      "grain": "区域",
+      "join_constraints": [],
+      "metric_id": "aw_region_sales_amount",
+      "name": "区域销售额",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-REGION-001-区域归属与汇总.md#3.2"
+      ],
+      "reference_result": {
+        "columns": [
+          "territory",
+          "sales"
+        ],
+        "rows": [
+          [
+            "Southwest",
+            24184609.6
+          ],
+          [
+            "Canada",
+            16355770.46
+          ],
+          [
+            "Northwest",
+            16084942.55
+          ],
+          [
+            "Australia",
+            10655335.96
+          ],
+          [
+            "Central",
+            7909009.01
+          ],
+          [
+            "Southeast",
+            7879655.07
+          ],
+          [
+            "United Kingdom",
+            7670721.04
+          ],
+          [
+            "France",
+            7251555.65
+          ],
+          [
+            "Northeast",
+            6939374.48
+          ],
+          [
+            "Germany",
+            4915407.6
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT t.\"Name\" AS territory, ROUND(SUM(CAST(o.\"SubTotal\" AS REAL)),2) AS sales FROM \"Sales.SalesOrderHeader\" o JOIN \"Sales.SalesTerritory\" t ON o.\"TerritoryID\"=t.\"TerritoryID\" GROUP BY t.\"Name\" ORDER BY sales DESC",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q14_territory_named",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesOrderHeader.TerritoryID",
+        "Sales.SalesOrderHeader.SubTotal"
+      ],
+      "source_tables": [
+        "Sales.SalesOrderHeader"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "跨币种区域销售额是否需要汇率换算 UNKNOWN。",
+        "历史区域变更是否要按订单日期回溯未审核。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "库存总量按所有库位 Quantity 求和，属库位级原始量；商品级比较必须先聚合。",
+      "business_definition": "模拟条款 POL-INV-001-库存数量与库位 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(\"Quantity\") FROM \"Production.ProductInventory\"",
+      "formula_source_ref": "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.1",
+      "grain": "商品×库位",
+      "join_constraints": [],
+      "metric_id": "aw_on_hand_qty",
+      "name": "库存总量",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Production.ProductInventory)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.1"
+      ],
+      "reference_result": {
+        "columns": [
+          "qty"
+        ],
+        "rows": [
+          [
+            335974
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\"",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q06_on_hand",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Production.ProductInventory.Quantity"
+      ],
+      "source_tables": [
+        "Production.ProductInventory"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "是否排除停用库位/报废品无可靠依据。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "先按 ProductID 聚合到商品级，再统计覆盖商品数与守恒总量。",
+      "business_definition": "模拟条款 POL-INV-001-库存数量与库位 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SELECT \"ProductID\", SUM(\"Quantity\") FROM \"Production.ProductInventory\" GROUP BY \"ProductID\"",
+      "formula_source_ref": "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.2",
+      "grain": "商品（需先聚合）",
+      "join_constraints": [],
+      "metric_id": "aw_product_on_hand_qty",
+      "name": "商品库存量",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Production.ProductInventory)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-INV-001-库存数量与库位.md#3.2"
+      ],
+      "reference_result": {
+        "columns": [
+          "products",
+          "total"
+        ],
+        "rows": [
+          [
+            432,
+            335974
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT COUNT(*) AS products, SUM(qty) AS total FROM (SELECT \"ProductID\", SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\" GROUP BY \"ProductID\")",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q20_inventory_by_product",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Production.ProductInventory.ProductID",
+        "Production.ProductInventory.Quantity"
+      ],
+      "source_tables": [
+        "Production.ProductInventory"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "商品级库存是否应含零库存商品未审核。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "必须先按商品聚合 Quantity，再与商品级 ReorderPoint 比较；逐库位比较是错误口径。",
+      "business_definition": "模拟条款 POL-INV-002-再订货点与报废 §3.1（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SELECT COUNT(*) FROM (SELECT \"ProductID\", SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\" GROUP BY \"ProductID\") inv JOIN \"Production.Product\" p ON inv.\"ProductID\" = p.\"ProductID\" WHERE inv.qty < p.\"ReorderPoint\"",
+      "formula_source_ref": "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.1",
+      "grain": "商品（必须先聚合）",
+      "join_constraints": [],
+      "metric_id": "aw_below_reorder_count",
+      "name": "低于再订货点商品数",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Production.Product)",
+        "sqlite:PRAGMA table_info(Production.ProductInventory)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-INV-002-再订货点与报废.md#3.1"
+      ],
+      "reference_result": {
+        "columns": [
+          "n"
+        ],
+        "rows": [
+          [
+            7
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT COUNT(*) AS n FROM (SELECT \"ProductID\", SUM(\"Quantity\") AS qty FROM \"Production.ProductInventory\" GROUP BY \"ProductID\") inv JOIN \"Production.Product\" p ON inv.\"ProductID\"=p.\"ProductID\" WHERE inv.qty < p.\"ReorderPoint\"",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q07_below_reorder",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Production.ProductInventory.ProductID",
+        "Production.ProductInventory.Quantity",
+        "Production.Product.ProductID",
+        "Production.Product.ReorderPoint"
+      ],
+      "source_tables": [
+        "Production.ProductInventory",
+        "Production.Product"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "ReorderPoint 与 SafetyStockLevel 哪个为阈值需人工确认。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "TotalDue 为采购订单头金额，与 PurchaseOrderDetail 直接 JOIN 会重复计数。",
+      "business_definition": "模拟条款 POL-PUR-001-采购订单与供应商 §3.2（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SUM(CAST(\"TotalDue\" AS REAL)) FROM \"Purchasing.PurchaseOrderHeader\"",
+      "formula_source_ref": "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.2",
+      "grain": "采购订单头",
+      "join_constraints": [],
+      "metric_id": "aw_purchase_total_due",
+      "name": "采购应付总额",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Purchasing.PurchaseOrderHeader)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-PUR-001-采购订单与供应商.md#3.2"
+      ],
+      "reference_result": {
+        "columns": [
+          "orders",
+          "total"
+        ],
+        "rows": [
+          [
+            4012,
+            70479332.64
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT COUNT(DISTINCT \"PurchaseOrderID\") AS orders, ROUND(SUM(CAST(\"TotalDue\" AS REAL)),2) AS total FROM \"Purchasing.PurchaseOrderHeader\"",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q11_purchase",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Purchasing.PurchaseOrderHeader.TotalDue"
+      ],
+      "source_tables": [
+        "Purchasing.PurchaseOrderHeader"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "采购金额是否含税/运费未审核。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "按 (ProductID, StartDate) 的历史区间成本，EndDate IS NULL 表示当前有效；不可用 Product.StandardCost 替代。",
+      "business_definition": "模拟条款 POL-COST-002-历史成本匹配 §3.5（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "SELECT CAST(\"StandardCost\" AS REAL) FROM \"Production.ProductCostHistory\" WHERE \"ProductID\" = :product AND \"StartDate\" <= :event AND (\"EndDate\" IS NULL OR :event < \"EndDate\")",
+      "formula_source_ref": "docs/simulated-policies/POL-COST-002-历史成本匹配.md#3.5",
+      "grain": "商品×成本区间",
+      "join_constraints": [],
+      "metric_id": "aw_historical_standard_cost",
+      "name": "历史标准成本",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Production.ProductCostHistory)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-COST-002-历史成本匹配.md#3.5"
+      ],
+      "reference_result": {
+        "columns": [
+          "ProductID",
+          "StartDate",
+          "EndDate",
+          "cost"
+        ],
+        "rows": [
+          [
+            707,
+            "2022-05-30 00:00:00.000",
+            "2023-05-29 00:00:00.000",
+            12.0278
+          ],
+          [
+            707,
+            "2023-05-30 00:00:00.000",
+            "2024-05-28 00:00:00.000",
+            13.8782
+          ],
+          [
+            707,
+            "2024-05-29 00:00:00.000",
+            null,
+            13.0863
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT \"ProductID\", \"StartDate\", \"EndDate\", CAST(\"StandardCost\" AS REAL) AS cost FROM \"Production.ProductCostHistory\" WHERE \"ProductID\"=707 ORDER BY \"StartDate\"",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q09_cost_history_707",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Production.ProductCostHistory.ProductID",
+        "Production.ProductCostHistory.StartDate",
+        "Production.ProductCostHistory.EndDate",
+        "Production.ProductCostHistory.StandardCost"
+      ],
+      "source_tables": [
+        "Production.ProductCostHistory"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "按订单日期匹配时必须限定 StartDate <= OrderDate < EndDate，区间边界开闭需人工确认。"
+      ]
+    },
+    {
+      "amount_field_scope_note": "SalesYTD 是系统预置快照，与配额历史 1:N 关联会重复；不得与实时订单聚合相加。",
+      "business_definition": "模拟条款 POL-PERF-001-销售绩效与配额 §3.3（UNREVIEWED，非微软官方业务规则）。底层为微软公开示例库 AdventureWorks OLTP，非真实生产企业数据。",
+      "formula_complete": "CAST(\"SalesYTD\" AS REAL) / NULLIF(CAST(\"SalesQuota\" AS REAL), 0)",
+      "formula_source_ref": "docs/simulated-policies/POL-PERF-001-销售绩效与配额.md#3.3",
+      "grain": "销售人员×配额期",
+      "join_constraints": [],
+      "metric_id": "aw_quota_attainment",
+      "name": "配额达成率",
+      "official_field_basis": [
+        "sqlite:PRAGMA table_info(Sales.SalesPerson)",
+        "sqlite:PRAGMA table_info(Sales.SalesPersonQuotaHistory)"
+      ],
+      "policy_evidence": [
+        "docs/simulated-policies/POL-PERF-001-销售绩效与配额.md#3.3"
+      ],
+      "reference_result": {
+        "columns": [
+          "BusinessEntityID",
+          "ytd",
+          "quota"
+        ],
+        "rows": [
+          [
+            274,
+            559697.5639,
+            28000.0
+          ],
+          [
+            274,
+            559697.5639,
+            7000.0
+          ],
+          [
+            274,
+            559697.5639,
+            91000.0
+          ],
+          [
+            274,
+            559697.5639,
+            140000.0
+          ],
+          [
+            274,
+            559697.5639,
+            70000.0
+          ]
+        ],
+        "truncated": false
+      },
+      "reference_sql": "SELECT sp.\"BusinessEntityID\", CAST(sp.\"SalesYTD\" AS REAL) AS ytd, CAST(q.\"SalesQuota\" AS REAL) AS quota FROM \"Sales.SalesPerson\" sp JOIN \"Sales.SalesPersonQuotaHistory\" q ON sp.\"BusinessEntityID\"=q.\"BusinessEntityID\" ORDER BY sp.\"BusinessEntityID\" LIMIT 5",
+      "reference_sql_source": "data/adventureworks/query_evidence.json#q10_quota",
+      "required_filters": [],
+      "review_status": "unreviewed",
+      "reviewed": false,
+      "source_columns": [
+        "Sales.SalesPerson.SalesYTD",
+        "Sales.SalesPerson.BusinessEntityID",
+        "Sales.SalesPersonQuotaHistory.SalesQuota",
+        "Sales.SalesPersonQuotaHistory.BusinessEntityID"
+      ],
+      "source_tables": [
+        "Sales.SalesPerson",
+        "Sales.SalesPersonQuotaHistory"
+      ],
+      "time_field": "UNKNOWN",
+      "trusted": false,
+      "unit": "UNKNOWN",
+      "unresolved_business_questions": [
+        "配额应按期取最新还是按区间匹配未审核。",
+        "快照与实时聚合混用是明确风险。"
+      ]
+    }
+  ],
+  "notice": "本清单为人工审核准备材料，不是审核决定。所有指标 reviewed=False / trusted=False；模拟制度条款是 SIMULATED / UNREVIEWED，不是微软官方业务规则；数据来自公开示例库，不是真实生产企业数据。",
+  "pending_business_questions": [
+    "商品分类销售额：当前 38 条指标中没有独立定义，可用 aw_line_net_sales 经 ProductSubcategory 中间表扩展到 ProductCategory 维度（参考 q03_category_sales），但是否批准为一个新指标、以及未分类商品是否计入，需人工决定。",
+    "SubTotal / TotalDue / LineTotal 三种金额字段的业务命名与对外口径需人工确认，本清单仅按字段事实区分。",
+    "所有指标 unit 均为 UNKNOWN（示例库未声明币种），不得对外标注具体币种。",
+    "模拟制度条款全部 UNREVIEWED，不是微软官方业务规则，也不代表任何真实企业制度。"
+  ],
+  "selection": {
+    "criterion": "覆盖订单/销售额/平均订单额/分类/区域/库存/再订货点/采购/历史成本等核心口径",
+    "registry_size": 38,
+    "selected": 14
+  },
+  "worksheet_version": "1"
+}

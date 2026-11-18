@@ -54,6 +54,11 @@ class EvaluationRepository:
         for path in self.root.rglob("summary.json"):
             evaluation_id = path.parent.relative_to(self.root).as_posix()
             entries[evaluation_id] = path
+        # phase4b 公平路径对照（GraphRAG vs 最短路径）不在 evals/ 目录下，
+        # 但它是真实跑过的实验产物；只读纳入，缺文件时完全不出现该条目。
+        join_paths = self.root.parent / "workspace" / "evals" / "phase4b" / "join_paths.json"
+        if join_paths.is_file():
+            entries["phase4b-join-paths"] = join_paths
         return entries
 
     @staticmethod
@@ -73,8 +78,46 @@ class EvaluationRepository:
             "by_database": metrics.get("by_database", {}),
         }
 
+    @staticmethod
+    def _join_paths_summary(evaluation_id: str, data: dict[str, Any]) -> dict[str, Any]:
+        """Same-budget GraphRAG vs shortest-path comparison, reported as-is.
+
+        The two methods tie on gold-edge recall here; we surface that fact and
+        keep the authors' own caveat notes instead of spin.
+        """
+        summary = data.get("summary", {})
+        ours = summary.get("ours", {})
+        baseline = summary.get("baseline_shortest", {})
+        return {
+            "id": evaluation_id,
+            "kind": "join_paths",
+            "title": "GraphRAG Join 路径公平对照（vs 最短路径）",
+            "sample_count": ours.get("cases_total"),
+            "methods": {
+                name: {
+                    "gold_edge_recall_micro": row.get("gold_edge_recall_micro"),
+                    "gold_edge_hits": row.get("gold_edge_hits"),
+                    "gold_edges_total": row.get("gold_edges_total"),
+                    "path_found_rate": row.get("path_found_rate"),
+                    "ambiguity_flag_rate": row.get("ambiguity_flag_rate"),
+                    "top1_edge_recall_micro": row.get("top1_edge_recall_micro"),
+                    "top1_complete_rate": row.get("top1_complete_rate"),
+                    "composite_fk_complete_rate": row.get("composite_fk_complete_rate"),
+                    "irrelevant_paths_total": row.get("irrelevant_paths_total"),
+                    "mean_paths_per_case": row.get("mean_paths_per_case"),
+                }
+                for name, row in summary.items()
+            },
+            "fairness": data.get("fairness", []),
+            "notes": data.get("notes", []),
+            "generated_at": data.get("generated_at"),
+            "budget": data.get("budget"),
+        }
+
     def _summary(self, evaluation_id: str, path: Path) -> dict[str, Any]:
         data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("dataset") == "adventureworks-graphrag-join":
+            return self._join_paths_summary(evaluation_id, data)
         if data.get("evaluation") == "enterprise-agent-evaluation-v1":
             return {
                 "id": evaluation_id,
@@ -146,6 +189,16 @@ class EvaluationRepository:
         raw_summary = json.loads(entries[evaluation_id].read_text(encoding="utf-8"))
         if summary["kind"] == "agent":
             return {**summary, "cases": raw_summary.get("cases", [])}
+        if summary["kind"] == "join_paths":
+            runs = []
+            for item in raw_summary.get("runs", []):
+                runs.append({key: item.get(key) for key in (
+                    "case_id", "category", "method", "gold_edge_count",
+                    "gold_edge_hits", "gold_edge_recall", "path_count", "path_found",
+                    "top1_edge_hits", "top1_complete", "ambiguous_flagged",
+                    "expect_ambiguity", "composite_fk_complete", "missing_gold_edges",
+                    "irrelevant_paths", "seeds", "targets")})
+            return {**summary, "cases": runs}
         if summary["kind"] == "retrieval":
             return {
                 **summary,
